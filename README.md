@@ -38,6 +38,43 @@ npm install react-router-dom
 
 npm install @mui/icons-material
 
+npm install @mui/material @emotion/react @emotion/styled
+
+
+ADMIN Role
+
+npm install @supabase/supabase-js dotenv
+npm install -D ts-node typescript @types/node
+
+npm install ts-node typescript @types/node dotenv
+
+npx tsc -b tsconfig.node.json
+
+node dist/node/scripts/set-admin.js
+
+
+next.js for backend admin bookings.ts
+
+npm install next react react-dom
+npm install --save-dev typescript @types/react @types/node
+
+
+
+https://resend.com/onboarding
+
+server.js
+npm install express node-fetch
+npm install express cors
+
+
+npm install -g localtunnel
+lt --port 3000
+
+
+npx localtunnel --port 3000
+
+
+npm install pg
 
 
 ```
