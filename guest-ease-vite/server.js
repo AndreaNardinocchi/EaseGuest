@@ -283,6 +283,49 @@ app.use((req, res, next) => {
 /* ---------------------------
    Email endpoint
 ---------------------------- */
+// app.post("/send_email", async (req, res) => {
+//   const { email, subject, body, from } = req.body;
+
+//   if (!email || !subject || !body) {
+//     return res.status(400).json({
+//       status: "error",
+//       error: "Missing email, subject or body",
+//     });
+//   }
+
+//   try {
+//     const response = await fetch("https://api.resend.com/emails", {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json",
+//         Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+//       },
+//       body: JSON.stringify({
+//         to: email,
+//         from: from || "onboarding@resend.dev",
+//         subject,
+//         html: body,
+//       }),
+//     });
+
+//     const data = await response.json();
+
+//     console.log("Resend API Response:", data);
+
+//     if (response.ok) {
+//       return res.json({ status: "Email sent", data });
+//     } else {
+//       return res.status(500).json({ status: "error", data });
+//     }
+//   } catch (err) {
+//     console.error("Email error:", err);
+//     return res.status(500).json({
+//       status: "error",
+//       error: err.message,
+//     });
+//   }
+// });
+
 app.post("/send_email", async (req, res) => {
   const { email, subject, body, from } = req.body;
 
@@ -308,14 +351,21 @@ app.post("/send_email", async (req, res) => {
       }),
     });
 
-    const data = await response.json();
+    const contentType = response.headers.get("content-type");
+
+    let data;
+    if (contentType && contentType.includes("application/json")) {
+      data = await response.json();
+    } else {
+      data = await response.text(); // fallback for HTML responses
+    }
 
     console.log("Resend API Response:", data);
 
     if (response.ok) {
       return res.json({ status: "Email sent", data });
     } else {
-      return res.status(500).json({ status: "error", data });
+      return res.status(response.status).json({ status: "error", data });
     }
   } catch (err) {
     console.error("Email error:", err);
@@ -323,6 +373,55 @@ app.post("/send_email", async (req, res) => {
       status: "error",
       error: err.message,
     });
+  }
+});
+
+/* ---------------------------
+   Email endpoint
+---------------------------- */
+
+app.post("/delete_user", async (req, res) => {
+  const { userId } = req.body;
+
+  if (!userId) {
+    return res.status(400).json({ error: "Missing userId" });
+  }
+
+  try {
+    // Node should use plain SUPABASE_URL, not VITE_ prefix
+
+    const SUPABASE_URL = process.env.VITE_SUPABASE_URL;
+    const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!SUPABASE_URL || !SERVICE_KEY) {
+      return res.status(500).json({
+        error:
+          "SUPABASE_URL or SERVICE_ROLE_KEY missing in environment variables",
+      });
+    }
+
+    const endpoint = `${SUPABASE_URL}/auth/v1/admin/users/${userId}`;
+    console.log("Deleting user at:", endpoint);
+
+    const response = await fetch(endpoint, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: SERVICE_KEY,
+        Authorization: `Bearer ${SERVICE_KEY}`,
+      },
+    });
+
+    if (!response.ok) {
+      const err = await response.text();
+      console.error("Delete failed:", err);
+      return res.status(500).json({ error: err });
+    }
+
+    return res.json({ message: "User deleted successfully" });
+  } catch (err) {
+    console.error("DELETE error:", err.message);
+    return res.status(500).json({ error: err.message });
   }
 });
 

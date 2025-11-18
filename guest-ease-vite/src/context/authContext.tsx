@@ -230,7 +230,8 @@ const AuthContextProvider: React.FC<React.PropsWithChildren> = (props) => {
         zipCode: metadata.zip_code || "Unknown",
       };
 
-      setUser(newUser);
+      // <<< THIS IS WHERE THE USER STATE IS UPDATED >>>
+      setUser(newUser); // <--- Updates user data in the context
       setToken(session.access_token || null);
 
       const origin = location.state?.intent?.pathname;
@@ -240,6 +241,81 @@ const AuthContextProvider: React.FC<React.PropsWithChildren> = (props) => {
     },
     [location, navigate]
   );
+
+  // Add this function inside your AuthContextProvider, alongside `signout`
+  const deleteUser = async () => {
+    if (!user) {
+      console.error("No user logged in to delete");
+      return;
+    }
+
+    try {
+      // Call your local Node server to delete the user
+      const response = await fetch("http://localhost:3000/delete_user", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userId: user.id }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error("Delete failed:", data);
+        alert("Failed to delete account: " + (data.error || "Unknown error"));
+        return;
+      }
+
+      // // After deletion, log out user locally
+      await supabase.auth.signOut();
+
+      // authContext.tsx
+      localStorage.removeItem("supabase.auth.token"); // or however you store the session
+      setUser(null); // reset user state
+
+      setUser(null);
+      setToken(null);
+      navigate("/");
+
+      console.log("User deleted successfully!");
+    } catch (err: any) {
+      console.error("Error deleting user:", err.message);
+    }
+  };
+
+  // const deleteUser = async () => {
+  //   if (!user) {
+  //     console.error("No user logged in to delete");
+  //     return;
+  //   }
+
+  //   try {
+  //     // Option 1: Sign the user out first (client-side)
+  //     await supabase.auth.signOut();
+
+  //     // Option 2: Call a Supabase Function / Admin API to delete user
+  //     const { error } = await supabase.functions.invoke("delete-user", {
+  //       body: { userId: user.id },
+  //     });
+
+  //     if (error) {
+  //       console.error("Failed to delete user:", error.message);
+  //       return;
+  //     }
+
+  //     // Clear local state
+  //     setUser(null);
+  //     setToken(null);
+
+  //     // Redirect to home
+  //     navigate("/");
+
+  //     console.log("User deleted successfully!");
+  //   } catch (err) {
+  //     console.error("Error deleting user:", err);
+  //   }
+  // };
 
   useEffect(() => {
     /**
@@ -315,6 +391,7 @@ const AuthContextProvider: React.FC<React.PropsWithChildren> = (props) => {
         token,
         user,
         loading, // <<< ADDED
+        deleteUser, // <<< newly added
         authenticate,
         signout,
       }}

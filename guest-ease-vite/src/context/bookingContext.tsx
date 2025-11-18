@@ -260,6 +260,13 @@ type BookingContextType = {
     checkIn: string,
     checkOut: string
   ) => Promise<{ success: boolean; rooms: any[]; message?: string }>;
+  updateBooking: (
+    bookingId: string,
+    updates: Partial<Omit<Booking, "id" | "created_at" | "user_id">>
+  ) => Promise<{ success: boolean; message?: string }>;
+  cancelBooking: (
+    bookingId: string
+  ) => Promise<{ success: boolean; message?: string }>; // <-- NEW
 };
 
 /* -------------------------
@@ -398,6 +405,149 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({
     return searchRoomsService(checkIn, checkOut);
   };
 
+  /* -------------------------
+   * Update a booking
+   * ------------------------- */
+  const updateBooking = async (
+    bookingId: string,
+    updates: Partial<Omit<Booking, "id" | "created_at" | "user_id">>
+  ): Promise<{ success: boolean; message?: string }> => {
+    setLoading(true);
+    try {
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
+
+      if (userError || !user) {
+        return { success: false, message: "User not authenticated." };
+      }
+
+      // Ensure only the owner can update
+      const { data: updated, error: updateError } = await supabase
+        .from("bookings")
+        .update(updates)
+        .eq("id", bookingId)
+        .eq("user_id", user.id)
+        .select();
+
+      if (updateError) {
+        if (
+          updateError.code === "23505" ||
+          updateError.message?.includes("no_overlapping_bookings")
+        ) {
+          return {
+            success: false,
+            message: "Selected dates overlap with an existing booking.",
+          };
+        }
+        console.error("Error updating booking:", updateError);
+        return { success: false, message: "Failed to update booking." };
+      }
+
+      if (updated) {
+        setBookings((prev) =>
+          prev.map((b) => (b.id === bookingId ? (updated[0] as Booking) : b))
+        );
+      }
+
+      // Optional: send update confirmation email
+      try {
+        const emailPayload = {
+          email: user.email,
+          subject: "Your Booking Update",
+          body: `
+          <h2>Your Booking Has Been Updated!</h2>
+          <p><strong>Check-in:</strong> ${updates.check_in}</p>
+          <p><strong>Check-out:</strong> ${updates.check_out}</p>
+          <p><strong>Guests:</strong> ${updates.guests}</p>
+        `,
+        };
+
+        await fetch("http://localhost:3000/send_email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(emailPayload),
+        });
+      } catch (emailErr) {
+        console.error("Failed to send update email:", emailErr);
+      }
+
+      return { success: true, message: "Booking updated successfully." };
+    } catch (err) {
+      console.error("updateBooking unexpected error:", err);
+      return {
+        success: false,
+        message: "Unexpected error while updating booking.",
+      };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /* -------------------------
+   * Cancel a booking
+   * ------------------------- */
+  const cancelBooking = async (
+    bookingId: string
+  ): Promise<{ success: boolean; message?: string }> => {
+    setLoading(true);
+    try {
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
+
+      if (userError || !user) {
+        return { success: false, message: "User not authenticated." };
+      }
+
+      const { error: deleteError } = await supabase
+        .from("bookings")
+        .delete()
+        .eq("id", bookingId)
+        .eq("user_id", user.id);
+
+      if (deleteError) {
+        console.error("Error cancelling booking:", deleteError);
+        return { success: false, message: "Failed to cancel booking." };
+      }
+
+      // Update local state
+      setBookings((prev) => prev.filter((b) => b.id !== bookingId));
+
+      // Optional: send cancellation email
+      try {
+        const emailPayload = {
+          email: user.email,
+          subject: "Your Booking Cancellation",
+          body: `
+          <h2>Your Booking Has Been Cancelled</h2>
+          <p>Booking ID: ${bookingId}</p>
+        `,
+        };
+
+        await fetch("http://localhost:3000/send_email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(emailPayload),
+        });
+      } catch (emailErr) {
+        console.error("Failed to send cancellation email:", emailErr);
+      }
+
+      return { success: true, message: "Booking cancelled successfully." };
+    } catch (err) {
+      console.error("cancelBooking unexpected error:", err);
+      return {
+        success: false,
+        message: "Unexpected error while cancelling booking.",
+      };
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <BookingContext.Provider
       value={{
@@ -406,6 +556,8 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({
         fetchBookings,
         bookRoom,
         searchAvailableRooms,
+        updateBooking, // <-- add here
+        cancelBooking,
       }}
     >
       {children}
@@ -414,6 +566,7 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({
 };
 
 /* Hook */
+// eslint-disable-next-line react-refresh/only-export-components
 export const useBooking = (): BookingContextType => {
   const ctx = useContext(BookingContext);
   if (!ctx) throw new Error("useBooking must be used inside a BookingProvider");

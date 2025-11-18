@@ -25,6 +25,7 @@ export interface AppUser {
 
 // AuthContext Interface
 export interface AuthContextInterface {
+  loading: any;
   token: string | null;
   // User object added
   user?: User;

@@ -394,6 +394,7 @@
 
 import React, { useEffect, useState, useMemo } from "react";
 import {
+  TextField, // <-- NEW
   Box,
   Tabs,
   Tab,
@@ -408,16 +409,26 @@ import {
   AppBar,
   Toolbar,
   Link as MuiLink,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogActions,
 } from "@mui/material";
 import { useAuth } from "../context/useAuth";
 import { useBooking } from "../context/bookingContext";
-import { Link } from "react-router-dom"; // assuming react-router
+// import { Link } from "react-router-dom"; // assuming react-router
 import SubNav from "../components/accountSubNav/accountSubNav";
+// import { error } from "console";
 
 const AccountPage: React.FC = () => {
   const { user } = useAuth();
-  const { bookings, fetchBookings, loading } = useBooking();
+  const { bookings, updateBooking, cancelBooking, fetchBookings, loading } =
+    useBooking();
   const [tabValue, setTabValue] = useState(0);
+  // state for popup
+  const [open, setOpen] = useState(false); // <-- NEW
+  const [selectedBooking, setSelectedBooking] = useState<any>(null); // <-- NEW
+  const [cancelOpen, setCancelOpen] = useState(false); // NEW
 
   useEffect(() => {
     if (user) fetchBookings();
@@ -436,8 +447,39 @@ const AccountPage: React.FC = () => {
     [bookings, today]
   );
 
-  const handleUpdate = (id: string) => alert(`Update booking ${id}`);
-  const handleCancel = (id: string) => alert(`Cancel booking ${id}`);
+  // const handleUpdate = (id: string) => alert(`Update booking ${id}`);
+  // Use updateBooking instead of alert
+  const handleUpdate = (booking: any) => {
+    // <-- CHANGED: pass booking object, not just id
+    setSelectedBooking(booking);
+    setOpen(true);
+  };
+
+  const handleSave = async () => {
+    // <-- NEW
+    if (!selectedBooking) return;
+    const result = await updateBooking(selectedBooking.id, {
+      check_in: selectedBooking.check_in,
+      check_out: selectedBooking.check_out,
+      guests: selectedBooking.guests,
+    });
+    alert(result.message);
+    setOpen(false);
+  };
+
+  const handleCancel = (booking: any) => {
+    setSelectedBooking(booking);
+    setCancelOpen(true); // open confirmation popup
+    console.log("Selected booking:", selectedBooking);
+  };
+
+  const handleConfirmCancel = async () => {
+    if (!selectedBooking) return;
+    const result = await cancelBooking(selectedBooking.id);
+    alert(result.message);
+    setCancelOpen(false);
+  };
+
   const handleReview = (id: string) => alert(`Write review for ${id}`);
 
   if (!user) {
@@ -518,7 +560,8 @@ const AccountPage: React.FC = () => {
                       <Button
                         variant="contained"
                         color="secondary"
-                        onClick={() => handleUpdate(b.id!)}
+                        // onClick={() => handleUpdate(b.id!)}
+                        onClick={() => handleUpdate(b)} // <-- CHANGED: pass whole booking
                         fullWidth
                       >
                         Update
@@ -526,7 +569,7 @@ const AccountPage: React.FC = () => {
                       <Button
                         variant="outlined"
                         color="error"
-                        onClick={() => handleCancel(b.id!)}
+                        onClick={() => handleCancel(b)}
                         fullWidth
                       >
                         Cancel
@@ -608,6 +651,99 @@ const AccountPage: React.FC = () => {
 
       {tabValue === 0 && renderBookings(upcomingBookings, "upcoming")}
       {tabValue === 1 && renderBookings(pastBookings, "past")}
+
+      {/* Update Booking Dialog */}
+      <Dialog
+        open={open}
+        onClose={() => setOpen(false)}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle>Update Booking</DialogTitle>
+        <DialogContent>
+          {selectedBooking && (
+            <>
+              <TextField
+                margin="dense"
+                label="Check-in"
+                type="date"
+                fullWidth
+                value={selectedBooking.check_in}
+                onChange={(e) =>
+                  setSelectedBooking({
+                    ...selectedBooking,
+                    check_in: e.target.value,
+                  })
+                }
+                InputLabelProps={{ shrink: true }}
+              />
+              <TextField
+                margin="dense"
+                label="Check-out"
+                type="date"
+                fullWidth
+                value={selectedBooking.check_out}
+                onChange={(e) =>
+                  setSelectedBooking({
+                    ...selectedBooking,
+                    check_out: e.target.value,
+                  })
+                }
+                InputLabelProps={{ shrink: true }}
+              />
+              <TextField
+                margin="dense"
+                label="Guests"
+                type="number"
+                fullWidth
+                value={selectedBooking.guests}
+                onChange={(e) =>
+                  setSelectedBooking({
+                    ...selectedBooking,
+                    guests: Number(e.target.value),
+                  })
+                }
+              />
+            </>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpen(false)}>Cancel</Button>
+          <Button onClick={handleSave} variant="contained" color="secondary">
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Cancel Booking Dialog */}
+      <Dialog
+        open={cancelOpen}
+        onClose={() => setCancelOpen(false)}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle>Cancel Booking</DialogTitle>
+        <DialogContent>
+          {selectedBooking && (
+            <Typography>
+              Are you sure you want to cancel your booking for room{" "}
+              <strong>{selectedBooking.room_id}</strong> from{" "}
+              <strong>{selectedBooking.check_in}</strong> to{" "}
+              <strong>{selectedBooking.check_out}</strong>?
+            </Typography>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setCancelOpen(false)}>Keep Booking</Button>
+          <Button
+            onClick={handleConfirmCancel}
+            variant="contained"
+            color="error"
+          >
+            Confirm Cancel
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
