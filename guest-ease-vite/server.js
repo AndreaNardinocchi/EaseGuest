@@ -270,6 +270,7 @@ app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*"); // allow all origins
   res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.header("Access-Control-Allow-Headers", "Content-Type");
+  res.header("Access-Control-Allow-Credentials", "true");
 
   if (req.method === "OPTIONS") {
     console.log("Received CORS preflight:", req.method, req.url);
@@ -472,6 +473,51 @@ app.post("/admin/update_booking", async (req, res) => {
     return res.json({ message: "Booking updated successfully", data });
   } catch (err) {
     console.error("Admin update error:", err);
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+/* ---------------------------
+   Admin delete booking endpoint
+---------------------------- */
+app.post("/admin/delete_booking", async (req, res) => {
+  const { bookingId } = req.body;
+
+  if (!bookingId) {
+    return res.status(400).json({ error: "Missing bookingId" });
+  }
+
+  try {
+    const SUPABASE_URL = process.env.SUPABASE_URL;
+    const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!SUPABASE_URL || !SERVICE_KEY) {
+      return res.status(500).json({
+        error: "SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY missing",
+      });
+    }
+
+    const { createClient } = await import("@supabase/supabase-js");
+    const supabaseAdmin = createClient(SUPABASE_URL, SERVICE_KEY);
+
+    // Delete the booking
+    const { data, error } = await supabaseAdmin
+      .from("bookings")
+      .delete()
+      .eq("id", bookingId)
+      .select();
+
+    if (error) {
+      console.error("Admin delete failed:", error);
+      return res.status(500).json({ error: error.message });
+    }
+
+    return res.json({
+      message: "Booking deleted successfully",
+      deleted: data,
+    });
+  } catch (err) {
+    console.error("Admin delete error:", err);
     return res.status(500).json({ error: err.message });
   }
 });

@@ -2980,112 +2980,6 @@ const AdminDashboard = () => {
     setOpenModal(true);
   };
 
-  // const handleSaveBooking = async () => {
-  //   try {
-  //     let userId: string | undefined = editingBooking?.user_id;
-
-  //     // If creating a new booking or user_email changed, lookup user
-  //     if (!editingBooking || form.user_email !== editingBooking.user_email) {
-  //       const { data: user, error: userError } = await supabase
-  //         .from("profiles")
-  //         .select("id")
-  //         .eq("email", form.user_email)
-  //         .maybeSingle(); // <-- use maybeSingle here
-
-  //       if (userError || !user) {
-  //         alert("User not found");
-  //         return;
-  //       }
-
-  //       userId = user.id;
-  //     }
-
-  //     const payload = {
-  //       room_id: form.room_id,
-  //       user_id: userId,
-  //       check_in: form.check_in,
-  //       check_out: form.check_out,
-  //       guests: Number(form.guests),
-  //     };
-
-  //     let res;
-
-  //     if (editingBooking) {
-  //       // --- Update booking ---
-  //       res = await supabase
-  //         .from("bookings")
-  //         .update(payload)
-  //         .eq("id", editingBooking.id)
-  //         .maybeSingle(); // <-- use maybeSingle here
-  //     } else {
-  //       // --- Create booking ---
-  //       res = await supabase.from("bookings").insert([payload]);
-  //     }
-
-  //     if (res.error) {
-  //       alert(res.error.message);
-  //       return;
-  //     }
-
-  //     setOpenModal(false);
-  //     fetchBookings();
-  //   } catch (err: any) {
-  //     alert(err.message);
-  //   }
-  // };
-
-  // const handleSaveBooking = async () => {
-  //   let userIdToUse = editingBooking?.user_id || null;
-
-  //   // If creating a new booking → find user_id from email
-  //   if (!editingBooking) {
-  //     const { data: user, error: userError } = await supabase
-  //       .from("profiles")
-  //       .select("id")
-  //       .eq("email", form.user_email)
-  //       .single();
-
-  //     if (userError || !user) {
-  //       alert("User not found");
-  //       return;
-  //     }
-
-  //     userIdToUse = user.id;
-  //   }
-
-  //   const payload = {
-  //     room_id: form.room_id,
-  //     check_in: form.check_in,
-  //     check_out: form.check_out,
-  //     guests: Number(form.guests),
-
-  //     // Include user_id ONLY when creating
-  //     ...(editingBooking ? {} : { user_id: userIdToUse }),
-  //   };
-
-  //   let error;
-
-  //   if (editingBooking) {
-  //     const res = await supabase
-  //       .from("bookings")
-  //       .update(payload)
-  //       .eq("id", editingBooking.id);
-
-  //     error = res.error;
-  //   } else {
-  //     const res = await supabase.from("bookings").insert([payload]);
-  //     error = res.error;
-  //   }
-
-  //   if (error) {
-  //     alert(error.message);
-  //     return;
-  //   }
-
-  //   setOpenModal(false);
-  //   fetchBookings();
-  // };
-
   const handleSaveBooking = async () => {
     try {
       const payload = {
@@ -3151,11 +3045,36 @@ const AdminDashboard = () => {
     }
   };
 
+  // const handleDeleteBooking = async (id: string) => {
+  //   if (!confirm("Delete this booking?")) return;
+  //   const { error } = await supabase.from("bookings").delete().eq("id", id);
+  //   if (error) alert(error.message);
+  //   else fetchBookings();
+  // };
+
   const handleDeleteBooking = async (id: string) => {
     if (!confirm("Delete this booking?")) return;
-    const { error } = await supabase.from("bookings").delete().eq("id", id);
-    if (error) alert(error.message);
-    else fetchBookings();
+
+    try {
+      const res = await fetch("http://localhost:3000/admin/delete_booking", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bookingId: id }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || "Delete failed");
+        return;
+      }
+
+      console.log("Deleted booking:", data);
+      fetchBookings();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      alert(err.message);
+    }
   };
 
   // --- User CRUD ---
