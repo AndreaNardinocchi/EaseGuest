@@ -253,9 +253,15 @@
 import express from "express";
 import fetch from "node-fetch";
 import "dotenv/config";
+import { createClient } from "@supabase/supabase-js";
 
 const app = express();
 app.use(express.json());
+
+const supabaseAdmin = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
 
 /* ---------------------------
    CORS FIX
@@ -421,6 +427,51 @@ app.post("/delete_user", async (req, res) => {
     return res.json({ message: "User deleted successfully" });
   } catch (err) {
     console.error("DELETE error:", err.message);
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+/* ---------------------------
+   Admin update booking endpoint
+---------------------------- */
+// Admin update booking endpoint
+app.post("/admin/update_booking", async (req, res) => {
+  const { bookingId, updates } = req.body;
+
+  if (!bookingId || !updates) {
+    return res.status(400).json({ error: "Missing bookingId or updates" });
+  }
+
+  try {
+    // Use Node-compatible environment variables (NOT VITE_*)
+    const SUPABASE_URL = process.env.SUPABASE_URL;
+    const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!SUPABASE_URL || !SERVICE_KEY) {
+      return res.status(500).json({
+        error:
+          "SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY missing in environment variables",
+      });
+    }
+
+    // Create Supabase admin client (service role bypasses RLS)
+    const { createClient } = await import("@supabase/supabase-js");
+    const supabaseAdmin = createClient(SUPABASE_URL, SERVICE_KEY);
+
+    const { data, error } = await supabaseAdmin
+      .from("bookings")
+      .update(updates)
+      .eq("id", bookingId)
+      .select();
+
+    if (error) {
+      console.error("Admin update failed:", error);
+      return res.status(500).json({ error: error.message });
+    }
+
+    return res.json({ message: "Booking updated successfully", data });
+  } catch (err) {
+    console.error("Admin update error:", err);
     return res.status(500).json({ error: err.message });
   }
 });

@@ -325,17 +325,28 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({
         error: userError,
       } = await supabase.auth.getUser();
 
+      console.log("Current user:", user); // <--- ADD THIS
+
       if (userError || !user) {
         return { success: false, message: "User not authenticated." };
       }
 
       // attach the user_id
-      const bookingWithUser = { ...newBooking, user_id: user.id };
-      console.log("Booking payload for insert:", bookingWithUser);
+      // const bookingWithUser = { ...newBooking, user_id: user.id };
+      // Ensure no user_id leaks into the payload
+      const sanitized = {
+        room_id: newBooking.room_id,
+        check_in: newBooking.check_in,
+        check_out: newBooking.check_out,
+        guests: newBooking.guests,
+        user_id: user.id, // force correct value
+      };
+
+      console.log("Booking payload for insert:", sanitized);
 
       const { data: inserted, error: insertError } = await supabase
         .from("bookings")
-        .insert([bookingWithUser])
+        .insert([sanitized])
         .select();
 
       if (insertError) {
