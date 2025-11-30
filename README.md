@@ -77,4 +77,8 @@ npx localtunnel --port 3000
 npm install pg
 
 
+======== STRIPE =============
+
+npm install stripe
+npm install @stripe/stripe-js @stripe/react-stripe-js
 ```

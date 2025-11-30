@@ -22,3 +22,19 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Optional: Vite build cache
+.vite
+
+# Optional: local database or SQLite files
+*.sqlite
+*.sqlite3
+
+# Optional: coverage reports
+coverage/
+
