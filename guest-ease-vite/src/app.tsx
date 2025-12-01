@@ -13,6 +13,7 @@ import ProtectedRoute from "./routes/protectedRoutes";
 import BookingConfirmation from "./pages/bookingConfirmationPage";
 import AdminDashboard from "./pages/adminDashboard";
 import AdminRoute from "./routes/AdminRoute";
+import ReviewPage from "./pages/bookingReviewPage";
 // import ProtectedRoute from "./routes/protectedRoutes";
 
 const App = () => {
@@ -69,6 +70,15 @@ const App = () => {
               <AdminRoute>
                 <AdminDashboard />
               </AdminRoute>
+            }
+          />
+          {/* Changed from AdminRoute to ProtectedRoute so normal users can access */}
+          <Route
+            path="/review/:id"
+            element={
+              <ProtectedRoute>
+                <ReviewPage />
+              </ProtectedRoute>
             }
           />
         </Routes>
