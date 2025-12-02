@@ -14,6 +14,7 @@ import BookingConfirmation from "./pages/bookingConfirmationPage";
 import AdminDashboard from "./pages/adminDashboard";
 import AdminRoute from "./routes/AdminRoute";
 import ReviewPage from "./pages/bookingReviewPage";
+import RoomsPage from "./pages/roomsPage";
 // import ProtectedRoute from "./routes/protectedRoutes";
 
 const App = () => {
@@ -31,6 +32,7 @@ const App = () => {
 
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignUpPage />} />
+          <Route path="/rooms" element={<RoomsPage />} />
 
           <Route
             path="/account"

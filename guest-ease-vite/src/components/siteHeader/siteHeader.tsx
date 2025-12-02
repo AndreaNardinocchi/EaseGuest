@@ -85,7 +85,7 @@ const SiteHeader: React.FC = () => {
   const mobileMenuOptions = [
     { label: "Home", path: "/" },
     { label: "About us", path: "/movies/discover" },
-    { label: "Rooms", path: "/movies/upcoming" },
+    { label: "Rooms", path: "/rooms" },
     { label: "Facilities", path: "/movies/mustwatchlist" },
     { label: "Contact us", path: "/movies/nowplaying" },
   ];
@@ -188,7 +188,7 @@ const SiteHeader: React.FC = () => {
               <Button
                 sx={{ textTransform: "none" }}
                 color="inherit"
-                onClick={() => handleNavigate("/")}
+                onClick={() => handleNavigate("/rooms")}
               >
                 Rooms
               </Button>
