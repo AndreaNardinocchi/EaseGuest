@@ -16,6 +16,7 @@ import {
   TextField,
 } from "@mui/material";
 import { StripeCheckout } from "../components/stripeCheckOut/stripeCheckOut";
+import BookingReviews from "../components/bookingReviews/bookingReview";
 
 const RoomDetails: React.FC = () => {
   const { roomId } = useParams();
@@ -299,6 +300,7 @@ const RoomDetails: React.FC = () => {
               <br />- 24/7 Concierge service
             </Typography>
           </Box>
+          <BookingReviews roomId={roomId!} />
 
           {/* Booking Form */}
           <Box sx={{ marginTop: 3 }}>

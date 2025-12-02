@@ -12,8 +12,8 @@ const root = ReactDOM.createRoot(
 root.render(
   <React.StrictMode>
     <BrowserRouter>
-      <SiteHeader />
       <BookingProvider>
+        <SiteHeader />
         <App />
       </BookingProvider>
     </BrowserRouter>

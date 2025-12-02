@@ -269,3 +269,12 @@ export const countries: Country[] = [
   { code: "ZM", name: "Zambia" },
   { code: "ZW", name: "Zimbabwe" },
 ];
+
+export interface Review {
+  id?: string;
+  booking_id: string;
+  user_id?: string;
+  rating: number;
+  comment: string;
+  created_at?: string;
+}

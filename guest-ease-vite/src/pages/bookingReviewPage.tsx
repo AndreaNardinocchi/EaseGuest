@@ -40,14 +40,20 @@ const ReviewPage: React.FC = () => {
       return;
     }
 
-    const result = await submitReview(id!, {
-      rating,
-      comment,
-      user_id: user?.id,
-    });
+    if (!booking) {
+      alert("Booking not found.");
+      return;
+    }
+
+    // Corrected: submitReview expects 3 arguments (bookingId, rating, comment)
+    const result = await submitReview(
+      booking.id, // booking_id
+      rating, // rating
+      comment // comment
+    );
 
     alert(result.message || "Review submitted!");
-    navigate("/account"); // go back after submitting
+    navigate("/account");
   };
 
   if (!user)
