@@ -278,3 +278,13 @@ export interface Review {
   comment: string;
   created_at?: string;
 }
+
+export interface Room {
+  id: string;
+  name: string;
+  description: string;
+  capacity: number;
+  price: string;
+  created_at: string;
+  roomType?: string; // Added optional room type
+}
