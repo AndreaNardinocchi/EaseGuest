@@ -32,6 +32,8 @@ type Room = {
   capacity?: number;
   price?: number;
   image_url?: string;
+  amenities?: string[]; // arrays of strings
+
   bookings?: Booking[]; // existing bookings for this room
 };
 
@@ -102,6 +104,7 @@ const SearchResults: React.FC = () => {
         } else {
           setError(result.message || "Failed to load rooms");
         }
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (err) {
         setError("An unexpected error occurred.");
       } finally {
@@ -210,6 +213,58 @@ const SearchResults: React.FC = () => {
                     >
                       {room.description || "A comfortable room for your stay."}
                     </Typography>
+                    {room.amenities && (
+                      <Box component="ul" sx={{ pl: 2, mt: 1, mb: 0 }}>
+                        {(Array.isArray(room.amenities)
+                          ? room.amenities
+                          : JSON.parse(room.amenities)
+                        ).map(
+                          (
+                            amenity:
+                              | string
+                              | number
+                              | bigint
+                              | boolean
+                              | React.ReactElement<
+                                  unknown,
+                                  string | React.JSXElementConstructor<any>
+                                >
+                              | Iterable<React.ReactNode>
+                              | React.ReactPortal
+                              | Promise<
+                                  | string
+                                  | number
+                                  | bigint
+                                  | boolean
+                                  | React.ReactPortal
+                                  | React.ReactElement<
+                                      unknown,
+                                      string | React.JSXElementConstructor<any>
+                                    >
+                                  | Iterable<React.ReactNode>
+                                  | null
+                                  | undefined
+                                >
+                              | null
+                              | undefined,
+                            index: React.Key | null | undefined
+                          ) => (
+                            <Box
+                              component="li"
+                              key={index}
+                              sx={{
+                                fontSize: "0.85rem",
+                                color: "text.secondary",
+                                lineHeight: 1.4,
+                              }}
+                            >
+                              {amenity}
+                            </Box>
+                          )
+                        )}
+                      </Box>
+                    )}
+
                     <Typography
                       variant="h6"
                       color="primary"

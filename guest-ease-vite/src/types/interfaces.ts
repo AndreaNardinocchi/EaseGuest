@@ -287,4 +287,5 @@ export interface Room {
   price: string;
   created_at: string;
   roomType?: string; // Added optional room type
+  amenities?: string[];
 }

@@ -285,7 +285,7 @@ const RoomDetails: React.FC = () => {
             </Grid>
           </Grid>
 
-          <Box sx={{ marginTop: 3 }}>
+          {/* <Box sx={{ marginTop: 3 }}>
             <Typography variant="body2" color="text.secondary">
               Available Services:
             </Typography>
@@ -299,7 +299,32 @@ const RoomDetails: React.FC = () => {
               - Swimming pool access
               <br />- 24/7 Concierge service
             </Typography>
+          </Box> */}
+          <Box sx={{ marginTop: 3 }}>
+            {room.amenities && room.amenities.length > 0 && (
+              <>
+                <Typography variant="body2" color="text.secondary">
+                  Available Services:
+                </Typography>
+                <Box component="ul" sx={{ mt: 1, pl: 2, mb: 0 }}>
+                  {room.amenities.map((amenity, index) => (
+                    <Box
+                      component="li"
+                      key={index}
+                      sx={{
+                        fontSize: "0.95rem",
+                        color: "text.primary",
+                        lineHeight: 1.5,
+                      }}
+                    >
+                      {amenity}
+                    </Box>
+                  ))}
+                </Box>
+              </>
+            )}
           </Box>
+
           <BookingReviews roomId={roomId!} />
 
           {/* Booking Form */}
