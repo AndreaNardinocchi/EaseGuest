@@ -1,0 +1,27 @@
+AI generator
+
+
+ create the rooms with fancy names rooted in the irish culture and  add a field with specific amenities for each room, a couple of them should be for families, a couple for remote workers, a couple should be luxurious, and so on...pay attention to capacity, update as per the targeted guests
+
+
+('Brigid’s Haven', 'Romantic Irish-inspired double room with balcony', 2, 80.00, '["Private balcony", "Irish wool blankets", "King bed", "Nespresso maker", "Rainfall shower", "Smart TV", "Irish poetry mini-library"]'),
+('Seanchaí Nook', 'Compact single room designed for writers and remote workers', 1, 40.00, '["Writing desk", "High-speed Wi-Fi", "Ergonomic chair", "Kettle setup", "Celtic folklore decor", "Sound-insulated walls"]'),
+('Clan Suite', 'Large Irish countryside-inspired family suite', 4, 200.00, '["Two bedrooms", "Kids’ play corner", "Mini-fridge", "Microwave", "Board games", "Dining table", "Bathtub", "Baby cot on request"]'),
+('High King’s Quarters', 'Luxurious Celtic royal suite with separate living area', 3, 150.00, '["Living area", "Celtic wooden furnishings", "King bed", "Sofa bed", "Fireplace", "Soaking tub", "Irish whiskey sampler"]'),
+('Druid’s Rest', 'Nature-themed cozy single room', 1, 70.00, '["Garden view", "Herbal tea station", "Compact workspace", "Rain shower", "Meditation playlist", "White noise machine"]'),
+('Skellig Study Loft', 'Remote-work optimized single room with balcony', 1, 65.00, '["Balcony desk", "Standing desk", "Ultra-fast Wi-Fi", "Pour-over coffee kit", "Corkboard", "Reading lamp", "Noise-reducing curtains"]'),
+('Fionn Executive Chamber', 'Executive Irish-themed room with balcony', 1, 50.00, '["Balcony view", "Executive desk", "Wireless charging pad", "Smart speaker", "Espresso machine", "Walk-in stone shower", "Laptop safe"]'),
+('Éire Penthouse', 'Ultra-luxury Irish modern penthouse suite', 2, 250.00, '["Panoramic balcony", "King bed", "Private lounge", "In-room sauna", "Jacuzzi", "Champagne", "Irish contemporary art"]');
+
+
+('Brigid’s Haven', 'Warm and inviting double room with a cosy balcony, inspired by Irish cottage comfort', 2, 80.00, '["Private balcony", "Irish wool blankets", "Comfortable king bed", "Tea & coffee set", "Rainfall shower", "Small book collection of Irish poetry"]'),
+('Seanchaí Nook', 'Charming compact single ideal for quiet stays or writing retreats', 1, 40.00, '["Writing desk", "High-speed Wi-Fi", "Ergonomic chair", "Kettle", "Celtic-themed decor", "Sound-insulated walls"]'),
+('Clan Suite', 'Spacious family suite styled after traditional Irish country homes', 4, 200.00, '["Two bedrooms", "Kids’ reading nook", "Mini-fridge", "Microwave", "Board games", "Dining table", "Bathtub", "Baby cot available"]'),
+('High King’s Quarters', 'Boutique-style suite inspired by Irish heritage, perfect for small groups or longer stays', 3, 150.00, '["Sitting area", "Handcrafted wooden furniture", "King bed", "Sofa bed", "Electric fireplace", "Deep soaking tub", "Irish artisan welcome treats"]'),
+('Druid’s Rest', 'Serene single room with natural tones and a quiet retreat atmosphere', 1, 70.00, '["Garden view", "Herbal tea set", "Compact writing space", "Rain shower", "Meditation playlist", "White noise machine"]'),
+('Skellig Study Loft', 'Bright single room with balcony, ideal for remote workers visiting the coast', 1, 65.00, '["Balcony workspace", "Standing desk", "High-speed Wi-Fi", "Pour-over coffee kit", "Corkboard", "Reading lamp"]'),
+('Fionn Executive Chamber', 'Comfortable executive-style single with tasteful Irish touches', 1, 50.00, '["Balcony", "Desk & charging station", "Smart speaker", "Espresso machine", "Walk-in shower", "Secure laptop safe"]'),
+('Éire Penthouse', 'Our boutique-style top-floor retreat with elevated views and Irish artisan décor', 2, 250.00, '["Panoramic balcony", "King bed", "Sitting area", "Large soaking tub", "Local welcome hamper", "Art from Irish makers"]');
+
+this is not a hotel, is more like a B&B Guesthouse or boutique hotel
+

@@ -595,6 +595,7 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { useBooking } from "../context/bookingContext";
+import RoomCardHorizontal from "../components/RoomCardHorizontal.tsx/RoomCardHorizontal";
 
 import {
   AppBar,
@@ -740,90 +741,101 @@ const SearchResults: React.FC = () => {
         ) : (
           <Grid container spacing={4}>
             {rooms.map((room) => (
-              <Grid item key={room.id} xs={12} sm={6} md={4}>
-                <Card
-                  sx={{
-                    height: "100%",
-                    display: "flex",
-                    flexDirection: "column",
-                    transition: "transform 0.2s, box-shadow 0.2s",
-                    "&:hover": {
-                      transform: "translateY(-4px)",
-                      boxShadow: 6,
-                    },
-                  }}
-                >
-                  {/* FIXED CARD IMAGE */}
-                  <CardMedia
-                    component="img"
-                    image={
-                      room.images && room.images.length > 0
-                        ? `/assets/${room.images[0]}`
-                        : "/assets/placeholder.png"
-                    }
-                    alt={room.name}
-                    sx={{ height: 200, objectFit: "cover" }}
-                  />
-
-                  <CardContent sx={{ flexGrow: 1 }}>
-                    <Typography variant="h6" gutterBottom>
-                      {room.name}
-                    </Typography>
-
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{
-                        display: "-webkit-box",
-                        overflow: "hidden",
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: "vertical",
-                      }}
-                    >
-                      {room.description || "A comfortable room for your stay."}
-                    </Typography>
-
-                    {/* AMENITIES FIXED */}
-                    {room.amenities && room.amenities.length > 0 && (
-                      <Box component="ul" sx={{ pl: 2, mt: 1, mb: 0 }}>
-                        {room.amenities.map((amenity, idx) => (
-                          <Box
-                            component="li"
-                            key={idx}
-                            sx={{
-                              fontSize: "0.85rem",
-                              color: "text.secondary",
-                              lineHeight: 1.4,
-                            }}
-                          >
-                            {amenity}
-                          </Box>
-                        ))}
-                      </Box>
-                    )}
-
-                    <Typography
-                      variant="h6"
-                      color="primary"
-                      sx={{ mt: 2, fontWeight: "bold" }}
-                    >
-                      €{room.price} / night
-                    </Typography>
-                  </CardContent>
-
-                  <CardActions sx={{ p: 2 }}>
-                    <Button
-                      fullWidth
-                      variant="contained"
-                      color="primary"
-                      component={Link}
-                      to={`/room/${room.id}`}
-                    >
-                      View Details
-                    </Button>
-                  </CardActions>
-                </Card>
+              <Grid item key={room.id} xs={12}>
+                <RoomCardHorizontal
+                  id={room.id}
+                  name={room.name}
+                  description={room.description}
+                  price={room.price}
+                  images={room.images}
+                  amenities={room.amenities}
+                />
               </Grid>
+
+              //     <Grid item key={room.id} xs={12} sm={6} md={4}>
+              //       <Card
+              //         sx={{
+              //           height: "100%",
+              //           display: "flex",
+              //           flexDirection: "column",
+              //           transition: "transform 0.2s, box-shadow 0.2s",
+              //           "&:hover": {
+              //             transform: "translateY(-4px)",
+              //             boxShadow: 6,
+              //           },
+              //         }}
+              //       >
+              //         {/* FIXED CARD IMAGE */}
+              //         <CardMedia
+              //           component="img"
+              //           image={
+              //             room.images && room.images.length > 0
+              //               ? `/assets/${room.images[0]}`
+              //               : "/assets/placeholder.png"
+              //           }
+              //           alt={room.name}
+              //           sx={{ height: 200, objectFit: "cover" }}
+              //         />
+
+              //         <CardContent sx={{ flexGrow: 1 }}>
+              //           <Typography variant="h6" gutterBottom>
+              //             {room.name}
+              //           </Typography>
+
+              //           <Typography
+              //             variant="body2"
+              //             color="text.secondary"
+              //             sx={{
+              //               display: "-webkit-box",
+              //               overflow: "hidden",
+              //               WebkitLineClamp: 2,
+              //               WebkitBoxOrient: "vertical",
+              //             }}
+              //           >
+              //             {room.description || "A comfortable room for your stay."}
+              //           </Typography>
+
+              //           {/* AMENITIES FIXED */}
+              //           {room.amenities && room.amenities.length > 0 && (
+              //             <Box component="ul" sx={{ pl: 2, mt: 1, mb: 0 }}>
+              //               {room.amenities.map((amenity, idx) => (
+              //                 <Box
+              //                   component="li"
+              //                   key={idx}
+              //                   sx={{
+              //                     fontSize: "0.85rem",
+              //                     color: "text.secondary",
+              //                     lineHeight: 1.4,
+              //                   }}
+              //                 >
+              //                   {amenity}
+              //                 </Box>
+              //               ))}
+              //             </Box>
+              //           )}
+
+              //           <Typography
+              //             variant="h6"
+              //             color="primary"
+              //             sx={{ mt: 2, fontWeight: "bold" }}
+              //           >
+              //             €{room.price} / night
+              //           </Typography>
+              //         </CardContent>
+
+              //         <CardActions sx={{ p: 2 }}>
+              //           <Button
+              //             fullWidth
+              //             variant="contained"
+              //             color="primary"
+              //             component={Link}
+              //             to={`/room/${room.id}`}
+              //           >
+              //             View Details
+              //           </Button>
+              //         </CardActions>
+              //       </Card>
+              //     </Grid>
             ))}
           </Grid>
         )}
