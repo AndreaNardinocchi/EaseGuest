@@ -98,6 +98,7 @@ const SiteHeader: React.FC = () => {
    * was needed
    */
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const isHomePage = location.pathname === "/";
 
   return (
     <>
@@ -231,8 +232,8 @@ const SiteHeader: React.FC = () => {
           onClose={() => setDrawerOpen(false)}
         />
       </AppBar>
-
-      <Offset />
+      {/* Only add Offset if not on the homepage */}
+      {!isHomePage && <Offset />}{" "}
     </>
   );
 };

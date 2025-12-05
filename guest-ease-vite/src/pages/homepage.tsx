@@ -12,6 +12,8 @@ import {
 } from "@mui/material";
 import BookingForm from "../components/bookingForm/bookingForm";
 import StickyBox from "../components/stickyComp/stickyComp";
+import HeroImage from "../components/HeroImage/HeroImage";
+import ThreeCardComponent from "../components/homepageThreeCards/homePageThreeCards";
 
 const rooms = [
   {
@@ -73,7 +75,9 @@ const HomePage: React.FC = () => {
   });
   return (
     <>
-      <Container maxWidth="md">
+      <HeroImage imageUrl="/assets/brigidshaven1.png" />
+
+      <Container maxWidth="lg">
         <Box textAlign="center" mb={5} sx={{ mt: 4 }}>
           <Typography variant="h2" component="h1" gutterBottom>
             Welcome to GuestEase
@@ -93,8 +97,12 @@ const HomePage: React.FC = () => {
       </StickyBox>
 
       {/* Main content container */}
-      <Container maxWidth="md" sx={{ mt: 14 }}>
-        <Box textAlign="center" mb={5}>
+      <Container maxWidth="lg" sx={{ mt: 8 }}>
+        <Box textAlign="center" mb={4}>
+          <Typography variant="h3" component="h2" gutterBottom>
+            Enjoy your stay
+          </Typography>
+
           <Typography variant="body1" paragraph>
             Whether you're traveling for business or pleasure, GuestEase ensures
             a pleasant stay with clean, well-equipped rooms, fast Wi-Fi, and
@@ -102,8 +110,9 @@ const HomePage: React.FC = () => {
             enjoy facilities designed for your convenience.
           </Typography>
         </Box>
+        <ThreeCardComponent />
 
-        <Box mb={6}>
+        <Box mb={6} sx={{ mt: 6 }}>
           <Typography variant="h4" gutterBottom>
             Why Choose GuestEase?
           </Typography>
