@@ -14,6 +14,7 @@ import BookingForm from "../components/bookingForm/bookingForm";
 import StickyBox from "../components/stickyComp/stickyComp";
 import HeroImage from "../components/HeroImage/HeroImage";
 import ThreeCardComponent from "../components/homepageThreeCards/homePageThreeCards";
+import ExperienceCarousel from "../components/ExperienceCarousel/ExperienceCarousel";
 
 const rooms = [
   {
@@ -60,6 +61,23 @@ const rooms = [
       "Penthouse suite with private terrace, lounge area and premium finishes.",
     image:
       "https://images.unsplash.com/photo-1541717854-c0717ffb4328?auto=format&fit=crop&w=800&q=80",
+  },
+];
+
+const experiences = [
+  {
+    id: 1,
+    title: "Explore Nature Trails",
+    description: "Beautiful paths perfect for walking, hiking, or cycling.",
+    image:
+      "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=800&q=80",
+  },
+  {
+    id: 2,
+    title: "Relax by the Sea",
+    description: "A short walk takes you to scenic coastal views and beaches.",
+    image:
+      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80",
   },
 ];
 
@@ -113,7 +131,7 @@ const HomePage: React.FC = () => {
         <ThreeCardComponent />
 
         <Box mb={6} sx={{ mt: 6 }}>
-          <Typography variant="h4" gutterBottom>
+          <Typography variant="h4" align="center" gutterBottom>
             Why Choose GuestEase?
           </Typography>
           <ul style={{ fontSize: "1.1rem", lineHeight: 1.8 }}>
@@ -125,50 +143,150 @@ const HomePage: React.FC = () => {
           </ul>
         </Box>
 
-        {/* Room Cards Section */}
+        <Typography variant="h4" align="center" sx={{ mt: 6 }}>
+          Experiences Around Us
+        </Typography>
+
+        <ExperienceCarousel experiences={experiences} />
+
+        {/* Experience Cards Section */}
         <Box mb={8}>
-          <Typography variant="h4" gutterBottom>
-            Our Rooms
+          <Typography
+            variant="h4"
+            align="center"
+            sx={{ mt: 6, mb: 4 }}
+            gutterBottom
+          >
+            Your Experience
           </Typography>
 
-          <Grid container spacing={4}>
-            {rooms.map((room) => (
-              <Grid item xs={12} sm={6} md={4} key={room.id}>
-                <Card
-                  sx={{
-                    height: "100%",
-                    display: "flex",
-                    flexDirection: "column",
-                    maxWidth: 345, // or whatever fits your grid nicely
-                    width: "100%", // ensures it fills the grid column
-                  }}
-                >
-                  <CardMedia
-                    component="img"
-                    height="180"
-                    image={room.image}
-                    alt={room.name}
-                  />
-                  <CardContent sx={{ flexGrow: 1 }}>
-                    <Typography variant="h6" component="h2" gutterBottom>
-                      {room.name}
-                    </Typography>
-                    <Typography variant="body2" color="textSecondary">
-                      {room.description}
-                    </Typography>
-                  </CardContent>
-                  <CardActions>
-                    <Button size="small" color="primary">
-                      View Details
-                    </Button>
-                    <Button size="small" color="primary">
-                      Book Now
-                    </Button>
-                  </CardActions>
-                </Card>
-              </Grid>
-            ))}
+          <Grid container spacing={4} justifyContent="center">
+            {/* Complimentary Breakfast */}
+            <Grid item xs={12} md={6}>
+              <Card
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  height: 400, // fixed height
+                  width: "100%", // fills the column
+                  maxWidth: 560, // optional: ensures cards don’t stretch
+                  margin: "0 auto", // centers in column
+                }}
+              >
+                <CardMedia
+                  component="img"
+                  image="https://images.unsplash.com/photo-1497534446932-c925b458314e?auto=format&fit=crop&w=800&q=80"
+                  alt="Complimentary Breakfast"
+                  sx={{ height: 200, objectFit: "cover" }}
+                />
+                <CardContent sx={{ flex: 1, overflow: "hidden" }}>
+                  <Typography variant="h6" gutterBottom noWrap>
+                    Complimentary Breakfast
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{
+                      display: "-webkit-box",
+                      overflow: "hidden",
+                      WebkitLineClamp: 4, // limits text lines
+                      WebkitBoxOrient: "vertical",
+                    }}
+                  >
+                    Enjoy a fresh homemade breakfast with pastries, cereals, hot
+                    dishes, and locally sourced ingredients to start your day
+                    perfectly.
+                  </Typography>
+                </CardContent>
+                <CardActions>
+                  <Button size="small" color="primary">
+                    Learn More
+                  </Button>
+                </CardActions>
+              </Card>
+            </Grid>
+
+            {/* Snacks */}
+            <Grid item xs={12} md={6}>
+              <Card
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  height: 400,
+                  width: "100%",
+                  maxWidth: 560,
+                  margin: "0 auto",
+                }}
+              >
+                <CardMedia
+                  component="img"
+                  image="https://images.unsplash.com/photo-1497534446932-c925b458314e?auto=format&fit=crop&w=800&q=80"
+                  alt="Snacks & Refreshments"
+                  sx={{ height: 200, objectFit: "cover" }}
+                />
+                <CardContent sx={{ flex: 1, overflow: "hidden" }}>
+                  <Typography variant="h6" gutterBottom noWrap>
+                    Snacks & Refreshments
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{
+                      display: "-webkit-box",
+                      overflow: "hidden",
+                      WebkitLineClamp: 4, // limits text lines
+                      WebkitBoxOrient: "vertical",
+                    }}
+                  >
+                    Enjoy complimentary snacks, coffee, tea, and refreshing
+                    drinks available throughout the day for your comfort.
+                  </Typography>
+                </CardContent>
+                <CardActions>
+                  <Button size="small" color="primary">
+                    Learn More
+                  </Button>
+                </CardActions>
+              </Card>
+            </Grid>
           </Grid>
+        </Box>
+        {/* Footer Intro Section */}
+        {/* Pre-Footer Section */}
+        <Box
+          sx={{
+            mt: 8,
+            mb: 12,
+            py: 6,
+            bgcolor: "background.paper",
+            textAlign: "center",
+            borderTop: "1px solid",
+            borderColor: "divider",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 2,
+            borderRadius: 2,
+          }}
+        >
+          {/* Placeholder Logo */}
+          <Box
+            component="img"
+            src="https://via.placeholder.com/120x60?text=Logo" // placeholder logo
+            alt="GuestEase"
+            sx={{ width: 120, height: "auto" }}
+          />
+
+          {/* Tagline / Intro */}
+          <Typography variant="h6" color="text.primary" gutterBottom>
+            Comfort, Convenience, and Care
+          </Typography>
+
+          <Typography variant="body2" color="text.secondary" maxWidth={600}>
+            At GuestEase, we make sure every stay feels like home. Enjoy cozy
+            rooms, complimentary breakfast, and curated experiences around our
+            guesthouse.
+          </Typography>
         </Box>
       </Container>
     </>
