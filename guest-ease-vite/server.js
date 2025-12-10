@@ -326,6 +326,40 @@ app.post("/create-payment-intent", async (req, res) => {
   }
 });
 
+import { supabase } from "./supabaseClientServer.js";
+
+app.post("/store-payment", async (req, res) => {
+  try {
+    const { payment_intent_id, amount, booking_id, user_id } = req.body;
+    console.log("PAYLOAD WE ARE SENDING:", {
+      payment_intent_id,
+      amount,
+      booking_id,
+      user_id,
+      status: "succeeded",
+    });
+
+    const { data, error } = await supabase.from("payments").insert([
+      {
+        payment_intent_id,
+        amount,
+        booking_id,
+        user_id,
+        status: "succeeded", // or "pending"
+      },
+    ]);
+    console.log("SUPABASE ERROR RAW:", error);
+
+    if (error) throw error;
+
+    console.log("Payment stored:", data);
+    res.json({ success: true, data });
+  } catch (err) {
+    console.error("Error storing payment:", err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 /* ---------------------------
    Start server
 ---------------------------- */

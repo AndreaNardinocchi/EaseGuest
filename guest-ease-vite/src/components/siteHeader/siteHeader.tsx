@@ -84,10 +84,10 @@ const SiteHeader: React.FC = () => {
 
   const mobileMenuOptions = [
     { label: "Home", path: "/" },
-    { label: "About us", path: "/movies/discover" },
+    { label: "About us", path: "/about-us" },
     { label: "Rooms", path: "/rooms" },
-    { label: "Facilities", path: "/movies/mustwatchlist" },
-    { label: "Contact us", path: "/movies/nowplaying" },
+    { label: "Facilities", path: "/facilities" },
+    { label: "Contact us", path: "/contact-us" },
   ];
 
   /**
@@ -99,6 +99,7 @@ const SiteHeader: React.FC = () => {
    */
   const [drawerOpen, setDrawerOpen] = useState(false);
   const isHomePage = location.pathname === "/";
+  const isRoomDetailsPage = location.pathname.startsWith("/room/");
 
   return (
     <>
@@ -233,7 +234,8 @@ const SiteHeader: React.FC = () => {
         />
       </AppBar>
       {/* Only add Offset if not on the homepage */}
-      {!isHomePage && <Offset />}{" "}
+      {/* Only add Offset if not on the homepage or RoomDetails page */}
+      {!isHomePage && !isRoomDetailsPage && <Offset />}{" "}
     </>
   );
 };

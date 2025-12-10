@@ -531,7 +531,7 @@ const Footer: React.FC = () => {
   return (
     <Box
       component="footer"
-      sx={{ backgroundColor: "grey.900", color: "common.white", pt: 4 }}
+      sx={{ backgroundColor: "grey.900", color: "common.white", pt: 4, mt: 14 }}
     >
       <Container maxWidth="lg" sx={{ padding: "2rem" }}>
         <Grid
@@ -668,7 +668,11 @@ const Footer: React.FC = () => {
         >
           GuestEase
         </Link>
-        <Typography variant="body2" component="span" sx={{ color: "inherit" }}>
+        <Typography
+          variant="body2"
+          component="span"
+          sx={{ color: "inherit", paddingLeft: 0.5 }}
+        >
           | © {new Date().getFullYear()} GuestEase. All rights reserved.
         </Typography>
         <Link

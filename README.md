@@ -82,3 +82,12 @@ npm install pg
 npm install stripe
 npm install @stripe/stripe-js @stripe/react-stripe-js
 ```
+
+```
+We are working on showing the amount on the booking table
+
+npm install -D ts-node typescript
+
+for app.post("/store-payment",
+
+```
