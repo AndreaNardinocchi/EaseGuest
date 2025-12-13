@@ -44,23 +44,7 @@ const RoomCardHorizontal: React.FC<RoomCardHorizontalProps> = ({
         },
       }}
     >
-      {/* Left Image */}
-      <CardMedia
-        component="img"
-        image={
-          images && images.length > 0
-            ? `/assets/${images[0]}`
-            : "/assets/placeholder.png"
-        }
-        alt={name}
-        sx={{
-          width: 500, // wider image
-          height: "100%",
-          objectFit: "cover",
-        }}
-      />
-
-      {/* Right Content */}
+      {/* Left Content */}
       <Box
         sx={{
           display: "flex",
@@ -101,23 +85,6 @@ const RoomCardHorizontal: React.FC<RoomCardHorizontalProps> = ({
                 listStyle: "none",
               }}
             >
-              {/* {amenities.map((amenity, idx) => (
-                <Typography
-                  component="li"
-                  key={idx}
-                  sx={{
-                    fontSize: "0.85rem",
-                    color: "text.secondary",
-                    lineHeight: 1.4,
-                  }}
-                >
-                  <FiberManualRecordIcon
-                    fontSize="inherit"
-                    sx={{ mr: 0.5, color: "text.secondary" }}
-                  />
-                  {amenity}
-                </Typography>
-              ))} */}
               {amenities.map((amenity, idx) => (
                 <Box
                   component="li"
@@ -163,6 +130,22 @@ const RoomCardHorizontal: React.FC<RoomCardHorizontalProps> = ({
           </Button>
         </CardActions>
       </Box>
+
+      {/* Right Image */}
+      <CardMedia
+        component="img"
+        image={
+          images && images.length > 0
+            ? `/assets/${images[0]}`
+            : "/assets/placeholder.png"
+        }
+        alt={name}
+        sx={{
+          width: 500, // image width
+          height: "100%",
+          objectFit: "cover",
+        }}
+      />
     </Card>
   );
 };

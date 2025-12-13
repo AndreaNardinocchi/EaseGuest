@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { useBooking } from "../context/bookingContext";
-import RoomCardHorizontal from "../components/RoomCardHorizontal.tsx/RoomCardHorizontal";
+import RoomCardHorizontal from "../components/RoomCardHorizontal/roomCardHorizontal";
 
 import {
   AppBar,
