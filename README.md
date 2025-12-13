@@ -81,6 +81,8 @@ npm install pg
 
 npm install stripe
 npm install @stripe/stripe-js @stripe/react-stripe-js
+
+https://dashboard.stripe.com/acct_1SZ9enGi6NYaGS4M/test/workbench/logs
 ```
 
 ```
