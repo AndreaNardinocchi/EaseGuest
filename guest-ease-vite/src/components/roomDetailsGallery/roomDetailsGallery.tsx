@@ -65,7 +65,7 @@ const RoomImageCarousel = ({ images }: { images: string[] }) => {
             sx={{
               width: "100%", // full width slide
               flexShrink: 0,
-              height: { xs: "50vh", md: "70vh" },
+              height: { xs: "50vh", md: "70vh", lg: "90vh" },
               backgroundImage: `url(${
                 img.startsWith("/") ? img : `/assets/${img}`
               })`,

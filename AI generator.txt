@@ -1,7 +1,7 @@
 AI generator
 
 
- create the rooms with fancy names rooted in the irish culture and  add a field with specific amenities for each room, a couple of them should be for families, a couple for remote workers, a couple should be luxurious, and so on...pay attention to capacity, update as per the targeted guests
+Create the rooms with fancy names rooted in the irish culture and  add a field with specific amenities for each room, a couple of them should be for families, a couple for remote workers, a couple should be luxurious, and so on...pay attention to capacity, update as per the targeted guests
 
 
 ('Brigid’s Haven', 'Romantic Irish-inspired double room with balcony', 2, 80.00, '["Private balcony", "Irish wool blankets", "King bed", "Nespresso maker", "Rainfall shower", "Smart TV", "Irish poetry mini-library"]'),
@@ -25,3 +25,92 @@ AI generator
 
 this is not a hotel, is more like a B&B Guesthouse or boutique hotel
 
+Expand on the description with a new 3 lines paragraph ensuring it highlights its peculiar features based on its guest target and what make is different to the others.
+
+[
+  {
+    "name": "Seanchaí Nook",
+    "description": "Charming compact single ideal for quiet stays or writing retreats.\n\nThe Seanchaí Nook is purpose-built for solitude, creativity, and deep focus. With sound-insulated walls, a dedicated writing desk, and Celtic-inspired décor, it stands apart as the most intimate and distraction-free room in the house. Ideal for writers, thinkers, or guests seeking quiet over luxury.",
+    "guests": 1,
+    "price": "40.00",
+    "amenities": ["Writing desk", "High-speed Wi-Fi", "Ergonomic chair", "Kettle", "Celtic-themed decor", "Sound-insulated walls"]
+  },
+  {
+    "name": "Fionn Executive Chamber",
+    "description": "Comfortable executive-style single with tasteful Irish touches.\n\nDesigned for business travellers and professionals, the Fionn Executive Chamber prioritises efficiency without sacrificing character. Smart technology, a refined workspace, and premium finishes make it the most business-oriented room at GuestEase. It’s where productivity meets understated Irish elegance.",
+    "guests": 1,
+    "price": "50.00",
+    "amenities": ["Balcony", "Desk & charging station", "Smart speaker", "Espresso machine", "Walk-in shower", "Secure laptop safe"]
+  },
+  {
+    "name": "High King’s Quarters",
+    "description": "Boutique-style suite inspired by Irish heritage, perfect for small groups or longer stays.\n\nThe High King’s Quarters offers generous space and heritage-rich design for guests who want more than just a room. With handcrafted furniture, multiple sleeping options, and a welcoming sitting area, it’s ideal for extended stays or small groups. This suite balances historical character with modern comfort.",
+    "guests": 3,
+    "price": "150.00",
+    "amenities": ["Sitting area", "Handcrafted wooden furniture", "King bed", "Sofa bed", "Electric fireplace", "Deep soaking tub", "Irish artisan welcome treats"]
+  },
+  {
+    "name": "Druid’s Rest",
+    "description": "Serene single room with natural tones and a quiet retreat atmosphere.\n\nDruid’s Rest is GuestEase’s most wellness-focused room, created for guests seeking calm and restoration. Natural textures, a garden view, and meditation-friendly amenities set it apart as a true retreat space. It’s ideal for those prioritising rest, mindfulness, and mental clarity.",
+    "guests": 1,
+    "price": "70.00",
+    "amenities": ["Garden view", "Herbal tea set", "Compact writing space", "Rain shower", "Meditation playlist", "White noise machine"]
+  },
+  {
+    "name": "Brigid’s Haven",
+    "description": "Warm and inviting double room with a cosy balcony, inspired by Irish cottage comfort.\n\nBrigid’s Haven is designed for couples who value warmth, intimacy, and a sense of home. Featuring Irish wool blankets, poetry books, and a private balcony, it offers a uniquely cosy atmosphere not found in other rooms. This is the most romantic and cottage-inspired stay at GuestEase.",
+    "guests": 2,
+    "price": "80.00",
+    "amenities": ["Private balcony", "Irish wool blankets", "Comfortable king bed", "Tea & coffee set", "Rainfall shower", "Small book collection of Irish poetry"]
+  },
+  {
+    "name": "Clan Suite",
+    "description": "Spacious family suite styled after traditional Irish country homes.\n\nThe Clan Suite is GuestEase’s most family-friendly accommodation, offering space, flexibility, and thoughtful amenities for all ages. With two double-beds, a dining area, and entertainment options, it’s designed for togetherness without compromise. No other room caters as completely to families and group living.",
+    "guests": 4,
+    "price": "200.00",
+    "amenities": ["Two double-beds", "Kids’ reading nook", "Mini-fridge", "Microwave", "Board games", "Dining table", "Bathtub", "Baby cot available"]
+  },
+  {
+    "name": "Skellig Study Loft",
+    "description": "Bright single room with balcony, ideal for remote workers visiting the coast.\n\nThe Skellig Study Loft is tailored specifically for remote workers and digital nomads. A standing desk, balcony workspace, and productivity-focused layout make it the most work-optimised room available. It uniquely combines professional functionality with fresh air and coastal inspiration.",
+    "guests": 1,
+    "price": "65.00",
+    "amenities": ["Balcony workspace", "Standing desk", "High-speed Wi-Fi", "Pour-over coffee kit", "Corkboard", "Reading lamp"]
+  },
+  {
+    "name": "Éire Penthouse",
+    "description": "Our boutique-style top-floor retreat with elevated views and Irish artisan décor.\n\nThe Éire Penthouse represents the pinnacle of the GuestEase experience, offering unmatched views, space, and craftsmanship. With artisan décor, a panoramic balcony, and luxury amenities, it stands apart as the most exclusive room available. Perfect for special occasions or guests seeking a truly elevated stay.",
+    "guests": 3,
+    "price": "250.00",
+    "amenities": ["Panoramic balcony", "King bed", "Sitting area", "Large soaking tub", "Local welcome hamper", "Art from Irish makers"]
+  }
+]
+
+https://deepai.org/machine-learning-model/text2img
+https://imgtoimg.ai/
+https://deepai.org/
+https://remaker.ai/features/photo-enhancer/
+https://imgupscaler.ai/photo-enhancer/
+https://thesocialcat.com/tools/image-enhancer
+
+Pictures from a different angle
+I just want a picture of the same room from a different angle.
+Balcony of 
+Walk-in shower of
+Close-up of sofa bed of
+bathroom  with shower of Boutique-style suite inspired by Irish heritage, 
+close up of towel in bathroom  with shower of Boutique-style suite inspired by Irish heritage, with GE intitals for GuestEase
+
+Window close-up.
+Bathroom with rain shower, meditation inspired.
+Bathroom from an higher angle so that the shower fits better into the image, but let me see the sink too. Ensure it be more rustic
+
+Show me a cozy small balcony only outside, put 1 small table and 2 chairs, sea view, sunset showing the sun being partially covered by the sea
+
+Close up of Dining table and Kids’ reading nook
+Close-up of the board games
+add a mini-fridge and microwave retro style
+
+different angle closing up to the pour-over coffee kit
+the balcony view
+the compact rustic bathroom

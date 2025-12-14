@@ -27,6 +27,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import LoginIcon from "@mui/icons-material/Login";
 import { AuthContext } from "../../context/authContext";
 import UserProfileDrawer from "../UserProfileDrawer";
+
 // import VideoCameraFrontIcon from "@mui/icons-material/VideoCameraFront";
 // import LanguageSwitcher from "../languageSwitcher";
 // import UserProfileDrawer from "../UserProfileDrawer";
@@ -112,7 +113,7 @@ const SiteHeader: React.FC = () => {
         <Toolbar sx={{ color: "white" }}>
           <Link onClick={() => navigate("/")} to={""} rel="noopener"></Link>
 
-          <Typography
+          {/* <Typography
             variant="h4"
             sx={{
               flexGrow: 1,
@@ -127,7 +128,27 @@ const SiteHeader: React.FC = () => {
             }}
           >
             GuestEase
-          </Typography>
+          </Typography> */}
+
+          <Link
+            to="/"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              textDecoration: "none",
+              flexGrow: 1,
+            }}
+          >
+            <img
+              src="/assets/GuestEaseLogo.svg"
+              alt="GuestEase logo"
+              style={{
+                height: "80px",
+                width: "auto",
+                marginLeft: "2%",
+              }}
+            />
+          </Link>
 
           {isMobile ? (
             <>
@@ -178,12 +199,15 @@ const SiteHeader: React.FC = () => {
                 Home
               </Button>
               <Button
+                // sx={{ textTransform: "none" }}
+                // color="inherit"
+                // onClick={handleMovieMenu}
+                // aria-controls={isMovieMenuOpen ? "movie-menu" : undefined}
+                // aria-haspopup="true"
+                // aria-expanded={isMovieMenuOpen ? "true" : undefined}
                 sx={{ textTransform: "none" }}
                 color="inherit"
-                onClick={handleMovieMenu}
-                aria-controls={isMovieMenuOpen ? "movie-menu" : undefined}
-                aria-haspopup="true"
-                aria-expanded={isMovieMenuOpen ? "true" : undefined}
+                onClick={() => handleNavigate("/about-us")}
               >
                 About us
               </Button>

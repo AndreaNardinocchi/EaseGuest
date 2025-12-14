@@ -134,13 +134,18 @@ const HomePage: React.FC = () => {
           <Typography variant="h4" align="center" gutterBottom>
             Why Choose GuestEase?
           </Typography>
-          <ul style={{ fontSize: "1.1rem", lineHeight: 1.8 }}>
-            <li>✔️ Comfortable and clean accommodations</li>
-            <li>✔️ Fast and free Wi-Fi</li>
-            <li>✔️ Central location with easy access</li>
-            <li>✔️ Friendly and attentive staff</li>
-            <li>✔️ Affordable rates with flexible booking</li>
-          </ul>
+          <p style={{ fontSize: "1.1rem", lineHeight: 1.8 }}>
+            ✓ Comfortable and clean accommodations
+            <br />
+            ✓ Fast and free Wi-Fi
+            <br />
+            ✓ Central location with easy access
+            <br />
+            ✓ Friendly and attentive staff
+            <br />
+            ✓ Affordable rates with flexible booking
+            <br />
+          </p>
         </Box>
 
         <Typography variant="h4" align="center" sx={{ mt: 6 }}>

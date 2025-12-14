@@ -30,9 +30,11 @@ export type BookingContextType = {
   bookings: Booking[];
   loading: boolean;
   fetchBookings: (roomId?: string) => Promise<void>;
-  bookRoom: (
-    b: Omit<Booking, "id" | "created_at">
-  ) => Promise<{ success: boolean; message?: string }>;
+  bookRoom: (b: Omit<Booking, "id" | "created_at">) => Promise<{
+    booking: any;
+    success: boolean;
+    message?: string;
+  }>;
   searchAvailableRooms: (
     checkIn: string,
     checkOut: string

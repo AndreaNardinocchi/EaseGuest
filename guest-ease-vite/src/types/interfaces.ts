@@ -279,13 +279,35 @@ export interface Review {
   created_at?: string;
 }
 
+// export interface Room {
+//   id: string;
+//   name: string;
+//   description: string;
+//   capacity: number;
+//   price: string;
+//   created_at: string;
+//   roomType?: string; // Added optional room type
+//   amenities?: string[];
+// }
+
+export interface Booking {
+  id?: string;
+  room_id: string;
+  check_in: string;
+  check_out: string;
+  guests: number;
+  total_price?: number;
+  created_at?: string;
+  user_id?: string;
+}
+
 export interface Room {
   id: string;
   name: string;
-  description: string;
-  capacity: number;
-  price: string;
-  created_at: string;
-  roomType?: string; // Added optional room type
-  amenities?: string[];
+  description?: string;
+  capacity?: number;
+  price?: number;
+  images?: string[]; // ← FIXED: always an array
+  amenities?: string[]; // jsonb array
+  bookings?: Booking[];
 }
