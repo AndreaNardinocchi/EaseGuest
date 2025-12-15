@@ -221,10 +221,7 @@ const SiteHeader: React.FC = () => {
               <Button
                 sx={{ textTransform: "none" }}
                 color="inherit"
-                onClick={handleMovieMenu}
-                aria-controls={isMovieMenuOpen ? "movie-menu" : undefined}
-                aria-haspopup="true"
-                aria-expanded={isMovieMenuOpen ? "true" : undefined}
+                onClick={() => handleNavigate("/facilities")}
               >
                 Facilities
               </Button>

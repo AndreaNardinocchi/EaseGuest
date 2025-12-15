@@ -14,7 +14,7 @@ const AboutPage: React.FC = () => {
   }, []);
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 6, mb: 10 }}>
+    <Container maxWidth="lg" sx={{ mt: 1, mb: 10 }}>
       {/* HERO */}
       <Box textAlign="center" mb={8}>
         <Typography variant="h3" component="h1" gutterBottom>
@@ -48,10 +48,29 @@ const AboutPage: React.FC = () => {
           </Typography>
         </Grid>
 
-        <Grid item xs={12} md={6}>
+        {/* <Grid item xs={12} md={6}> */}
+        <Box
+          component="img"
+          src="/assets/bed-breakfast-a-bit-boutique.jpg"
+          alt="GuestEase interior"
+          sx={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            borderRadius: 3,
+            boxShadow: 4,
+          }}
+        />
+        {/* </Grid> */}
+        {/* <Grid
+          item
+          xs={12}
+          md={6}
+          sx={{ height: { xs: 250, md: 600, lg: "100%" } }}
+        >
           <Box
             component="img"
-            src="https://images.unsplash.com/photo-1505691938895-1758d7feb511"
+            src="/assets/bed-breakfast-a-bit-boutique.jpg"
             alt="GuestEase interior"
             sx={{
               width: "100%",
@@ -61,7 +80,7 @@ const AboutPage: React.FC = () => {
               boxShadow: 4,
             }}
           />
-        </Grid>
+        </Grid> */}
       </Grid>
 
       {/* PHILOSOPHY */}
@@ -80,7 +99,11 @@ const AboutPage: React.FC = () => {
           and your time.
         </Typography>
 
-        <Grid container spacing={6}>
+        <Grid
+          container
+          spacing={3}
+          sx={{ display: "flex", justifyContent: "center" }}
+        >
           {[
             {
               title: "Comfort Without Compromise",
@@ -95,8 +118,8 @@ const AboutPage: React.FC = () => {
               text: "Attentive, warm, and never intrusive — just the right balance.",
             },
           ].map((item) => (
-            <Grid item xs={12} md={4} key={item.title}>
-              <Card sx={{ height: "100%", boxShadow: 3 }}>
+            <Grid item xs={12} md={2} key={item.title}>
+              <Card sx={{ height: "100%", boxShadow: 3, width: "100%" }}>
                 <CardContent>
                   <Typography variant="h6" gutterBottom>
                     {item.title}
@@ -110,11 +133,11 @@ const AboutPage: React.FC = () => {
       </Box>
 
       {/* ROOMS STORY */}
-      <Grid container spacing={8} mb={10}>
+      <Grid container spacing={8} mb={8}>
         <Grid item xs={12} md={6}>
           <Box
             component="img"
-            src="https://images.unsplash.com/photo-1505691723518-36a5ac3b2c47"
+            src="/assets/SeanchaiNook3.jpg"
             alt="GuestEase room"
             sx={{
               width: "100%",
@@ -144,7 +167,7 @@ const AboutPage: React.FC = () => {
       </Grid>
 
       {/* MODERN TRAVELLERS */}
-      <Box mb={10}>
+      {/* <Box mb={10}>
         <Typography variant="h4" gutterBottom textAlign="center">
           Designed for Modern Travellers
         </Typography>
@@ -160,6 +183,59 @@ const AboutPage: React.FC = () => {
               <Typography color="text.secondary">• {text}</Typography>
             </Grid>
           ))}
+        </Grid>
+      </Box> */}
+
+      <Box mb={10}>
+        <Typography
+          variant="h4"
+          textAlign="center"
+          gutterBottom
+          sx={{ fontWeight: 500 }}
+        >
+          Designed for Modern Travellers
+        </Typography>
+
+        <Grid
+          container
+          spacing={4}
+          sx={{
+            mt: 4,
+            maxWidth: 900,
+            mx: "auto",
+          }}
+        >
+          {/* Left column */}
+          <Grid item xs={12} md={6}>
+            <Box component="ul" sx={{ pl: 2, m: 0 }}>
+              <li>
+                <Typography color="text.secondary">
+                  Remote workers seeking inspiring, functional spaces
+                </Typography>
+              </li>
+              <li>
+                <Typography color="text.secondary">
+                  Couples looking for warmth, privacy, and atmosphere
+                </Typography>
+              </li>
+            </Box>
+          </Grid>
+
+          {/* Right column */}
+          <Grid item xs={12} md={6}>
+            <Box component="ul" sx={{ pl: 2, m: 0 }}>
+              <li>
+                <Typography color="text.secondary">
+                  Families who value flexibility, space, and ease
+                </Typography>
+              </li>
+              <li>
+                <Typography color="text.secondary">
+                  Explorers wanting a calm base between adventures
+                </Typography>
+              </li>
+            </Box>
+          </Grid>
         </Grid>
       </Box>
 

@@ -87,21 +87,24 @@ interface CardItem {
 const cards: CardItem[] = [
   {
     id: 1,
-    title: "Card One",
-    description: "This is the description for card one.",
-    image: "/assets/brigidshaven1.png",
+    title: "Work Done. Kettle On.",
+    description:
+      "GuestEase helps remote workers find B&Bs that feel just right. Solid Wi-Fi, a comfy chair, and a friendly face.",
+    image: "/assets/remote-worker.jpg",
   },
   {
     id: 2,
-    title: "Card Two",
-    description: "This is the description for card two.",
-    image: "/assets/brigidshaven1.png",
+    title: "Settle In and Switch Off",
+    description:
+      "GuestEase helps you find B&Bs made for easy weekends. Take it handy and enjoy the break.",
+    image: "/assets/couple.jpg",
   },
   {
     id: 3,
-    title: "Card Three",
-    description: "This is the description for card three.",
-    image: "/assets/brigidshaven1.png",
+    title: "Rest, Reset, Breathe",
+    description:
+      "Spaces designed for calm and quiet moments. Ideal for meditation, mindfulness, or doing nothing at all.",
+    image: "/assets/meditation-retreat.jpg",
   },
 ];
 

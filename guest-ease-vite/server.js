@@ -2,9 +2,25 @@ import express from "express";
 import fetch from "node-fetch";
 import "dotenv/config";
 import { createClient } from "@supabase/supabase-js";
+import dotenv from "dotenv";
 
 const app = express();
 app.use(express.json());
+
+const result = dotenv.config({ path: ".env" }); // explicitly load .env
+if (result.error) {
+  console.error("Failed to load .env file:", result.error);
+  process.exit(1); // stop server if .env missing
+}
+console.log("Loaded env variables:", Object.keys(process.env));
+console.log("server.js loaded...");
+process.on("exit", (code) => console.log("Process exiting with code", code));
+process.on("uncaughtException", (err) =>
+  console.error("Uncaught exception:", err)
+);
+process.on("unhandledRejection", (err) =>
+  console.error("Unhandled rejection:", err)
+);
 
 const supabaseAdmin = createClient(
   process.env.SUPABASE_URL,
@@ -366,3 +382,18 @@ app.post("/store-payment", async (req, res) => {
 app.listen(3000, () => {
   console.log("Email server running on http://localhost:3000");
 });
+
+/* ---------------------------
+   Start server
+---------------------------- */
+// const PORT = process.env.PORT || 3000;
+// app.listen(PORT, () => {
+//   console.log(`Email server running on http://localhost:${PORT}`);
+// });
+
+// // Keep Node alive in case Git Bash exits immediately
+// setInterval(() => {
+//   // Heartbeat log every 60 seconds (optional)
+//   console.log("Server heartbeat — still alive");
+// }, 60000);
+//

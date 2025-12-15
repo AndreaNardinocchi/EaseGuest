@@ -16,68 +16,34 @@ import HeroImage from "../components/HeroImage/HeroImage";
 import ThreeCardComponent from "../components/homepageThreeCards/homePageThreeCards";
 import ExperienceCarousel from "../components/ExperienceCarousel/ExperienceCarousel";
 
-const rooms = [
-  {
-    id: 1,
-    name: "Room 101",
-    description: "Cozy single room with all essentials and a great view.",
-    image:
-      "https://images.unsplash.com/photo-1501117716987-c8e8c0d0e3b8?auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    id: 2,
-    name: "Room 102",
-    description: "Spacious double room with modern amenities and balcony.",
-    image:
-      "https://images.unsplash.com/photo-1560448070-5cbdac6eaa7e?auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    id: 3,
-    name: "Room 103",
-    description: "Deluxe suite with king‑sized bed and luxurious bathroom.",
-    image:
-      "https://images.unsplash.com/photo-1551918120-973ff7851f76?auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    id: 4,
-    name: "Room 104",
-    description:
-      "Family room with two double beds, smart TV and lots of space.",
-    image:
-      "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    id: 5,
-    name: "Room 105",
-    description:
-      "Executive corner room with dedicated work desk and city‑skyline view. iiiiiiiiiiiiiiii",
-    image:
-      "https://images.unsplash.com/photo-1551906993244-0a1a995fb?auto=format&fit=crop&w=800&q=80",
-  },
-  {
-    id: 6,
-    name: "Room 106",
-    description:
-      "Penthouse suite with private terrace, lounge area and premium finishes.",
-    image:
-      "https://images.unsplash.com/photo-1541717854-c0717ffb4328?auto=format&fit=crop&w=800&q=80",
-  },
-];
-
 const experiences = [
   {
     id: 1,
-    title: "Explore Nature Trails",
-    description: "Beautiful paths perfect for walking, hiking, or cycling.",
-    image:
-      "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=800&q=80",
+    title: "Explore Cliff Trails",
+    description:
+      "Beautiful paths perfect for hiking with a stunning view of the Atlantic Ocean.",
+    image: "/assets/hiking-experience.jpg",
   },
   {
     id: 2,
-    title: "Relax by the Sea",
-    description: "A short walk takes you to scenic coastal views and beaches.",
-    image:
-      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80",
+    title: "Seaweed Soak, Sure Why Not",
+    description:
+      "Slip into a warm Atlantic seaweed bath and let the stress melt away. Pure Irish wellness, with a bit of salty magic.",
+    image: "/assets/seaweed-bath.jpg",
+  },
+  {
+    id: 3,
+    title: "A Drop of the Good Stuff",
+    description:
+      "Taste local Irish whiskey and soak up the stories behind every sip. A relaxed, friendly way to connect with the coast and its culture.",
+    image: "/assets/whiskey-tasting.jpg",
+  },
+  {
+    id: 4,
+    title: "Paddle Your Own Way",
+    description:
+      "Explore calm bays, hidden inlets, or open water at your own pace. Perfect for a gentle adventure and a fresh Atlantic breeze.",
+    image: "/assets/kayaking-experience.jpg",
   },
 ];
 
@@ -93,21 +59,26 @@ const HomePage: React.FC = () => {
   });
   return (
     <>
-      <HeroImage imageUrl="/assets/brigidshaven1.png" />
+      <HeroImage imageUrl="/assets/BrigidsHavenRoom1.jpg" />
 
-      <Container maxWidth="lg">
-        <Box textAlign="center" mb={5} sx={{ mt: 4 }}>
-          <Typography variant="h2" component="h1" gutterBottom>
+      <Box textAlign="center" sx={{ backgroundColor: "#EFF5E0" }}>
+        <Container maxWidth="lg">
+          <Typography variant="h2" component="h1" gutterBottom sx={{ pt: 5 }}>
             Welcome to GuestEase
           </Typography>
 
-          <Typography variant="h5" color="textSecondary" paragraph>
+          <Typography
+            variant="h5"
+            color="textSecondary"
+            paragraph
+            sx={{ pb: 5, mb: 0 }}
+          >
             Your comfort is our priority. Nestled in a peaceful location, our
             guesthouse offers cozy rooms, friendly service, and a relaxing
             atmosphere.
           </Typography>
-        </Box>
-      </Container>
+        </Container>
+      </Box>
 
       {/* Sticky box below nav */}
       <StickyBox>
@@ -121,7 +92,7 @@ const HomePage: React.FC = () => {
             Enjoy your stay
           </Typography>
 
-          <Typography variant="body1" paragraph>
+          <Typography variant="body1" color="textSecondary">
             Whether you're traveling for business or pleasure, GuestEase ensures
             a pleasant stay with clean, well-equipped rooms, fast Wi-Fi, and
             complimentary breakfast. Choose from a range of room options and
@@ -172,7 +143,7 @@ const HomePage: React.FC = () => {
                 sx={{
                   display: "flex",
                   flexDirection: "column",
-                  height: 400, // fixed height
+                  height: 330, // fixed height
                   width: "100%", // fills the column
                   maxWidth: 560, // optional: ensures cards don’t stretch
                   margin: "0 auto", // centers in column
@@ -180,7 +151,7 @@ const HomePage: React.FC = () => {
               >
                 <CardMedia
                   component="img"
-                  image="https://images.unsplash.com/photo-1497534446932-c925b458314e?auto=format&fit=crop&w=800&q=80"
+                  image="/assets/rich-and-abundant-irish-complimentary-breakfast-enjoy.jpg"
                   alt="Complimentary Breakfast"
                   sx={{ height: 200, objectFit: "cover" }}
                 />
@@ -203,11 +174,11 @@ const HomePage: React.FC = () => {
                     perfectly.
                   </Typography>
                 </CardContent>
-                <CardActions>
+                {/* <CardActions>
                   <Button size="small" color="primary">
                     Learn More
                   </Button>
-                </CardActions>
+                </CardActions> */}
               </Card>
             </Grid>
 
@@ -217,7 +188,7 @@ const HomePage: React.FC = () => {
                 sx={{
                   display: "flex",
                   flexDirection: "column",
-                  height: 400,
+                  height: 330,
                   width: "100%",
                   maxWidth: 560,
                   margin: "0 auto",
@@ -225,7 +196,7 @@ const HomePage: React.FC = () => {
               >
                 <CardMedia
                   component="img"
-                  image="https://images.unsplash.com/photo-1497534446932-c925b458314e?auto=format&fit=crop&w=800&q=80"
+                  image="/assets/snacks-refreshments-enjoy-complimentary-snacks-coffee.jpg"
                   alt="Snacks & Refreshments"
                   sx={{ height: 200, objectFit: "cover" }}
                 />
@@ -247,11 +218,11 @@ const HomePage: React.FC = () => {
                     drinks available throughout the day for your comfort.
                   </Typography>
                 </CardContent>
-                <CardActions>
+                {/* <CardActions>
                   <Button size="small" color="primary">
                     Learn More
                   </Button>
-                </CardActions>
+                </CardActions> */}
               </Card>
             </Grid>
           </Grid>
@@ -277,9 +248,9 @@ const HomePage: React.FC = () => {
           {/* Placeholder Logo */}
           <Box
             component="img"
-            src="https://via.placeholder.com/120x60?text=Logo" // placeholder logo
+            src="/assets/GuestEaseLogo.png" // placeholder logo
             alt="GuestEase"
-            sx={{ width: 120, height: "auto" }}
+            sx={{ width: 80, height: "auto" }}
           />
 
           {/* Tagline / Intro */}

@@ -16,6 +16,7 @@ import AdminRoute from "./routes/AdminRoute";
 import ReviewPage from "./pages/bookingReviewPage";
 import RoomsPage from "./pages/roomsPage";
 import AboutPage from "./pages/aboutUs";
+import FacilitiesPage from "./pages/facilities";
 // import ProtectedRoute from "./routes/protectedRoutes";
 
 const App = () => {
@@ -35,6 +36,7 @@ const App = () => {
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/rooms" element={<RoomsPage />} />
           <Route path="/about-us" element={<AboutPage />} />
+          <Route path="/facilities" element={<FacilitiesPage />} />
 
           <Route
             path="/account"

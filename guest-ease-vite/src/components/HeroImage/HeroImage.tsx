@@ -44,7 +44,7 @@ const HeroImage: React.FC<HeroImageProps> = ({ imageUrl }) => {
         backgroundImage: `url(${imageUrl})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
-        mb: 6,
+        // mb: 6,
       }}
     />
   );
