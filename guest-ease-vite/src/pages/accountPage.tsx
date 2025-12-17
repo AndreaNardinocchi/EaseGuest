@@ -12,9 +12,7 @@ import {
   Grid,
   Button,
   Stack,
-  AppBar,
-  Toolbar,
-  Link as MuiLink,
+  // Link as MuiLink,
   Dialog,
   DialogContent,
   DialogTitle,
@@ -207,34 +205,7 @@ const AccountPage: React.FC = () => {
   return (
     <Box maxWidth="1200px" mx="auto" mt={4} px={2}>
       {/* Sub-navigation */}
-      {/* <AppBar position="static" color="transparent" elevation={0}>
-        <Toolbar sx={{ justifyContent: "center", gap: 4 }}>
-          <MuiLink
-            component={Link}
-            to="/account"
-            underline="none"
-            color="secondary"
-          >
-            My Trips
-          </MuiLink>
-          <MuiLink
-            component={Link}
-            to="/account/profile"
-            underline="none"
-            color="textPrimary"
-          >
-            Profile
-          </MuiLink>
-          <MuiLink
-            component={Link}
-            to="/account/favorites"
-            underline="none"
-            color="textPrimary"
-          >
-            Favorites
-          </MuiLink>
-        </Toolbar>
-      </AppBar> */}
+
       <SubNav />
 
       <Typography

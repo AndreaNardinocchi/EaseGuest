@@ -1,73 +1,99 @@
-# React + TypeScript + Vite
+# GuestEase Demo (React + Express)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A minimal full-stack demo for a small guesthouse booking system.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- React frontend using Material-UI
+- Express backend with CORS
+- Simple booking form (name + room)
+- Backend stores bookings in memory
 
-## React Compiler
+## Run the app
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+1. Start the backend:
+   ```bash
+   cd backend
+   npm install
+   npm start
+   ```
 
-## Expanding the ESLint configuration
+## Typescript & Supabase
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+```
+npm install --save typescript @types/react @types/react-dom @types/node
+npm install @mui/material @emotion/react @emotion/styled @supabase/supabase-js
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+npm install --save-dev vite typescript
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+npm create vite@latest guest-ease-vite
+# Select React + TypeScript
+
+
+cd guest-ease-vite
+npm install @mui/material @emotion/react @emotion/styled @supabase/supabase-js
+
+npm install react-router-dom
+
+npm install @mui/icons-material
+
+npm install @mui/material @emotion/react @emotion/styled
+
+
+ADMIN Role
+
+npm install @supabase/supabase-js dotenv
+npm install -D ts-node typescript @types/node
+
+npm install ts-node typescript @types/node dotenv
+
+npx tsc -b tsconfig.node.json
+
+node dist/node/scripts/set-admin.js
+
+
+next.js for backend admin bookings.ts
+
+npm install next react react-dom
+npm install --save-dev typescript @types/react @types/node
+
+
+
+https://resend.com/onboarding
+
+server.js
+npm install express node-fetch
+npm install express cors
+
+
+npm install -g localtunnel
+lt --port 3000
+
+
+npx localtunnel --port 3000
+
+
+npm install pg
+
+
+======== STRIPE =============
+
+npm install stripe
+npm install @stripe/stripe-js @stripe/react-stripe-js
+
+https://dashboard.stripe.com/acct_1SZ9enGi6NYaGS4M/test/workbench/logs
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
 ```
+We are working on showing the amount on the booking table
+
+npm install -D ts-node typescript
+
+for app.post("/store-payment",
+
+```
+
+Check this
+https://www.npmjs.com/package/date-fns
+https://mui.com/x/react-date-pickers/date-picker/

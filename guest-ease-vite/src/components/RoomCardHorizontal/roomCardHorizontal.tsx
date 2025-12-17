@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import {
   Card,
   CardMedia,
@@ -18,6 +18,10 @@ type RoomCardHorizontalProps = {
   price?: number;
   images?: string[];
   amenities?: string[];
+
+  checkIn: string;
+  checkOut: string;
+  guests: number;
 };
 
 const RoomCardHorizontal: React.FC<RoomCardHorizontalProps> = ({
@@ -27,9 +31,18 @@ const RoomCardHorizontal: React.FC<RoomCardHorizontalProps> = ({
   price,
   images,
   amenities,
+  checkIn,
+  checkOut,
+  guests,
 }) => {
   const cardHeight = 350; // fixed height
   const contentWidth = 400; // fixed content width
+
+  const location = useLocation();
+  // Build a query string to include dates + guests
+  const queryString = `?checkIn=${encodeURIComponent(
+    checkIn
+  )}&checkOut=${encodeURIComponent(checkOut)}&guests=${guests}`;
 
   return (
     <Card
@@ -124,7 +137,13 @@ const RoomCardHorizontal: React.FC<RoomCardHorizontalProps> = ({
             variant="contained"
             color="primary"
             component={Link}
-            to={`/room/${id}`}
+            // to={`/room/${id}`}
+            to={`/room/${id}${queryString}`}
+            state={{
+              checkIn,
+              checkOut,
+              guests,
+            }}
           >
             View Details
           </Button>
