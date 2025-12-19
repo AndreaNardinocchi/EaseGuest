@@ -25,44 +25,24 @@ const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL!,
   import.meta.env.VITE_SUPABASE_ANON_KEY!
 );
-
-interface Booking {
-  id: string;
-  room_id: string;
-  user_id: string;
-  user_email: string;
-  check_in: string;
-  check_out: string;
-  guests: number;
-  created_at: string;
-  first_name: string;
-}
-
-interface AdminUser {
-  id: string;
-  email: string;
-  role: string | null;
-  created_at: string;
-}
-
-interface Room {
-  id: string;
-  name: string;
-  type: string;
-  description: string;
-  amenities: string[];
-  capacity: number;
-  price: number;
-  created_at: string;
-}
+import type { Booking } from "../types/interfaces";
+import type { Room } from "../types/interfaces";
+import type { Review } from "../types/interfaces";
+import type { User } from "../types/interfaces";
 
 const AdminDashboard = () => {
+  // In your React app
+  const BASE_URL = "http://localhost:3000";
+
   const [bookings, setBookings] = useState<Booking[]>([]);
-  const [users, setUsers] = useState<AdminUser[]>([]);
+  // const [users, setUsers] = useState<AdminUser[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
+
   const [rooms, setRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [reviews, setReviews] = useState<Review[]>([]);
 
   // --- Modals State ---
   const [openBookingModal, setOpenBookingModal] = useState(false);
@@ -71,7 +51,9 @@ const AdminDashboard = () => {
 
   // --- Editing Entities ---
   const [editingBooking, setEditingBooking] = useState<Booking | null>(null);
-  const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
+  // const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+
   const [editingRoom, setEditingRoom] = useState<Room | null>(null);
 
   // --- Forms ---
@@ -84,6 +66,10 @@ const AdminDashboard = () => {
   });
 
   const [userForm, setUserForm] = useState({
+    first_name: "",
+    last_name: "",
+    country: "",
+    zip_code: "",
     email: "",
     role: "guest",
   });
@@ -109,7 +95,8 @@ const AdminDashboard = () => {
       .select("*")
       .order("created_at", { ascending: false });
     if (error) throw error;
-    setUsers(data as AdminUser[]);
+    // setUsers(data as AdminUser[]);
+    setUsers(data as User[]);
   };
 
   const fetchRooms = async () => {
@@ -119,6 +106,15 @@ const AdminDashboard = () => {
       .order("created_at", { ascending: false });
     if (error) throw error;
     setRooms(data as Room[]);
+  };
+
+  const fetchReviews = async () => {
+    const { data, error } = await supabase
+      .from("reviews")
+      .select("*")
+      .order("room_id", { ascending: false });
+    if (error) throw error;
+    setReviews(data as Review[]);
   };
 
   // --- Initialization ---
@@ -136,7 +132,12 @@ const AdminDashboard = () => {
       }
 
       setIsAdmin(true);
-      await Promise.all([fetchBookings(), fetchUsers(), fetchRooms()]);
+      await Promise.all([
+        fetchBookings(),
+        fetchUsers(),
+        fetchRooms(),
+        fetchReviews(),
+      ]);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -175,117 +176,116 @@ const AdminDashboard = () => {
 
   const handleSaveBooking = async () => {
     try {
-      const payload = {
-        bookingId: editingBooking?.id || null,
-        updates: {
-          room_id: bookingForm.room_id,
-          check_in: bookingForm.check_in,
-          check_out: bookingForm.check_out,
-          guests: Number(bookingForm.guests),
-        },
+      const updates = {
+        room_id: bookingForm.room_id,
+        check_in: bookingForm.check_in,
+        check_out: bookingForm.check_out,
+        guests: Number(bookingForm.guests),
       };
 
       if (!editingBooking) {
         // --- CREATE BOOKING ---
-        const { data: user, error: userError } = await supabase
-          .from("profiles")
-          .select("id, email")
-          .eq("email", bookingForm.user_email)
-          .single();
 
-        if (userError || !user) {
-          alert("User not found");
-          return;
-        }
-
-        const createRes = await supabase.from("bookings").insert([
-          {
-            ...payload.updates,
-            user_id: user.id,
-          },
-        ]);
-
-        if (createRes.error) {
-          alert(createRes.error.message);
-          return;
-        }
-
-        // --- SEND CONFIRMATION EMAIL ---
-        await sendBookingConfirmationEmail(user, bookingForm);
-      } else {
-        // --- UPDATE BOOKING (backend handles email) ---
-        const res = await fetch("http://localhost:3000/admin/update_booking", {
+        // 1️⃣ Get the user by email
+        const resUser = await fetch(`${BASE_URL}/admin/get_user_by_email`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
+          body: JSON.stringify({ email: bookingForm.user_email }),
         });
 
-        const data = await res.json();
-        if (!res.ok) {
-          alert(data.error || "Update failed");
+        const textUser = await resUser.text();
+        let userData;
+        try {
+          userData = JSON.parse(textUser);
+        } catch {
+          console.error("Non-JSON response from get_user_by_email:", textUser);
+          alert(
+            "Server error: expected JSON, got HTML. Check backend URL/port."
+          );
           return;
         }
+
+        if (!resUser.ok || !userData.user) {
+          alert(userData.error || "User not found");
+          return;
+        }
+
+        const user = userData.user;
+
+        const resBooking = await fetch(`${BASE_URL}/admin/create_booking`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            room_id: updates.room_id,
+            user_email: bookingForm.user_email, // ✅ send email, not user_id
+            check_in: updates.check_in,
+            check_out: updates.check_out,
+            guests: updates.guests,
+          }),
+        });
+
+        const textBooking = await resBooking.text();
+        let bookingData;
+        try {
+          bookingData = JSON.parse(textBooking);
+        } catch {
+          console.error("Non-JSON response from create_booking:", textBooking);
+          alert(
+            "Server error: expected JSON, got HTML. Check backend URL/port."
+          );
+          return;
+        }
+
+        if (!resBooking.ok) {
+          alert(bookingData.error || "Failed to create booking");
+          return;
+        }
+
+        alert("Booking created successfully and confirmation email sent!");
+      } else {
+        // --- UPDATE BOOKING ---
+        const resUpdate = await fetch(`${BASE_URL}/admin/update_booking`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            bookingId: editingBooking.id,
+            updates,
+          }),
+        });
+
+        const textUpdate = await resUpdate.text();
+        let updateData;
+        try {
+          updateData = JSON.parse(textUpdate);
+        } catch {
+          console.error("Non-JSON response from update_booking:", textUpdate);
+          alert(
+            "Server error: expected JSON, got HTML. Check backend URL/port."
+          );
+          return;
+        }
+
+        if (!resUpdate.ok) {
+          alert(updateData.error || "Update failed");
+          return;
+        }
+
+        alert("Booking updated successfully!");
       }
 
+      // Close modal and refresh bookings table
       setOpenBookingModal(false);
       fetchBookings();
     } catch (err: any) {
-      alert(err.message);
+      console.error("Booking error:", err);
+      alert(err.message || "Something went wrong");
     }
-  };
-
-  // --- EMAILS ---
-
-  // Confirmation email (for new booking)
-  const sendBookingConfirmationEmail = async (user: any, form: any) => {
-    const subject = "✨ Your Booking Is Confirmed by Admin — GuestEase";
-    const message = `
-    <p>Hi ${user.first_name || "there"},</p>
-    <p>Your booking has been successfully confirmed! Here are the details:</p>
-    ${bookingDetailsTable(form)}
-    <p>Thank you for choosing GuestEase!</p>
-  `;
-    await sendEmail(user.email, subject, message);
-  };
-
-  // Helper to format booking details as HTML table
-  const bookingDetailsTable = (form: any) => `
-  <table style="width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 15px;">
-    <tr>
-      <td style="padding: 10px; font-weight: bold;">Room ID</td>
-      <td style="padding: 10px;">${form.room_id}</td>
-    </tr>
-    <tr style="background-color: #f9f9f9;">
-      <td style="padding: 10px; font-weight: bold;">Check-in</td>
-      <td style="padding: 10px;">${form.check_in}</td>
-    </tr>
-    <tr>
-      <td style="padding: 10px; font-weight: bold;">Check-out</td>
-      <td style="padding: 10px;">${form.check_out}</td>
-    </tr>
-    <tr style="background-color: #f9f9f9;">
-      <td style="padding: 10px; font-weight: bold;">Guests</td>
-      <td style="padding: 10px;">${form.guests}</td>
-    </tr>
-  </table>
-  <div style="text-align:center; margin-top:20px;">
-    <a href="http://localhost:5173/account" style="background-color:#4CAF50;color:white;padding:12px 24px;text-decoration:none;border-radius:5px;">View Your Booking</a>
-  </div>
-`;
-
-  // Generic send email helper
-  const sendEmail = async (email: string, subject: string, body: string) => {
-    await fetch("http://localhost:3000/send_email", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, subject, body }),
-    });
   };
 
   const handleDeleteBooking = async (id: string) => {
     if (!confirm("Delete this booking?")) return;
     try {
-      const res = await fetch("http://localhost:3000/admin/delete_booking", {
+      const res = await fetch(`${BASE_URL}/admin/delete_booking`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ bookingId: id }),
@@ -304,50 +304,57 @@ const AdminDashboard = () => {
   // --- User Handlers ---
   const handleOpenCreateUser = () => {
     setEditingUser(null);
-    setUserForm({ email: "", role: "guest" });
+    setUserForm({
+      first_name: "",
+      last_name: "",
+      email: "",
+      role: "guest",
+      country: "",
+      zip_code: "",
+    });
     setOpenUserModal(true);
   };
 
-  const handleOpenUpdateUser = (u: AdminUser) => {
+  // const handleOpenUpdateUser = (u: AdminUser) => {
+  const handleOpenUpdateUser = (u: User) => {
     setEditingUser(u);
-    setUserForm({ email: u.email, role: u.role || "guest" });
+    setUserForm({
+      first_name: u.first_name,
+      last_name: u.last_name,
+      email: u.email ?? "",
+      role: u.role || "guest",
+      country: u.country,
+      zip_code: u.zip_code,
+    });
     setOpenUserModal(true);
   };
 
   const handleSaveUser = async () => {
     try {
-      const payload = { email: userForm.email, role: userForm.role };
-      if (
-        editingUser &&
-        editingUser.role === "admin" &&
-        userForm.role !== "admin"
-      ) {
-        alert("Cannot change admin role!");
-        return;
+      const url = `${BASE_URL}/api/admin/create_user`;
+
+      const payload = {
+        email: userForm.email,
+        first_name: userForm.first_name,
+        last_name: userForm.last_name,
+        role: userForm.role,
+        country: userForm.country,
+        zip_code: userForm.zip_code,
+      };
+
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to create user");
       }
 
-      let error;
-      if (editingUser) {
-        const res = await supabase
-          .from("profiles")
-          .update(payload)
-          .eq("id", editingUser.id);
-        error = res.error;
-      } else {
-        const { error: insertError } = await supabase.auth.admin.createUser({
-          email: userForm.email,
-          password: Math.random().toString(36).slice(-8),
-          email_confirm: true,
-          user_metadata: { role: userForm.role },
-        });
-        error = insertError;
-      }
-
-      if (error) {
-        alert(error.message);
-        return;
-      }
-
+      alert(`User created successfully: ${data.user?.id}`);
       setOpenUserModal(false);
       fetchUsers();
     } catch (err: any) {
@@ -384,7 +391,7 @@ const AdminDashboard = () => {
 
     setRoomForm({
       name: r.name,
-      description: r.description,
+      description: r.description ?? "",
       amenities: Array.isArray(r.amenities)
         ? r.amenities
         : typeof r.amenities === "string"
@@ -393,6 +400,7 @@ const AdminDashboard = () => {
       capacity: String(r.capacity),
       price: String(r.price),
     });
+    console.log("UI room:", r.id, r.description);
 
     setOpenRoomModal(true);
   };
@@ -413,11 +421,42 @@ const AdminDashboard = () => {
       };
 
       if (editingRoom) {
+        console.log("Attempting update for room ID:", editingRoom.id);
+        // const { data, error } = await supabase
+        //   .from("rooms")
+        //   .update(payload)
+        //   .eq("id", editingRoom.id)
+        //   .select("*")
+        //   .maybeSingle(); // <- this ensures either null or single row
         const { data, error } = await supabase
           .from("rooms")
           .update(payload)
           .eq("id", editingRoom.id)
-          .select(); // ✅ include select to get updated row
+          .select("*")
+          .maybeSingle();
+
+        if (error) console.error("Update error:", error);
+        else console.log("Updated room:", data);
+
+        console.log("Supabase update data:", data, "error:", error);
+
+        // sanity check
+        const check = await supabase
+          .from("rooms")
+          .select("*")
+          .eq("id", editingRoom.id);
+        console.log(
+          "Rows with this ID in DB:",
+          check.data,
+          "error:",
+          check.error
+        );
+
+        console.log("Editing room:", editingRoom);
+        console.log("Editing room ID:", editingRoom.id);
+        console.log("editingRoom.id trimmed:", editingRoom.id.trim());
+
+        console.log("Supabase update data:", data, "error:", error);
 
         if (error) throw error;
         console.log("Room updated successfully");
@@ -445,6 +484,9 @@ const AdminDashboard = () => {
     if (error) alert(error.message);
     else fetchRooms();
   };
+
+  const getRoomName = (roomId: string) =>
+    rooms.find((r) => r.id === roomId)?.name || `Unknown room (${roomId})`;
 
   // --- Loading/Error ---
   if (loading)
@@ -497,13 +539,15 @@ const AdminDashboard = () => {
           <TableHead>
             <TableRow>
               <TableCell>Booking ID</TableCell>
-              <TableCell>Room ID</TableCell>
+              <TableCell>Room Name</TableCell>
               <TableCell>First Name</TableCell>
+              <TableCell>Last Name</TableCell>
               <TableCell>User Email</TableCell>
               <TableCell>Check-in</TableCell>
               <TableCell>Check-out</TableCell>
               <TableCell>Guests</TableCell>
               <TableCell>Created At</TableCell>
+
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
@@ -511,13 +555,15 @@ const AdminDashboard = () => {
             {bookings.map((b) => (
               <TableRow key={b.id}>
                 <TableCell>{b.id}</TableCell>
-                <TableCell>{b.room_id}</TableCell>
+                <TableCell>{getRoomName(b.room_id)}</TableCell>
                 <TableCell>{b.first_name}</TableCell>
+                <TableCell>{b.last_name}</TableCell>
                 <TableCell>{b.user_email}</TableCell>
                 <TableCell>{b.check_in}</TableCell>
                 <TableCell>{b.check_out}</TableCell>
                 <TableCell>{b.guests}</TableCell>
                 <TableCell>{new Date(b.created_at).toLocaleString()}</TableCell>
+
                 <TableCell>
                   <Button
                     variant="outlined"
@@ -559,6 +605,10 @@ const AdminDashboard = () => {
             <TableRow>
               <TableCell>User ID</TableCell>
               <TableCell>Email</TableCell>
+              <TableCell>First Name</TableCell>
+              <TableCell>Last Name</TableCell>
+              <TableCell>Country</TableCell>
+              <TableCell>Zip Code</TableCell>
               <TableCell>Role</TableCell>
               <TableCell>Created At</TableCell>
               <TableCell>Actions</TableCell>
@@ -569,6 +619,10 @@ const AdminDashboard = () => {
               <TableRow key={u.id}>
                 <TableCell>{u.id}</TableCell>
                 <TableCell>{u.email}</TableCell>
+                <TableCell>{u.first_name}</TableCell>
+                <TableCell>{u.last_name}</TableCell>
+                <TableCell>{u.country}</TableCell>
+                <TableCell>{u.zip_code}</TableCell>
                 <TableCell>{u.role}</TableCell>
                 <TableCell>{new Date(u.created_at).toLocaleString()}</TableCell>
                 <TableCell>
@@ -616,6 +670,7 @@ const AdminDashboard = () => {
               <TableCell>Amenities</TableCell>
               <TableCell>Capacity</TableCell>
               <TableCell>Price</TableCell>
+              <TableCell>Images</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
@@ -625,9 +680,12 @@ const AdminDashboard = () => {
                 <TableCell>{r.id}</TableCell>
                 <TableCell>{r.name}</TableCell>
                 <TableCell>{r.description}</TableCell>
-                <TableCell>{r.amenities.join(", ")}</TableCell>
+                <TableCell>{r.amenities?.join(", ")}</TableCell>
                 <TableCell>{r.capacity}</TableCell>
                 <TableCell>€{r.price}</TableCell>
+                <TableCell>
+                  {r.images?.length ? r.images.join(", ") : "No images"}
+                </TableCell>
                 <TableCell>
                   <Button
                     variant="outlined"
@@ -644,6 +702,36 @@ const AdminDashboard = () => {
                     Delete
                   </Button>
                 </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+
+      <Typography variant="h5" gutterBottom>
+        Reviews
+      </Typography>
+      <TableContainer component={Paper} sx={{ mb: 6 }}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Review ID</TableCell>
+              <TableCell>Booking ID</TableCell>
+              <TableCell>Room Name</TableCell>
+              <TableCell>Rating</TableCell>
+              <TableCell>Comment</TableCell>
+              <TableCell>Created at</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {reviews.map((r) => (
+              <TableRow key={r.id}>
+                <TableCell>{r.id}</TableCell>
+                <TableCell>{r.booking_id}</TableCell>
+                <TableCell>{getRoomName(r.room_id)}</TableCell>
+                <TableCell>{r.rating}</TableCell>
+                <TableCell>{r.comment}</TableCell>
+                <TableCell>{new Date(r.created_at).toLocaleString()}</TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -733,13 +821,31 @@ const AdminDashboard = () => {
         <DialogContent>
           <TextField
             margin="dense"
+            label="First Name"
+            fullWidth
+            value={userForm.first_name}
+            onChange={(e) =>
+              setUserForm({ ...userForm, first_name: e.target.value })
+            }
+          />
+          <TextField
+            margin="dense"
+            label="Last Name"
+            fullWidth
+            value={userForm.last_name}
+            onChange={(e) =>
+              setUserForm({ ...userForm, last_name: e.target.value })
+            }
+          />
+          <TextField
+            margin="dense"
             label="Email"
             fullWidth
             value={userForm.email}
             onChange={(e) =>
               setUserForm({ ...userForm, email: e.target.value })
             }
-            disabled={!!editingUser}
+            disabled={!!editingUser} // email is fixed when updating
           />
           <TextField
             margin="dense"
@@ -747,6 +853,24 @@ const AdminDashboard = () => {
             fullWidth
             value={userForm.role}
             onChange={(e) => setUserForm({ ...userForm, role: e.target.value })}
+          />
+          <TextField
+            margin="dense"
+            label="Country"
+            fullWidth
+            value={userForm.country}
+            onChange={(e) =>
+              setUserForm({ ...userForm, country: e.target.value })
+            }
+          />
+          <TextField
+            margin="dense"
+            label="Zip Code"
+            fullWidth
+            value={userForm.zip_code}
+            onChange={(e) =>
+              setUserForm({ ...userForm, zip_code: e.target.value })
+            }
           />
         </DialogContent>
         <DialogActions>
@@ -783,22 +907,6 @@ const AdminDashboard = () => {
               setRoomForm({ ...roomForm, description: e.target.value })
             }
           />
-
-          {/* <TextField
-            margin="dense"
-            label="Amenities (comma-separated)"
-            fullWidth
-            value={roomForm.amenities.join(", ")}
-            onChange={(e) =>
-              setRoomForm({
-                ...roomForm,
-                amenities: e.target.value
-                  .split(",")
-                  .map((a) => a.trim())
-                  .filter((a) => a.length > 0),
-              })
-            }
-          /> */}
 
           <Autocomplete
             multiple

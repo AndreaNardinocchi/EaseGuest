@@ -1,0 +1,7 @@
+-- Adding a column to the bookings tables for the total price
+
+ALTER TABLE public.bookings
+DROP COLUMN IF EXISTS total_price;
+
+ALTER TABLE public.bookings
+ADD COLUMN total_price numeric(10,2) NOT NULL DEFAULT 0;

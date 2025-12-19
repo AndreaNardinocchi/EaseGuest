@@ -1,0 +1,10 @@
+-- Create the extension
+create extension if not exists http with schema extensions;
+
+-- (Optional) Grant privileges if another role needs to execute it
+grant usage on schema extensions to postgres;
+grant execute on function extensions.http_get(text) to postgres;
+grant execute on function extensions.http_post(text, text) to postgres;
+
+-- Test the GET request
+select extensions.http_get('https://supabase.com');

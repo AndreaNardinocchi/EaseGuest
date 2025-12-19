@@ -18,8 +18,10 @@
 
 - Check redirections when logging in
 
-- Fix Admin emeails
+- Fix Admin emails
 
 - SEO
 
 - Use room names instead of id in the Account page
+
+- Show reviews

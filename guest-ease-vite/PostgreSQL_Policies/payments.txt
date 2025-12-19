@@ -1,0 +1,92 @@
+-- ==========================================
+-- 0. Cleanup (optional)
+-- ==========================================
+DROP TABLE IF EXISTS public.payments;
+
+-- ==========================================
+-- 1. Create payments table
+-- ==========================================
+CREATE TABLE public.payments (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  booking_id uuid NOT NULL,         -- foreign key to bookings
+  user_id uuid NOT NULL,            -- foreign key to auth.users
+  amount integer NOT NULL,          -- in smallest currency unit, e.g., cents
+  currency text NOT NULL DEFAULT 'usd',
+  payment_intent_id text NOT NULL,  -- Stripe paymentIntent ID
+  status text NOT NULL,             -- e.g., 'succeeded', 'failed'
+  created_at timestamptz DEFAULT now()
+);
+
+-- ==========================================
+-- 2. Foreign key to bookings
+-- ==========================================
+ALTER TABLE public.payments
+ADD CONSTRAINT payments_booking_id_fkey
+FOREIGN KEY (booking_id)
+REFERENCES public.bookings (id)
+ON DELETE CASCADE;
+
+-- 3. Foreign key to Supabase auth.users
+ALTER TABLE public.payments
+ADD CONSTRAINT payments_user_id_fkey
+FOREIGN KEY (user_id)
+REFERENCES auth.users (id)
+ON DELETE CASCADE;
+
+-- ==========================================
+-- 4. Base permissions
+-- ==========================================
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.payments TO public;
+
+-- ==========================================
+-- 5. Enable Row Level Security
+-- ==========================================
+ALTER TABLE public.payments ENABLE ROW LEVEL SECURITY;
+
+-- ==========================================
+-- 6. RLS Policies
+-- ==========================================
+
+-- SELECT: Admin sees all, users see only their own
+CREATE POLICY "Admins see all, users see own"
+ON public.payments
+FOR SELECT
+USING (
+  auth.jwt()->>'role' = 'admin'
+  OR auth.uid() = user_id
+);
+
+-- INSERT: Users can insert only their own, admin can insert any
+CREATE POLICY "Admins insert any, users only own"
+ON public.payments
+FOR INSERT
+WITH CHECK (
+  EXISTS (
+    SELECT 1
+    FROM profiles p
+    WHERE p.id = auth.uid()
+      AND (p.role = 'admin' OR auth.uid() = user_id)
+  )
+);
+
+-- UPDATE: Users can update only their own payments, admin can update any
+CREATE POLICY "Admins update any, users only own"
+ON public.payments
+FOR UPDATE
+USING (
+  auth.jwt()->>'role' = 'admin'
+  OR auth.uid() = user_id
+)
+WITH CHECK (
+  auth.jwt()->>'role' = 'admin'
+  OR auth.uid() = user_id
+);
+
+-- DELETE: Users can delete only their own payments, admin can delete any
+CREATE POLICY "Admins delete any, users only own"
+ON public.payments
+FOR DELETE
+USING (
+  auth.jwt()->>'role' = 'admin'
+  OR auth.uid() = user_id
+);

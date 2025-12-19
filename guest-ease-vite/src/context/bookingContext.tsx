@@ -536,33 +536,17 @@
 //   return ctx;
 // };
 
-import React, { createContext, useCallback, useContext, useState } from "react";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { supabase } from "../supabaseClient";
 import { searchAvailableRooms as searchRoomsService } from "../supabase/roomService";
-
-/* -------------------------
- * Types
- * ------------------------- */
-type Booking = {
-  id?: string;
-  room_id: string;
-  check_in: string;
-  check_out: string;
-  guests: number;
-  total_price?: number;
-  created_at?: string;
-  user_id?: string;
-};
-
-export type Review = {
-  id: string;
-  booking_id: string;
-  room_id: string;
-  user_id: string;
-  rating: number;
-  comment: string;
-  created_at: string;
-};
+import type { Review } from "../types/interfaces";
+import type { Booking } from "../types/interfaces";
 
 export type BookingContextType = {
   bookings: Booking[];
@@ -611,6 +595,9 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(false);
+  const [rooms, setRooms] = useState<
+    { id: string; name: string; images: string[]; price: number }[]
+  >([]);
 
   const fetchBookings = useCallback(async (roomId?: string) => {
     setLoading(true);
@@ -620,11 +607,27 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({
       } = await supabase.auth.getUser();
       if (!user) return setBookings([]);
 
+      // Fetch bookings
       let query = supabase.from("bookings").select("*").eq("user_id", user.id);
       if (roomId) query = query.eq("room_id", roomId.trim());
-      const { data, error } = await query;
-      if (error) setBookings([]);
-      else setBookings((data as Booking[]) || []);
+      const { data: bookingsData, error: bookingsError } = await query;
+
+      if (bookingsError) setBookings([]);
+      else setBookings((bookingsData as Booking[]) || []);
+
+      // Fetch rooms
+      const { data: roomsData, error: roomsError } = await supabase
+        .from("rooms")
+        .select("id, name, images");
+
+      if (!roomsError && roomsData) {
+        // Parse images JSON if needed
+        const parsedRooms = roomsData.map((r: any) => ({
+          ...r,
+          images: r.images ? JSON.parse(r.images) : [],
+        }));
+        setRooms(parsedRooms);
+      }
     } finally {
       setLoading(false);
     }
@@ -648,6 +651,110 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({
   /* ---------------------------------------
    * BOOK ROOM
    * --------------------------------------- */
+  // const bookRoom = async (newBooking: Omit<Booking, "id" | "created_at">) => {
+  //   setLoading(true);
+  //   try {
+  //     const {
+  //       data: { user },
+  //     } = await supabase.auth.getUser();
+  //     if (!user) return { success: false, message: "User not authenticated." };
+
+  //     const sanitized = {
+  //       ...newBooking,
+  //       user_id: user.id,
+  //       total_price: newBooking.total_price || 0,
+  //     };
+
+  //     const { data: inserted, error: insertError } = await supabase
+  //       .from("bookings")
+  //       .insert([sanitized])
+  //       .select(); // ⚡ important to select inserted row
+  //     if (insertError) return { success: false, message: insertError.message };
+
+  //     if (!inserted || inserted.length === 0)
+  //       return { success: false, message: "Booking insertion failed" };
+
+  //     const bookingInserted = inserted[0] as Booking;
+  //     setBookings((prev) => [...prev, bookingInserted]);
+
+  //     // send confirmation email
+  //     await sendEmail(
+  //       user.email!,
+  //       "Your Booking Has Been Confirmed",
+  //       `
+  // <div style="background:#fafafa; padding:20px; font-family:Arial, sans-serif;">
+  //   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
+  //          style="max-width:600px; margin:auto; background:#ffffff; border-radius:8px; border:1px solid #e5e7eb;">
+
+  //     <!-- HEADER -->
+  //     <tr>
+  //       <td style="padding:20px; text-align:center; background:#e26d5c; border-bottom:1px solid #e5e7eb;">
+  //         <h2 style="margin:0; font-weight:600; font-size:20px; color:#fff;">
+  //           Your Booking Has Been Confirmed
+  //         </h2>
+  //       </td>
+  //     </tr>
+
+  //     <!-- BODY -->
+  //     <tr>
+  //       <td style="padding:24px; color:#444; font-size:15px; line-height:1.6;">
+  //         <p>Hello <strong>${
+  //           user.user_metadata.first_name ?? user.email
+  //         }</strong>,</p>
+
+  //         <p>We wanted to let you know that your booking has been confirmed. Here are the booking details:</p>
+
+  //         <!-- UPDATED BOOKING DETAILS -->
+  //         <div style="
+  //             background:#f9f9f9;
+  //             border:1px solid #e5e7eb;
+  //             padding:16px;
+  //             margin:18px 0;
+  //             border-radius:6px;
+  //         ">
+  //           <p style="margin:6px 0;"><strong>Check-in:</strong> ${
+  //             sanitized.check_in
+  //           }</p>
+  //           <p style="margin:6px 0;"><strong>Check-out:</strong> ${
+  //             sanitized.check_out
+  //           }</p>
+  //           <p style="margin:6px 0;"><strong>Guests:</strong> ${
+  //             sanitized.guests
+  //           }</p>
+  //         </div>
+
+  //         <p>If you have any questions or need to make changes, feel free to reply to this email or click on the below 'My Trips' button. Thank you!!!</p>
+
+  //         <!-- BUTTON -->
+  //         <div style="text-align:center; margin:24px 0;">
+  //           <a href="http://localhost:5173/account"
+  //             style="background:#e26d5c; color:#fff; padding:10px 20px;
+  //             text-decoration:none; border-radius:5px; font-size:15px;">
+  //             My Trips
+  //           </a>
+  //         </div>
+  //       </td>
+  //     </tr>
+
+  //     <!-- FOOTER -->
+  //     <tr>
+  //       <td style="text-align:center; padding:16px; font-size:12px; color:#777;">
+  //         © ${new Date().getFullYear()} GuestEase. All rights reserved.
+  //       </td>
+  //     </tr>
+
+  //   </table>
+  // </div>
+  // `
+  //     );
+
+  //     // ✅ return booking object
+  //     return { success: true, booking: bookingInserted };
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
   const bookRoom = async (newBooking: Omit<Booking, "id" | "created_at">) => {
     setLoading(true);
     try {
@@ -656,96 +763,108 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({
       } = await supabase.auth.getUser();
       if (!user) return { success: false, message: "User not authenticated." };
 
+      const nights =
+        (new Date(newBooking.check_out).getTime() -
+          new Date(newBooking.check_in).getTime()) /
+        (1000 * 60 * 60 * 24);
+
+      // get room price
+      const room = rooms.find((r) => r.id === newBooking.room_id);
+      const roomPrice = room?.price ?? 0;
+      console.log("Room price:", roomPrice);
+
+      // calculate total price
+      const total_price = nights * roomPrice;
+
       const sanitized = {
         ...newBooking,
         user_id: user.id,
-        total_price: newBooking.total_price || 0,
+        total_price,
       };
 
       const { data: inserted, error: insertError } = await supabase
         .from("bookings")
         .insert([sanitized])
-        .select(); // ⚡ important to select inserted row
+        .select();
       if (insertError) return { success: false, message: insertError.message };
-
       if (!inserted || inserted.length === 0)
         return { success: false, message: "Booking insertion failed" };
 
       const bookingInserted = inserted[0] as Booking;
       setBookings((prev) => [...prev, bookingInserted]);
 
-      // send confirmation email
+      // send confirmation email...
+
       await sendEmail(
         user.email!,
         "Your Booking Has Been Confirmed",
         `
-  <div style="background:#fafafa; padding:20px; font-family:Arial, sans-serif;">
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
-           style="max-width:600px; margin:auto; background:#ffffff; border-radius:8px; border:1px solid #e5e7eb;">
+   <div style="background:#fafafa; padding:20px; font-family:Arial, sans-serif;">
+     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
+            style="max-width:600px; margin:auto; background:#ffffff; border-radius:8px; border:1px solid #e5e7eb;">
 
-      <!-- HEADER -->
-      <tr>
-        <td style="padding:20px; text-align:center; background:#e26d5c; border-bottom:1px solid #e5e7eb;">
-          <h2 style="margin:0; font-weight:600; font-size:20px; color:#fff;">
-            Your Booking Has Been Confirmed
-          </h2>
+       <!-- HEADER -->
+       <tr>
+         <td style="padding:20px; text-align:center; background:#e26d5c; border-bottom:1px solid #e5e7eb;">
+           <h2 style="margin:0; font-weight:600; font-size:20px; color:#fff;">
+             Your Booking Has Been Confirmed
+           </h2>
+         </td>
+       </tr>
+
+       <!-- BODY -->
+       <tr>
+         <td style="padding:24px; color:#444; font-size:15px; line-height:1.6;">
+           <p>Hello <strong>${
+             user.user_metadata.first_name ?? user.email
+           }</strong>,</p>
+
+           <p>We wanted to let you know that your booking has been confirmed. Here are the booking details:</p>
+
+           <!-- UPDATED BOOKING DETAILS -->
+           <div style="
+               background:#f9f9f9;
+               border:1px solid #e5e7eb;
+               padding:16px;
+               margin:18px 0;
+               border-radius:6px;
+           ">
+             <p style="margin:6px 0;"><strong>Check-in:</strong> ${
+               sanitized.check_in
+             }</p>
+             <p style="margin:6px 0;"><strong>Check-out:</strong> ${
+               sanitized.check_out
+             }</p>
+             <p style="margin:6px 0;"><strong>Guests:</strong> ${
+               sanitized.guests
+             }</p>
+           </div>
+
+           <p>If you have any questions or need to make changes, feel free to reply to this email or click on the below 'My Trips' button. Thank you!!!</p>
+
+           <!-- BUTTON -->
+           <div style="text-align:center; margin:24px 0;">
+             <a href="http://localhost:5173/account"
+               style="background:#e26d5c; color:#fff; padding:10px 20px;
+               text-decoration:none; border-radius:5px; font-size:15px;">
+               My Trips
+             </a>
+           </div>
         </td>
-      </tr>
+       </tr>
 
-      <!-- BODY -->
-      <tr>
-        <td style="padding:24px; color:#444; font-size:15px; line-height:1.6;">
-          <p>Hello <strong>${
-            user.user_metadata.first_name ?? user.email
-          }</strong>,</p>
-
-          <p>We wanted to let you know that your booking has been confirmed. Here are the booking details:</p>
-
-          <!-- UPDATED BOOKING DETAILS -->
-          <div style="
-              background:#f9f9f9;
-              border:1px solid #e5e7eb;
-              padding:16px;
-              margin:18px 0;
-              border-radius:6px;
-          ">
-            <p style="margin:6px 0;"><strong>Check-in:</strong> ${
-              sanitized.check_in
-            }</p>
-            <p style="margin:6px 0;"><strong>Check-out:</strong> ${
-              sanitized.check_out
-            }</p>
-            <p style="margin:6px 0;"><strong>Guests:</strong> ${
-              sanitized.guests
-            }</p>
-          </div>
-
-          <p>If you have any questions or need to make changes, feel free to reply to this email or click on the below 'My Trips' button. Thank you!!!</p>
-
-          <!-- BUTTON -->
-          <div style="text-align:center; margin:24px 0;">
-            <a href="http://localhost:5173/account"
-              style="background:#e26d5c; color:#fff; padding:10px 20px;
-              text-decoration:none; border-radius:5px; font-size:15px;">
-              My Trips
-            </a>
-          </div>
-        </td>
-      </tr>
-
-      <!-- FOOTER -->
-      <tr>
-        <td style="text-align:center; padding:16px; font-size:12px; color:#777;">
+       <!-- FOOTER -->
+       <tr>
+         <td style="text-align:center; padding:16px; font-size:12px; color:#777;">
           © ${new Date().getFullYear()} GuestEase. All rights reserved.
-        </td>
-      </tr>
+         </td>
+       </tr>
 
-    </table>
-  </div>
-  `
+     </table>
+   </div>
+   `
       );
 
-      // ✅ return booking object
       return { success: true, booking: bookingInserted };
     } finally {
       setLoading(false);
@@ -779,10 +898,39 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({
         .select();
       if (error)
         return { success: false, message: "Failed to update booking." };
-      if (updated)
-        setBookings((prev) =>
-          prev.map((b) => (b.id === bookingId ? updated[0] : b))
-        );
+
+      if (!updated || updated.length === 0)
+        return { success: false, message: "No booking found." };
+
+      const booking = updated[0];
+
+      // Calculate nights
+      const nights =
+        (new Date(booking.check_out).getTime() -
+          new Date(booking.check_in).getTime()) /
+        (1000 * 60 * 60 * 24);
+
+      // Get room price
+      const room = rooms.find((r) => r.id === booking.room_id);
+      const roomPrice = room?.price ?? 0;
+      console.log("Room price:", roomPrice);
+      // Calculate total price
+      const total_price = nights * roomPrice;
+
+      // 🔑 Update Supabase with total_price
+      const { error: priceError } = await supabase
+        .from("bookings")
+        .update({ total_price })
+        .eq("id", bookingId)
+        .eq("user_id", user.id);
+      if (priceError) {
+        console.error("Failed to update total_price:", priceError);
+      }
+
+      // Update local state
+      setBookings((prev) =>
+        prev.map((b) => (b.id === bookingId ? { ...booking, total_price } : b))
+      );
 
       /* EMAIL NOTICE */
       await sendEmail(
@@ -910,8 +1058,6 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({
 
            style="max-width:600px; margin:auto; background:#ffffff; border-radius:8px; border:1px solid #e5e7eb;">
 
-
-
       <!-- HEADER -->
 
       <tr>
@@ -928,8 +1074,6 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({
 
       </tr>
 
-
-
       <!-- BODY -->
 
       <tr>
@@ -940,11 +1084,7 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({
             user.user_metadata.first_name ?? user.email
           }</strong>,</p>
 
-
-
           <p>We’re sorry to hear that you won’t be staying with GuestEase. Here are the details of your booking cancellation:</p>
-
-
 
           <!-- CANCELLED BOOKING DETAILS -->
 
@@ -964,15 +1104,9 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({
 
             <p style="margin:6px 0;"><strong>Booking ID:</strong> ${bookingId}</p>
 
-        
-
           </div>
 
-
-
           <p>If you have any questions or want to make a new booking, feel free to reply to this email or click the 'My Trips' button below.</p>
-
-
 
           <!-- BUTTON -->
 
@@ -994,8 +1128,6 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({
 
       </tr>
 
-
-
       <!-- FOOTER -->
 
       <tr>
@@ -1007,8 +1139,6 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({
         </td>
 
       </tr>
-
-
 
     </table>
 
@@ -1063,6 +1193,47 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({
     return error ? [] : (data as Review[]);
   };
 
+  // // Fetch rooms once (e.g., inside fetchBookings or on provider mount)
+  // useEffect(() => {
+  //   const fetchRooms = async () => {
+  //     const { data, error } = await supabase
+  //       .from("rooms")
+  //       .select("id, name, images");
+  //     if (!error && data) setRooms(data);
+  //   };
+  //   fetchRooms();
+  // }, []);
+
+  useEffect(() => {
+    const fetchRooms = async () => {
+      const { data, error } = await supabase
+        .from("rooms")
+        .select("id, name, images, price");
+
+      if (!error && data) {
+        const parsedRooms = data.map((room: any) => ({
+          id: room.id,
+          name: room.name,
+          price: room.price ?? 0,
+          images:
+            typeof room.images === "string"
+              ? JSON.parse(room.images)
+              : room.images ?? [],
+        }));
+
+        setRooms(parsedRooms);
+      }
+    };
+
+    fetchRooms();
+  }, []);
+
+  // Helper to get room name
+  const getRoomInfo = (roomId: string) => {
+    const room = rooms.find((r) => r.id === roomId);
+    return room || { name: roomId, images: [] }; // fallback
+  };
+
   return (
     <BookingContext.Provider
       value={{
@@ -1076,6 +1247,7 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({
         submitReview,
         fetchReviewsByRoom,
         storePayment,
+        getRoomInfo,
       }}
     >
       {children}

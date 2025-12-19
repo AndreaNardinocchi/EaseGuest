@@ -1,0 +1,40 @@
+-- DROP only the insert policy
+--  DROP POLICY IF EXISTS "Admins see all bookings, users see own" ON public.bookings;
+
+-- CREATE new correct insert policy
+-- CREATE POLICY "Admins see all bookings, users see own"
+-- ON public.bookings
+-- FOR INSERT
+-- WITH CHECK (
+--   auth.jwt()->>'role' = 'admin'  -- admin can insert for anyone
+--   OR auth.uid() = user_id         -- user can insert only their own
+-- );
+
+-- CREATE POLICY "Admins see all bookings, users see own"
+-- ON public.bookings
+-- FOR INSERT
+-- WITH CHECK (
+--   EXISTS (
+--     SELECT 1
+--     FROM profiles p
+--     WHERE p.id = auth.uid()
+--       AND (p.role = 'admin' OR auth.uid() = user_id)
+--   )
+-- );
+
+
+-- Admins see all bookings, users see own
+
+
+
+-- -- allow users to select their own bookings
+-- create policy "Allow users to select their own bookings"
+-- on bookings for select
+-- using (auth.uid() = user_id);
+
+
+-- select * 
+-- from bookings
+-- where user_id = '99e1da76-9883-484c-9bd6-2e4c5fcbc98d';
+
+SELECT * FROM rooms WHERE id = '136ffb2c-3ba1-4d52-b7eb-21ad232ab925';

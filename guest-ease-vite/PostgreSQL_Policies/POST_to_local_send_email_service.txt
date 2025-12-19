@@ -1,0 +1,5 @@
+select net.http_post(
+  body := '{"test":"ok"}',
+  url := 'http://host.docker.internal:3000/send_email',
+  headers := '{"Content-Type":"application/json"}'::jsonb
+);  

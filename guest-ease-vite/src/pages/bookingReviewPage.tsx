@@ -495,9 +495,11 @@ import {
   Rating,
   Container,
   Grid,
+  Link as MuiLink,
 } from "@mui/material";
 import { supabase } from "../supabaseClient";
 import { useAuth } from "../context/useAuth";
+import { Link as RouterLink } from "react-router-dom";
 
 const ReviewPage: React.FC = () => {
   const { id } = useParams(); // booking ID
@@ -656,16 +658,30 @@ const ReviewPage: React.FC = () => {
             }}
           />
           <Typography sx={{ mt: "8%", mb: "1%" }}>
-            <strong>Reservation number:</strong> #{booking.id.slice(-12)}
+            <strong>Reservation Number:</strong> #{booking.id.slice(-12)}
           </Typography>
 
           <Typography sx={{ mb: "3.5%" }}>
-            <strong>Stay:</strong> from <strong>{booking.check_in}</strong> to{" "}
-            <strong>{booking.check_out}</strong>.
+            <strong>Stay:</strong> from {booking.check_in} to{" "}
+            {booking.check_out}.
           </Typography>
-          <Typography sx={{ mb: "5%" }}>
-            We were delighted to have you stay in <strong>{room.name}</strong>{" "}
-            and we would really be delighted to know more about your journey
+          <Typography sx={{ mb: "5%", color: "text.primary" }}>
+            We were delighted to have you stay in{" "}
+            <MuiLink
+              component={RouterLink}
+              to={`/booking-confirmation/${booking.id}`}
+              sx={{
+                textDecoration: "none",
+                color: "#000000de",
+                "&:hover": {
+                  // textDecoration: "underline",
+                  color: "#EFF5E0",
+                },
+              }}
+            >
+              <strong>{room.name}</strong>
+            </MuiLink>{" "}
+            and we would really be glad to know more about your journey
             experience with us!
           </Typography>
         </Grid>
@@ -694,7 +710,7 @@ const ReviewPage: React.FC = () => {
         >
           <Card sx={{ width: "100%" }} elevation={3}>
             <CardContent>
-              <Typography variant="h5" sx={{ color: "#8E4585", mb: 2 }}>
+              <Typography variant="h5" sx={{ color: "#000000de", mb: 2 }}>
                 Tell us about your stay in {room.name} 😀!
               </Typography>
 
@@ -729,13 +745,24 @@ const ReviewPage: React.FC = () => {
                 variant="contained"
                 color="secondary"
                 fullWidth
-                sx={{ mb: 1 }}
+                sx={{
+                  mb: 1,
+                  backgroundColor: "#E26D5C",
+                  color: "#fff",
+                  "&:hover": {
+                    backgroundColor: "#c95b4d",
+                  },
+                }}
                 onClick={handleSubmit}
               >
                 Submit Review
               </Button>
 
-              <Button fullWidth onClick={() => navigate("/account")}>
+              <Button
+                fullWidth
+                onClick={() => navigate("/account")}
+                color="error"
+              >
                 Cancel
               </Button>
             </CardContent>

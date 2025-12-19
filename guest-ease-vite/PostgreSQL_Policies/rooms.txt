@@ -1,0 +1,140 @@
+DROP TABLE IF EXISTS public.rooms;
+
+-- create rooms table with images field
+CREATE TABLE IF NOT EXISTS public.rooms (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  name text NOT NULL,
+  description text,
+  capacity integer NOT NULL,
+  price numeric(10,2) NOT NULL,
+  amenities jsonb,
+  images jsonb, -- new field for room images
+  created_at timestamptz DEFAULT now()
+);
+
+-- Insert updated Irish-themed boutique guesthouse rooms WITH amenities and images
+INSERT INTO public.rooms (name, description, capacity, price, amenities, images)
+VALUES
+('Brigid’s Haven',
+ 'Warm and inviting double room with a cosy balcony, inspired by Irish cottage comfort',
+ 2,
+ 80.00,
+ '["Private balcony", "Irish wool blankets", "Comfortable king bed", "Tea & coffee set", "Rainfall shower", "Small book collection of Irish poetry"]',
+ '["brigidshaven1.png"]'
+),
+
+('Seanchaí Nook',
+ 'Charming compact single ideal for quiet stays or writing retreats',
+ 1,
+ 40.00,
+ '["Writing desk", "High-speed Wi-Fi", "Ergonomic chair", "Kettle", "Celtic-themed decor", "Sound-insulated walls"]',
+ '["brigidshaven1.png"]'
+),
+
+('Clan Suite',
+ 'Spacious family suite styled after traditional Irish country homes',
+ 4,
+ 200.00,
+ '["Two bedrooms", "Kids’ reading nook", "Mini-fridge", "Microwave", "Board games", "Dining table", "Bathtub", "Baby cot available"]',
+ '["brigidshaven1.png"]'
+),
+
+('High King’s Quarters',
+ 'Boutique-style suite inspired by Irish heritage, perfect for small groups or longer stays',
+ 3,
+ 150.00,
+ '["Sitting area", "Handcrafted wooden furniture", "King bed", "Sofa bed", "Electric fireplace", "Deep soaking tub", "Irish artisan welcome treats"]',
+ '["brigidshaven1.png"]'
+),
+
+('Druid’s Rest',
+ 'Serene single room with natural tones and a quiet retreat atmosphere',
+ 1,
+ 70.00,
+ '["Garden view", "Herbal tea set", "Compact writing space", "Rain shower", "Meditation playlist", "White noise machine"]',
+ '["brigidshaven1.png"]'
+),
+
+('Skellig Study Loft',
+ 'Bright single room with balcony, ideal for remote workers visiting the coast',
+ 1,
+ 65.00,
+ '["Balcony workspace", "Standing desk", "High-speed Wi-Fi", "Pour-over coffee kit", "Corkboard", "Reading lamp"]',
+ '["brigidshaven1.png"]'
+),
+
+('Fionn Executive Chamber',
+ 'Comfortable executive-style single with tasteful Irish touches',
+ 1,
+ 50.00,
+ '["Balcony", "Desk & charging station", "Smart speaker", "Espresso machine", "Walk-in shower", "Secure laptop safe"]',
+ '["brigidshaven1.png"]'
+),
+
+('Éire Penthouse',
+ 'Our boutique-style top-floor retreat with elevated views and Irish artisan décor',
+ 2,
+ 250.00,
+ '["Panoramic balcony", "King bed", "Sitting area", "Large soaking tub", "Local welcome hamper", "Art from Irish makers"]',
+ '["brigidshaven1.png"]'
+);
+
+-- Enable Row Level Security
+ALTER TABLE public.rooms ENABLE ROW LEVEL SECURITY;
+
+-- SELECT policy for public
+DROP POLICY IF EXISTS "Allow select for anon" ON public.rooms;
+CREATE POLICY "Allow select for anon" ON public.rooms
+FOR SELECT
+TO public
+USING (true);
+
+-- INSERT policy for admins
+DROP POLICY IF EXISTS "Admins can insert rooms" ON public.rooms;
+CREATE POLICY "Admins can insert rooms" ON public.rooms
+FOR INSERT
+TO public
+WITH CHECK (
+  EXISTS (
+    SELECT 1
+    FROM public.profiles
+    WHERE profiles.id = auth.uid()
+      AND profiles.role = 'admin'
+  )
+);
+
+-- UPDATE policy for admins
+DROP POLICY IF EXISTS "Admins can update rooms" ON public.rooms;
+CREATE POLICY "Admins can update rooms" ON public.rooms
+FOR UPDATE
+TO public
+USING (
+  EXISTS (
+    SELECT 1
+    FROM public.profiles
+    WHERE profiles.id = auth.uid()
+      AND profiles.role = 'admin'
+  )
+)
+WITH CHECK (
+  EXISTS (
+    SELECT 1
+    FROM public.profiles
+    WHERE profiles.id = auth.uid()
+      AND profiles.role = 'admin'
+  )
+);
+
+-- DELETE policy for admins
+DROP POLICY IF EXISTS "Admins can delete rooms" ON public.rooms;
+CREATE POLICY "Admins can delete rooms" ON public.rooms
+FOR DELETE
+TO public
+USING (
+  EXISTS (
+    SELECT 1
+    FROM public.profiles
+    WHERE profiles.id = auth.uid()
+      AND profiles.role = 'admin'
+  )
+);

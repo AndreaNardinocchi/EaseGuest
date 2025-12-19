@@ -311,6 +311,146 @@ app.post("/admin/delete_booking", async (req, res) => {
 });
 
 /* ---------------------------
+ Create user
+---------------------------- */
+app.post("/api/admin/create_user", async (req, res) => {
+  try {
+    const { email, role, first_name, last_name, country, zip_code } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: "Email is required" });
+    }
+
+    const password = Math.random().toString(36).slice(-10);
+
+    const { data, error } = await supabaseAdmin.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: {
+        role,
+        first_name,
+        last_name,
+        country,
+        zip_code,
+      },
+    });
+
+    if (error) {
+      console.error("Create user error:", error);
+      return res.status(400).json({ error: error.message });
+    }
+
+    return res.status(201).json({
+      success: true,
+      user: data.user,
+      tempPassword: password, // optional
+    });
+  } catch (err) {
+    console.error("Create user exception:", err);
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+/* ---------------------------
+ Get user by email
+---------------------------- */
+
+app.post("/admin/get_user_by_email", async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) return res.status(400).json({ error: "Missing email" });
+
+  try {
+    const { data, error } = await supabaseAdmin
+      .from("profiles")
+      .select("id, email, first_name, last_name")
+      .eq("email", email)
+      .single();
+
+    if (error) return res.status(404).json({ error: "User not found" });
+
+    res.json({ user: data });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/* ---------------------------
+ Create booking
+---------------------------- */
+
+app.post("/admin/create_booking", async (req, res) => {
+  console.log("Received create_booking request:", req.body);
+
+  const { room_id, user_email, check_in, check_out, guests } = req.body;
+
+  if (!room_id || !user_email || !check_in || !check_out || !guests) {
+    return res.status(400).json({ error: "Missing fields" });
+  }
+
+  try {
+    // Find the user by email
+    const { data: user, error: userError } = await supabaseAdmin
+      .from("profiles")
+      .select("id, first_name, email")
+      .eq("email", user_email)
+      .single();
+
+    if (userError || !user) {
+      return res.status(400).json({ error: "User not found" });
+    }
+
+    // Insert booking
+    const { data, error } = await supabaseAdmin
+      .from("bookings")
+      .insert([
+        {
+          room_id,
+          user_id: user.id,
+          check_in,
+          check_out,
+          guests,
+        },
+      ])
+      .select();
+
+    if (error) {
+      return res.status(400).json({ error: error.message });
+    }
+
+    // --- SEND CONFIRMATION EMAIL ---
+    const subject = "✨ Your Booking Is Confirmed by Admin — GuestEase";
+    const body = `
+      <p>Hi ${user.first_name || "there"},</p>
+      <p>Your booking has been successfully confirmed! Here are the details:</p>
+      <ul>
+        <li>Room ID: ${room_id}</li>
+        <li>Check-in: ${check_in}</li>
+        <li>Check-out: ${check_out}</li>
+        <li>Guests: ${guests}</li>
+      </ul>
+      <p>Thank you for choosing GuestEase!</p>
+    `;
+
+    await fetch("http://localhost:3000/send_email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: user.email,
+        subject,
+        body,
+      }),
+    });
+
+    return res.json({ success: true, booking: data[0] });
+  } catch (err) {
+    console.error("Create booking error:", err);
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+/* ---------------------------
    Stripe Payment Intent
 ---------------------------- */
 import Stripe from "stripe";
@@ -374,6 +514,14 @@ app.post("/store-payment", async (req, res) => {
     console.error("Error storing payment:", err);
     res.status(500).json({ success: false, message: err.message });
   }
+});
+
+// fallback error handler
+app.use((err, req, res, next) => {
+  console.error("Unhandled error:", err);
+  res
+    .status(500)
+    .json({ error: "Internal server error", details: err.message });
 });
 
 /* ---------------------------

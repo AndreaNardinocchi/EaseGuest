@@ -1,0 +1,8 @@
+insert into public.bookings (room_id, user_id, check_in, check_out, guests)
+values (
+  '11111111-2222-3333-4444-555555555555', -- new room
+  '99e1da76-9883-484c-9bd6-2e4c5fcbc98d',
+  '2025-12-01',
+  '2025-12-05',
+  2
+);

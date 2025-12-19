@@ -1,0 +1,15 @@
+-- Listen for notifications from your trigger
+listen notify_booking_info;
+listen notify_booking_error;
+
+-- Then insert a booking manually (simulate app insert)
+insert into public.bookings (room_id, user_id, check_in, check_out, guests)
+values (
+  '8147062f-b439-455b-8d8c-017a1ba8b090',
+  '5b33b4c5-c077-408f-a8f0-edbacc104af7',
+  '2025-12-01',
+  '2025-12-05',
+  2
+);
+
+-- SELECT id FROM rooms WHERE id = '8147062f-b439-455b-8d8c-017a1ba8b090';

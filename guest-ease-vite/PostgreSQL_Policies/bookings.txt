@@ -1,0 +1,166 @@
+-- ==========================================
+-- 0. Cleanup
+-- ==========================================
+DROP TABLE IF EXISTS public.bookings;
+
+-- ==========================================
+-- 1. Create bookings table
+-- ==========================================
+CREATE TABLE IF NOT EXISTS public.bookings (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  room_id text NOT NULL,
+  user_id uuid NOT NULL,            -- Foreign key to auth.users
+  check_in date NOT NULL,
+  check_out date NOT NULL,
+  guests integer NOT NULL,
+  created_at timestamptz DEFAULT now()
+);
+
+-- ==========================================
+-- 2. Foreign key to Supabase auth.users
+-- ==========================================
+ALTER TABLE public.bookings
+ADD CONSTRAINT bookings_user_id_fkey
+FOREIGN KEY (user_id)
+REFERENCES auth.users (id)
+ON DELETE CASCADE;
+
+-- ==========================================
+-- 3. Base permissions
+-- ==========================================
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.bookings TO public;
+
+-- ==========================================
+-- 4. Enable Row Level Security
+-- ==========================================
+ALTER TABLE public.bookings ENABLE ROW LEVEL SECURITY;
+
+-- ==========================================
+-- 5. RLS Policies
+-- ==========================================
+
+-- DELETE any existing policies (safety)
+DROP POLICY IF EXISTS "Admins see all bookings, users see own" ON public.bookings;
+DROP POLICY IF EXISTS "Users can select their own bookings" ON public.bookings;
+DROP POLICY IF EXISTS "Users can insert their own bookings" ON public.bookings;
+DROP POLICY IF EXISTS "Users can update their own bookings" ON public.bookings;
+DROP POLICY IF EXISTS "Users can delete their own bookings" ON public.bookings;
+
+-- SELECT: Admin sees all, users see only their own
+CREATE POLICY "Admins see all bookings, users see own"
+ON public.bookings
+FOR SELECT
+USING (
+  auth.jwt()->>'role' = 'admin'  -- admin bypass
+  OR auth.uid() = user_id        -- normal users
+);
+
+-- -- INSERT: Users can only insert their own bookings, admin can insert for anyone
+-- CREATE POLICY "Users can insert their own bookings"
+-- ON public.bookings
+-- FOR INSERT
+-- WITH CHECK (
+--   auth.jwt()->>'role' = 'admin'   -- admin can insert for any user
+--   OR auth.uid() = user_id          -- user can insert only their own
+-- );
+
+-- -- Drop the old policy
+-- DROP POLICY IF EXISTS "Users can insert their own bookings" ON public.bookings;
+
+-- Create new policy INSERT: Users can only insert their own bookings, admin can insert for anyone
+-- CREATE POLICY "Admins can insert any, users only their own"
+-- ON public.bookings
+-- FOR INSERT
+-- WITH CHECK (
+--   EXISTS (
+--     SELECT 1
+--     FROM profiles p
+--     WHERE p.id = auth.uid()
+--       AND (p.role = 'admin' OR auth.uid() = user_id)
+--   )
+-- );
+
+-- CREATE new policy
+CREATE POLICY "Admins see all bookings, users see own"
+ON public.bookings
+FOR INSERT
+WITH CHECK (
+  auth.jwt()->>'role' = 'admin'   -- admin can insert any row
+  OR auth.uid() = user_id          -- users can insert only for themselves
+);
+
+
+
+-- UPDATE: Users can only update their own bookings, admin can update all
+CREATE POLICY "Users can update their own bookings"
+ON public.bookings
+FOR UPDATE
+USING (
+  auth.jwt()->>'role' = 'admin'   -- admin can update all
+  OR auth.uid() = user_id
+)
+WITH CHECK (
+  auth.jwt()->>'role' = 'admin'
+  OR auth.uid() = user_id
+);
+
+-- DELETE: Users can only delete their own bookings, admin can delete all
+CREATE POLICY "Users can delete their own bookings"
+ON public.bookings
+FOR DELETE
+USING (
+  auth.jwt()->>'role' = 'admin'
+  OR auth.uid() = user_id
+);
+
+-- ==========================================
+-- 6. Date range + overlap checks
+-- ==========================================
+CREATE EXTENSION IF NOT EXISTS btree_gist;
+
+-- Add computed daterange column
+ALTER TABLE public.bookings
+  ADD COLUMN period daterange GENERATED ALWAYS AS (daterange(check_in, check_out, '[]')) STORED;
+
+-- Create GIST index
+CREATE INDEX bookings_period_idx ON public.bookings USING GIST (room_id, period);
+
+-- Prevent overlapping bookings for same room
+ALTER TABLE public.bookings
+  ADD CONSTRAINT no_overlapping_bookings EXCLUDE USING GIST (
+    room_id WITH =,
+    period WITH &&
+  );
+
+
+
+
+-- ==========================================
+-- 7. Sample insert
+-- ==========================================
+INSERT INTO public.bookings (room_id, user_id, check_in, check_out, guests)
+VALUES (
+  'a41cd07f-7603-4b1e-ac26-a5155e835745',
+  '99e1da76-9883-484c-9bd6-2e4c5fcbc98d',
+  '2025-11-13',
+  '2025-11-28',
+  1
+)
+RETURNING *;
+
+-- ==========================================
+-- 8. Diagnostics (optional)
+-- ==========================================
+SELECT column_name, data_type 
+FROM information_schema.columns
+WHERE table_name = 'bookings';
+
+SELECT * 
+FROM pg_constraint
+WHERE conname = 'bookings_user_id_fkey';
+
+SELECT conname, conrelid::regclass AS table_name, confrelid::regclass AS referenced_table
+FROM pg_constraint
+WHERE conname = 'bookings_user_id_fkey';
+
+

@@ -1,27 +1,29 @@
+// import type { ReactNode } from "react";
+
 // Signed up User interface
 export interface User {
+  first_name: string;
+  last_name: string;
+  zip_code: string;
   id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
+  email?: string;
   role?: string;
   avatarUrl?: string; // ✅ Added optional avatar support
-  createdAt?: string; // ISO date string or fallback
   country: string;
-  zipCode: string;
+  created_at: string;
 }
 
-export interface AppUser {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  country?: string;
-  zipCode?: string;
-  avatarUrl?: string;
-  role?: string;
-  createdAt?: string;
-}
+// export interface AppUser {
+//   id: string;
+//   firstName: string;
+//   lastName: string;
+//   email: string;
+//   country?: string;
+//   zipCode?: string;
+//   avatarUrl?: string;
+//   role?: string;
+//   createdAt?: string;
+// }
 
 // AuthContext Interface
 export interface AuthContextInterface {
@@ -273,32 +275,24 @@ export const countries: Country[] = [
 export interface Review {
   id?: string;
   booking_id: string;
+  room_id: string;
   user_id?: string;
   rating: number;
   comment: string;
   created_at?: string;
 }
 
-// export interface Room {
-//   id: string;
-//   name: string;
-//   description: string;
-//   capacity: number;
-//   price: string;
-//   created_at: string;
-//   roomType?: string; // Added optional room type
-//   amenities?: string[];
-// }
-
 export interface Booking {
-  id?: string;
+  id: string;
   room_id: string;
+  user_id: string;
+  user_email: string;
   check_in: string;
   check_out: string;
   guests: number;
-  total_price?: number;
-  created_at?: string;
-  user_id?: string;
+  created_at: string;
+  first_name: string;
+  last_name: string;
 }
 
 export interface Room {
@@ -310,4 +304,16 @@ export interface Room {
   images?: string[]; // ← FIXED: always an array
   amenities?: string[]; // jsonb array
   bookings?: Booking[];
+  // type: string;
+}
+
+export interface AdminUser {
+  // zip_code: string;
+  // country: string;
+  // last_name: string;
+  // first_name: string;
+  id: string;
+  email: string;
+  role: string | null;
+  created_at: string;
 }

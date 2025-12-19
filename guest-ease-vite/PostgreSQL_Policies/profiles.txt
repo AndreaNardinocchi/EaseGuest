@@ -1,0 +1,74 @@
+-- =========================================================
+-- 1. PROFILES TABLE
+-- =========================================================
+CREATE TABLE IF NOT EXISTS public.profiles (
+    id uuid PRIMARY KEY,
+    email text NOT NULL UNIQUE,
+    first_name text,
+    last_name text,
+    country text,
+    zip_code text,
+    role text DEFAULT 'user',  -- 'user', 'admin', or 'guest'
+    created_at timestamptz DEFAULT now()
+);
+
+-- =========================================================
+-- 2. TRIGGER FUNCTION TO HANDLE NEW USERS
+-- =========================================================
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS trigger AS $$
+BEGIN
+    INSERT INTO public.profiles (id, email)
+    VALUES (NEW.id, NEW.email)
+    ON CONFLICT (id) DO NOTHING;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- =========================================================
+-- 3. DROP & CREATE TRIGGER ON auth.users
+-- =========================================================
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+
+CREATE TRIGGER on_auth_user_created
+AFTER INSERT ON auth.users
+FOR EACH ROW
+EXECUTE FUNCTION public.handle_new_user();
+
+-- =========================================================
+-- 4. ENABLE ROW LEVEL SECURITY
+-- =========================================================
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+
+-- =========================================================
+-- 5. RLS POLICIES
+-- =========================================================
+
+-- a) Allow admins to SELECT any profile (needed for assigning user_id in bookings)
+DROP POLICY IF EXISTS "Admins can select profiles" ON public.profiles;
+CREATE POLICY "Admins can select profiles" ON public.profiles
+FOR SELECT
+TO public
+USING (auth.role() = 'admin');  -- only admins can SELECT
+
+-- b) Allow trigger inserts (from auth.users) without restriction
+DROP POLICY IF EXISTS "Trigger insert profiles" ON public.profiles;
+CREATE POLICY "Trigger insert profiles" ON public.profiles
+FOR INSERT
+TO public
+WITH CHECK (true);  -- trigger bypasses RLS
+
+-- c) Admins can UPDATE profiles
+DROP POLICY IF EXISTS "Admins can update profiles" ON public.profiles;
+CREATE POLICY "Admins can update profiles" ON public.profiles
+FOR UPDATE
+TO public
+USING (auth.role() = 'admin')
+WITH CHECK (auth.role() = 'admin');
+
+-- d) Admins can DELETE profiles
+DROP POLICY IF EXISTS "Admins can delete profiles" ON public.profiles;
+CREATE POLICY "Admins can delete profiles" ON public.profiles
+FOR DELETE
+TO public
+USING (auth.role() = 'admin');

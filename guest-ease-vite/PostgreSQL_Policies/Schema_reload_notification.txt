@@ -1,0 +1,59 @@
+--  NOTIFY pgrst, 'reload schema';
+-- SELECT id, name
+-- FROM rooms
+-- ORDER BY name;
+
+--  SELECT * FROM get_available_rooms('2026-04-06', '2026-04-22');
+
+-- SELECT ascii(substr('2026‑04‑06', 5, 1));
+
+-- SELECT CAST('2026-04-06' AS date); -- works
+
+-- SELECT CAST('2026‑04‑06' AS date); -- fails
+
+-- SELECT id, name
+-- FROM get_available_rooms('2026-04-06', '2026-04-22')
+-- ORDER BY name;
+-- SELECT
+--   id,
+--   room_id,
+--   check_in,
+--   check_out
+-- FROM bookings
+-- WHERE room_id IN (
+--   '5d0ea699-a9de-4f31-8612-ce2311e3af29',
+--   'de1a2f3d-6af4-4374-9ff3-1da3d1117360'
+-- )
+-- ORDER BY check_in;
+
+
+-- SELECT
+--   b.id,
+--   b.room_id,
+--   b.check_in,
+--   b.check_out,
+--   (b.check_in < DATE '2026-04-22') AS starts_before_search_ends,
+--   (b.check_out > DATE '2026-04-06') AS ends_after_search_starts,
+--   (
+--     b.check_in < DATE '2026-04-22'
+--     AND b.check_out > DATE '2026-04-06'
+--   ) AS overlaps
+-- FROM bookings b
+-- WHERE b.room_id IN (
+--   '5d0ea699-a9de-4f31-8612-ce2311e3af29',
+--   'de1a2f3d-6af4-4374-9ff3-1da3d1117360''
+-- );
+
+
+-- SELECT *
+-- FROM bookings
+-- WHERE room_id IS NULL
+--    OR room_id NOT IN (SELECT id FROM rooms);
+ALTER TABLE bookings
+ALTER COLUMN room_id TYPE uuid USING room_id::uuid;
+
+-- Add foreign key for integrity
+ALTER TABLE bookings
+ADD CONSTRAINT fk_room
+FOREIGN KEY (room_id)
+REFERENCES rooms(id);

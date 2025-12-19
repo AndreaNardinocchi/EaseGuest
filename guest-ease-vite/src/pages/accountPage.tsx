@@ -6,13 +6,8 @@ import {
   Tab,
   Typography,
   CircularProgress,
-  Card,
-  CardContent,
-  CardMedia,
   Grid,
   Button,
-  Stack,
-  // Link as MuiLink,
   Dialog,
   DialogContent,
   DialogTitle,
@@ -24,11 +19,18 @@ import { useBooking } from "../context/bookingContext";
 import SubNav from "../components/accountSubNav/accountSubNav";
 // import { error } from "console";
 import { useNavigate } from "react-router-dom";
+import BookingCard from "../components/BookingCard/BookingCard";
 
 const AccountPage: React.FC = () => {
   const { user } = useAuth();
-  const { bookings, updateBooking, cancelBooking, fetchBookings, loading } =
-    useBooking();
+  const {
+    bookings,
+    updateBooking,
+    cancelBooking,
+    fetchBookings,
+    getRoomInfo,
+    loading,
+  } = useBooking();
   const [tabValue, setTabValue] = useState(0);
   // state for popup
   const [open, setOpen] = useState(false); // <-- NEW
@@ -38,7 +40,13 @@ const AccountPage: React.FC = () => {
 
   useEffect(() => {
     if (user) fetchBookings();
+    console.log("Fetching bookings for user:", user?.id);
   }, [user, fetchBookings]);
+
+  // <-- ADD THIS
+  useEffect(() => {
+    console.log("Current bookings array:", bookings);
+  }, [bookings]);
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) =>
     setTabValue(newValue);
@@ -50,6 +58,7 @@ const AccountPage: React.FC = () => {
   );
   const pastBookings = useMemo(
     () => bookings.filter((b) => new Date(b.check_out) < today),
+
     [bookings, today]
   );
 
@@ -115,90 +124,21 @@ const AccountPage: React.FC = () => {
       </Typography>
     ) : (
       <Grid container spacing={3} mt={2}>
-        {data.map((b) => (
-          <Grid item xs={12} sm={6} md={4} key={b.id}>
-            <Card
-              elevation={4}
-              sx={{
-                height: "100%",
-                display: "flex",
-                flexDirection: "column",
-                borderRadius: 3,
-                overflow: "hidden",
-              }}
-            >
-              <CardMedia
-                component="img"
-                image={`https://via.placeholder.com/400x200?text=Room+${b.room_id.slice(
-                  0,
-                  6
-                )}`}
-                alt="Room"
-                sx={{
-                  height: 200,
-                  objectFit: "cover",
-                }}
+        {data.map((b) => {
+          const room = getRoomInfo(b.room_id);
+          return (
+            <Grid item xs={12} sm={6} md={4} key={b.id}>
+              <BookingCard
+                booking={b}
+                room={room}
+                type={type}
+                handleUpdate={handleUpdate}
+                handleCancel={handleCancel}
+                handleReview={handleReview}
               />
-              <CardContent
-                sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}
-              >
-                <Typography variant="h6" sx={{ color: "#8E4585", mb: 1 }}>
-                  Room {b.room_id}
-                </Typography>
-                <Typography>
-                  <strong>Check-in:</strong> {b.check_in}
-                </Typography>
-                <Typography>
-                  <strong>Check-out:</strong> {b.check_out}
-                </Typography>
-                <Typography>
-                  <strong>Guests:</strong> {b.guests}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{ mt: 1 }}
-                >
-                  Booked on: {new Date(b.created_at || "").toLocaleDateString()}
-                </Typography>
-
-                <Stack direction="row" spacing={2} sx={{ mt: "auto", pt: 2 }}>
-                  {type === "upcoming" ? (
-                    <>
-                      <Button
-                        variant="contained"
-                        color="secondary"
-                        // onClick={() => handleUpdate(b.id!)}
-                        onClick={() => handleUpdate(b)} // <-- CHANGED: pass whole booking
-                        fullWidth
-                      >
-                        Update
-                      </Button>
-                      <Button
-                        variant="outlined"
-                        color="error"
-                        onClick={() => handleCancel(b)}
-                        fullWidth
-                      >
-                        Cancel
-                      </Button>
-                    </>
-                  ) : (
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={() => handleReview(b.id!)}
-                      // onClick={() => navigate(`/review/${b.id}`)}
-                      fullWidth
-                    >
-                      Write Review
-                    </Button>
-                  )}
-                </Stack>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
+            </Grid>
+          );
+        })}
       </Grid>
     );
 
@@ -211,7 +151,7 @@ const AccountPage: React.FC = () => {
       <Typography
         variant="h4"
         align="center"
-        sx={{ color: "#8E4585", mb: 1, mt: 3 }}
+        sx={{ color: "#000000de", mb: 1, mt: 3 }}
       >
         My Reservations
       </Typography>
@@ -223,9 +163,20 @@ const AccountPage: React.FC = () => {
         value={tabValue}
         onChange={handleTabChange}
         centered
-        textColor="secondary"
-        indicatorColor="secondary"
-        sx={{ "& .MuiTab-root": { fontWeight: 600 }, mb: 2 }}
+        textColor="secondary" // keep current inactive look
+        indicatorColor="secondary" // keep default behavior
+        sx={{
+          mb: 2,
+          "& .MuiTab-root.Mui-selected": {
+            color: "#000000de", // active tab color only
+            fontWeight: 600,
+          },
+          "& .MuiTabs-indicator": {
+            backgroundColor: "#000000de", // active underline
+            height: 3,
+            borderRadius: 2,
+          },
+        }}
       >
         <Tab label="Upcoming" />
         <Tab label="Past" />

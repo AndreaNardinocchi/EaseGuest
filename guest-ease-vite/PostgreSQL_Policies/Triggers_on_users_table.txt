@@ -1,0 +1,7 @@
+-- Check triggers
+SELECT *
+FROM information_schema.triggers
+WHERE event_object_table = 'users';
+
+
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;

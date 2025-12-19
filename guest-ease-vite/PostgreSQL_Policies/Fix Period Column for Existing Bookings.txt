@@ -1,0 +1,7 @@
+ALTER TABLE public.bookings
+DROP COLUMN period;
+
+ALTER TABLE public.bookings
+ADD COLUMN period daterange GENERATED ALWAYS AS (
+  daterange(check_in, check_out, '[)')
+) STORED;

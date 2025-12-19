@@ -1,0 +1,231 @@
+-- -- Drop the old policy
+-- DROP POLICY IF EXISTS "Users can insert their own bookings" ON public.bookings;
+
+-- -- Create new policy
+-- CREATE POLICY "Admins can insert any, users only their own"
+-- ON public.bookings
+-- FOR INSERT
+-- WITH CHECK (
+--   EXISTS (
+--     SELECT 1
+--     FROM profiles p
+--     WHERE p.id = auth.uid()
+--       AND (p.role = 'admin' OR auth.uid() = user_id)
+--   )
+-- );
+
+-- INSERT INTO public.rooms (name, description, capacity, price, amenities, images)
+-- VALUES
+-- ('Brigid’s Haven',
+--  'Warm and inviting double room with a cosy balcony, inspired by Irish cottage comfort',
+--  2,
+--  80.00,
+--  '["Private balcony", "Irish wool blankets", "Comfortable king bed", "Tea & coffee set", "Rainfall shower", "Small book collection of Irish poetry"]',
+--  '["brigidshaven1.png"]'
+-- ),
+
+-- ('Seanchaí Nook',
+--  'Charming compact single ideal for quiet stays or writing retreats',
+--  1,
+--  40.00,
+--  '["Writing desk", "High-speed Wi-Fi", "Ergonomic chair", "Kettle", "Celtic-themed decor", "Sound-insulated walls"]',
+--  '["brigidshaven1.png"]'
+-- ),
+
+-- ('Clan Suite',
+--  'Spacious family suite styled after traditional Irish country homes',
+--  4,
+--  200.00,
+--  '["Two bedrooms", "Kids’ reading nook", "Mini-fridge", "Microwave", "Board games", "Dining table", "Bathtub", "Baby cot available"]',
+--  '["brigidshaven1.png"]'
+-- ),
+
+-- ('High King’s Quarters',
+--  'Boutique-style suite inspired by Irish heritage, perfect for small groups or longer stays',
+--  3,
+--  150.00,
+--  '["Sitting area", "Handcrafted wooden furniture", "King bed", "Sofa bed", "Electric fireplace", "Deep soaking tub", "Irish artisan welcome treats"]',
+--  '["brigidshaven1.png"]'
+-- ),
+
+-- ('Druid’s Rest',
+--  'Serene single room with natural tones and a quiet retreat atmosphere',
+--  1,
+--  70.00,
+--  '["Garden view", "Herbal tea set", "Compact writing space", "Rain shower", "Meditation playlist", "White noise machine"]',
+--  '["brigidshaven1.png"]'
+-- ),
+
+-- ('Skellig Study Loft',
+--  'Bright single room with balcony, ideal for remote workers visiting the coast',
+--  1,
+--  65.00,
+--  '["Balcony workspace", "Standing desk", "High-speed Wi-Fi", "Pour-over coffee kit", "Corkboard", "Reading lamp"]',
+--  '["brigidshaven1.png"]'
+-- ),
+
+-- ('Fionn Executive Chamber',
+--  'Comfortable executive-style single with tasteful Irish touches',
+--  1,
+--  50.00,
+--  '["Balcony", "Desk & charging station", "Smart speaker", "Espresso machine", "Walk-in shower", "Secure laptop safe"]',
+--  '["brigidshaven1.png"]'
+-- ),
+
+-- ('Éire Penthouse',
+--  'Our boutique-style top-floor retreat with elevated views and Irish artisan décor',
+--  2,
+--  250.00,
+--  '["Panoramic balcony", "King bed", "Sitting area", "Large soaking tub", "Local welcome hamper", "Art from Irish makers"]',
+--  '["brigidshaven1.png"]'
+-- );
+
+-- UPDATE public.rooms
+-- SET images = images || '["brigidshaven2.png", "brigidshaven3.png", "brigidshaven4.png"]'::jsonb
+-- WHERE name = 'Brigid’s Haven';
+
+-- UPDATE public.rooms
+-- SET images = images || '["brigidshaven2.png", "brigidshaven3.png", "brigidshaven4.png"]'::jsonb
+-- WHERE name = 'Seanchaí Nook';
+
+-- UPDATE public.rooms
+-- SET images = images || '["brigidshaven2.png", "brigidshaven3.png", "brigidshaven4.png"]'::jsonb
+-- WHERE name = 'Clan Suite';
+
+-- UPDATE public.rooms
+-- SET images = images || '["brigidshaven2.png", "brigidshaven3.png", "brigidshaven4.png"]'::jsonb
+-- WHERE name = 'High King’s Quarters';
+
+-- UPDATE public.rooms
+-- SET images = images || '["brigidshaven2.png", "brigidshaven3.png", "brigidshaven4.png"]'::jsonb
+-- WHERE name = 'Druid’s Rest';
+
+-- UPDATE public.rooms
+-- SET images = images || '["brigidshaven2.png", "brigidshaven3.png", "brigidshaven4.png"]'::jsonb
+-- WHERE name = 'Skellig Study Loft';
+
+-- UPDATE public.rooms
+-- SET images = images || '["brigidshaven2.png", "brigidshaven3.png", "brigidshaven4.png"]'::jsonb
+-- WHERE name = 'Fionn Executive Chamber';
+
+-- UPDATE public.rooms
+-- SET images = images || '["brigidshaven2.png", "brigidshaven3.png", "brigidshaven4.png"]'::jsonb
+-- WHERE name = 'Éire Penthouse';
+
+
+-- UPDATE rooms
+-- SET description = E'Charming compact single ideal for quiet stays or writing retreats.\n'
+-- WHERE id = '136ffb2c-3ba1-4d52-b7eb-21ad232ab925';
+
+
+-- UPDATE rooms
+-- SET description = E'Comfortable executive-style single with tasteful Irish touches.\n'
+-- WHERE id = '5d0ea699-a9de-4f31-8612-ce2311e3af29';
+
+
+-- UPDATE rooms
+-- SET description = E'Boutique-style suite inspired by Irish heritage, perfect for small groups or longer stays.\n'
+-- WHERE id = '74d9ca94-c63b-487d-bc45-24976fa80e8a';
+
+
+-- UPDATE rooms
+-- SET description = E'Serene single room with natural tones and a quiet retreat atmosphere.\n'
+-- WHERE id = '8147062f-b439-455b-8d8c-017a1ba8b090';
+
+
+-- UPDATE rooms
+-- SET description = E'Warm and inviting double room with a cosy balcony, inspired by Irish cottage comfort.\n'
+-- WHERE id = 'ac571c6b-b4ab-40a4-94f8-bdc89ff450fc';
+
+
+-- UPDATE rooms
+-- SET description = E'Spacious family suite styled after traditional Irish country homes.\n'
+-- WHERE id = 'b720f370-e80d-414a-b00e-758084284b96';
+
+
+-- UPDATE rooms
+-- SET description = E'Bright single room with balcony, ideal for remote workers visiting the coast.\n'
+-- WHERE id = 'cb5adcfe-d17c-47aa-96a1-51940b079523';
+
+
+-- UPDATE rooms
+-- SET description = E'Our boutique-style top-floor retreat with elevated views and Irish artisan décor.\n'
+-- WHERE id = 'de1a2f3d-6af4-4374-9ff3-1da3d1117360';
+
+
+
+
+-- UPDATE rooms
+-- SET description = description || E'\n\nThe Seanchaí Nook is purpose-built for solitude, creativity, and deep focus. With sound-insulated walls, a dedicated writing desk, and Celtic-inspired décor, it stands apart as the most intimate and distraction-free room in the house. Ideal for writers, thinkers, or guests seeking quiet over luxury.'
+-- WHERE id = '136ffb2c-3ba1-4d52-b7eb-21ad232ab925';
+
+
+-- UPDATE rooms
+-- SET description = description || E'\n\nDesigned for business travellers and professionals, the Fionn Executive Chamber prioritises efficiency without sacrificing character. Smart technology, a refined workspace, and premium finishes make it the most business-oriented room at GuestEase. It’s where productivity meets understated Irish elegance.'
+-- WHERE id = '5d0ea699-a9de-4f31-8612-ce2311e3af29';
+
+
+-- UPDATE rooms
+-- SET description = description || E'\n\nThe High King’s Quarters offers generous space and heritage-rich design for guests who want more than just a room. With handcrafted furniture, multiple sleeping options, and a welcoming sitting area, it’s ideal for extended stays or small groups. This suite balances historical character with modern comfort.'
+-- WHERE id = '74d9ca94-c63b-487d-bc45-24976fa80e8a';
+
+
+-- UPDATE rooms
+-- SET description = description || E'\n\nDruid’s Rest is GuestEase’s most wellness-focused room, created for guests seeking calm and restoration. Natural textures, a garden view, and meditation-friendly amenities set it apart as a true retreat space. It’s ideal for those prioritising rest, mindfulness, and mental clarity.'
+-- WHERE id = '8147062f-b439-455b-8d8c-017a1ba8b090';
+
+
+-- UPDATE rooms
+-- SET description = description || E'\n\nBrigid’s Haven is designed for couples who value warmth, intimacy, and a sense of home. Featuring Irish wool blankets, poetry books, and a private balcony, it offers a uniquely cosy atmosphere not found in other rooms. This is the most romantic and cottage-inspired stay at GuestEase.'
+-- WHERE id = 'ac571c6b-b4ab-40a4-94f8-bdc89ff450fc';
+
+
+-- UPDATE rooms
+-- SET description = description || E'\n\nThe Clan Suite is GuestEase’s most family-friendly accommodation, offering space, flexibility, and thoughtful amenities for all ages. With two double-beds, a dining area, and entertainment options, it’s designed for togetherness without compromise. No other room caters as completely to families and group living.'
+-- WHERE id = 'b720f370-e80d-414a-b00e-758084284b96';
+
+
+-- UPDATE rooms
+-- SET description = description || E'\n\nThe Skellig Study Loft is tailored specifically for remote workers and digital nomads. A standing desk, balcony workspace, and productivity-focused layout make it the most work-optimised room available. It uniquely combines professional functionality with fresh air and coastal inspiration.'
+-- WHERE id = 'cb5adcfe-d17c-47aa-96a1-51940b079523';
+
+
+-- UPDATE rooms
+-- SET description = description || E'\n\nThe Éire Penthouse represents the pinnacle of the GuestEase experience, offering unmatched views, space, and craftsmanship. With artisan décor, a panoramic balcony, and luxury amenities, it stands apart as the most exclusive room available. Perfect for special occasions or guests seeking a truly elevated stay.'
+-- WHERE id = 'de1a2f3d-6af4-4374-9ff3-1da3d1117360';
+
+
+
+-- UPDATE public.rooms
+-- SET images = '["SeanchaiNook1.png", "SeanchaiNook2.jpg", "SeanchaiNook3.jpg", "SeanchaiNook4.jpg"]'::jsonb
+-- WHERE name = 'Seanchaí Nook';
+
+
+-- UPDATE public.rooms
+-- SET images = '["FionnExecutiveChamber1.jpg", "FionnExecutiveChamber2.png", "FionnExecutiveChamber3.png", "FionnExecutiveChamber4.png"]'::jsonb
+-- WHERE name = 'Fionn Executive Chamber';
+
+
+-- UPDATE public.rooms
+-- SET images = '["HighKingsQuarters1.jpg","HighKingsQuarters2.jpg","HighKingsQuarters3.jpg","HighKingsQuarters4.jpg"]'::jsonb
+-- WHERE name = 'High King''s Quarters';
+
+UPDATE public.rooms
+SET images = '[
+  "EirePenthouse1.jpg",
+  "EirePenthouse2.jpg",
+  "EirePenthouse3.jpg",
+  "EirePenthouse4.jpg"
+]'::jsonb
+WHERE id = 'de1a2f3d-6af4-4374-9ff3-1da3d1117360';
+
+
+
+
+SELECT images
+FROM public.rooms
+WHERE id = 'de1a2f3d-6af4-4374-9ff3-1da3d1117360';
+
+
+
+

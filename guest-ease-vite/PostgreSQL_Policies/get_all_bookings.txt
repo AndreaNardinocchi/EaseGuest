@@ -1,0 +1,35 @@
+-- Drop old function if it exists
+drop function if exists public.get_all_bookings();
+
+-- Create new function
+create function public.get_all_bookings()
+returns table (
+  id uuid,
+  room_id text,
+  user_id uuid,
+  user_email text,
+  first_name text,
+  last_name text,
+  check_in date,
+  check_out date,
+  guests int,
+  created_at timestamptz
+)
+language sql
+security definer
+as $$
+  select 
+    b.id,
+    b.room_id,
+    b.user_id,
+    u.email as user_email,
+    u.raw_user_meta_data->>'first_name' as first_name,
+    u.raw_user_meta_data->>'last_name' as last_name,
+    b.check_in,
+    b.check_out,
+    b.guests,
+    b.created_at
+  from public.bookings b
+  left join auth.users u
+  on b.user_id = u.id;
+$$;

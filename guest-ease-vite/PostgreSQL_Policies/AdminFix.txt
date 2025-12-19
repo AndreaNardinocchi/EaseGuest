@@ -1,0 +1,8 @@
+GRANT USAGE ON SCHEMA auth TO anon, authenticated;
+GRANT SELECT ON auth.users TO anon, authenticated;
+
+CREATE POLICY "Allow select for anon"
+ON auth.users
+FOR SELECT
+TO anon
+USING (true);

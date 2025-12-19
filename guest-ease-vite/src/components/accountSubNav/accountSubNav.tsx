@@ -22,7 +22,7 @@ const SubNav: React.FC = () => {
             to={link.path}
             underline="none"
             color={
-              location.pathname === link.path ? "secondary" : "textPrimary"
+              location.pathname === link.path ? "#000000de" : "textPrimary"
             }
             sx={{
               fontWeight: location.pathname === link.path ? "bold" : "normal",

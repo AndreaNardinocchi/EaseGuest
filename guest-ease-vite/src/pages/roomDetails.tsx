@@ -332,7 +332,7 @@ const RoomDetails: React.FC = () => {
         return;
       }
 
-      navigate("/booking-confirmation", {
+      navigate(`/booking-confirmation/${bookingId}`, {
         state: {
           room,
           booking: {
