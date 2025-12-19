@@ -3,6 +3,7 @@ import fetch from "node-fetch";
 import "dotenv/config";
 import { createClient } from "@supabase/supabase-js";
 import dotenv from "dotenv";
+// import { supabaseAdmin } from "../../utils/supabaseAdmin";
 
 const app = express();
 app.use(express.json());
@@ -313,6 +314,66 @@ app.post("/admin/delete_booking", async (req, res) => {
 /* ---------------------------
  Create user
 ---------------------------- */
+// app.post("/api/admin/create_user", async (req, res) => {
+//   try {
+//     const { email, role, first_name, last_name, country, zip_code } = req.body;
+
+//     if (!email) {
+//       return res.status(400).json({ error: "Email is required" });
+//     }
+
+//     const password = Math.random().toString(36).slice(-10);
+
+//     const { data, error } = await supabaseAdmin.auth.admin.createUser({
+//       email,
+//       password,
+//       email_confirm: true,
+//       user_metadata: {
+//         role,
+//         first_name,
+//         last_name,
+//         country,
+//         zip_code,
+//       },
+//     });
+
+//     if (error) {
+//       console.error("Create user error:", error);
+//       return res.status(400).json({ error: error.message });
+//     }
+
+//     const authUser = data.user;
+//     // ⭐ AUTOMATIC PROFILE CREATION ⭐
+//     const { error: profileError } = await supabaseAdmin
+//       .from("profiles")
+//       .insert({
+//         id: authUser.id,
+//         email: authUser.email,
+//         role: role || "user",
+//         first_name,
+//         last_name,
+//         country,
+//         zip_code,
+//         created_at: new Date().toISOString(),
+
+//       });
+
+//     if (profileError) {
+//       console.error("Profile insert error:", profileError);
+//       return res.status(500).json({ error: profileError.message });
+//     }
+
+//     return res.status(201).json({
+//       success: true,
+//       user: data.user,
+//       tempPassword: password, // optional
+//     });
+//   } catch (err) {
+//     console.error("Create user exception:", err);
+//     return res.status(500).json({ error: err.message });
+//   }
+// });
+
 app.post("/api/admin/create_user", async (req, res) => {
   try {
     const { email, role, first_name, last_name, country, zip_code } = req.body;
@@ -341,15 +402,130 @@ app.post("/api/admin/create_user", async (req, res) => {
       return res.status(400).json({ error: error.message });
     }
 
+    const authUser = data.user;
+
+    // ⭐ AUTOMATIC PROFILE CREATION ⭐
+    const { error: profileError } = await supabaseAdmin
+      .from("profiles")
+      .upsert({
+        id: authUser.id,
+        email: authUser.email,
+        role: role || "user",
+        first_name,
+        last_name,
+        country,
+        zip_code,
+        created_at: new Date().toISOString(),
+      });
+
+    if (profileError) {
+      console.error("PROFILE INSERT ERROR:", profileError);
+      return res.status(500).json({ error: profileError.message });
+    }
+
     return res.status(201).json({
       success: true,
       user: data.user,
-      tempPassword: password, // optional
+      tempPassword: password,
     });
   } catch (err) {
     console.error("Create user exception:", err);
     return res.status(500).json({ error: err.message });
   }
+});
+
+// /* ---------------------------
+//    Admin update booking endpoint
+// ---------------------------- */
+// Admin update booking endpoint
+app.post("/api/admin/update_user", async (req, res) => {
+  try {
+    const updates = req.body;
+
+    // Email is the only stable identifier the frontend sends
+    const email = updates.email;
+
+    if (!email) {
+      return res.status(400).json({ error: "Missing email" });
+    }
+    // Get the Auth user by email
+    const { data: list, error: authError } =
+      await supabaseAdmin.auth.admin.listUsers();
+
+    if (authError) {
+      return res.status(404).json({ error: "Auth user not found" });
+    }
+
+    const user = list.users.find((u) => u.email === email);
+
+    if (!user) {
+      return res.status(404).json({ error: "Auth user not found" });
+    }
+
+    const authId = user.id;
+
+    // 2 Update Auth user metadata (optional)
+    const { error: authUpdateError } =
+      await supabaseAdmin.auth.admin.updateUserById(authId, {
+        user_metadata: {
+          first_name: updates.first_name,
+          last_name: updates.last_name,
+          role: updates.role,
+          country: updates.country,
+          zip_code: updates.zip_code,
+        },
+      });
+    if (authUpdateError) {
+      return res.status(400).json({ error: authUpdateError.message });
+    }
+
+    // Remove email from updates so we don't try to overwrite it
+    const { email: _, ...fieldsToUpdate } = updates;
+
+    const { data, error } = await supabaseAdmin
+      .from("profiles")
+      .update(fieldsToUpdate)
+      .eq("email", email)
+      .select("*")
+      .single();
+
+    if (error) {
+      console.error("Admin update failed:", error);
+      return res.status(500).json({ error: error.message });
+    }
+
+    return res.json({
+      message: "User updated successfully",
+      data,
+    });
+  } catch (err) {
+    console.error("Admin update error:", err);
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+/* ---------------------------
+ Adnin Delete user
+---------------------------- */
+
+app.post("/admin/delete_user", async (req, res) => {
+  const { userId } = req.body;
+
+  // 1️⃣ Delete from Auth
+  const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(
+    userId
+  );
+  if (authError) return res.status(400).json({ error: authError.message });
+
+  // 2️⃣ Delete from profiles table
+  const { error: dbError } = await supabaseAdmin
+    .from("profiles")
+    .delete()
+    .eq("id", userId); // assuming your profile table's primary key matches auth uid
+
+  if (dbError) return res.status(400).json({ error: dbError.message });
+
+  res.json({ success: true });
 });
 
 /* ---------------------------

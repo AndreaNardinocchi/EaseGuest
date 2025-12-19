@@ -22,6 +22,5 @@
 
 - SEO
 
-- Use room names instead of id in the Account page
+- Review bookings policy
 
-- Show reviews
