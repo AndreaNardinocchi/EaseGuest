@@ -11,6 +11,7 @@ import {
   Divider,
 } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
+import { supabase } from "../../supabaseClient";
 
 interface BookingCardProps {
   booking: any;
@@ -29,7 +30,7 @@ const BookingCard: React.FC<BookingCardProps> = ({
   handleCancel,
   handleReview,
 }) => {
-  console.log("Room price:", room.price);
+  // console.log("Room price:", room.price);
   const totalNights =
     (new Date(booking.check_out).getTime() -
       new Date(booking.check_in).getTime()) /
@@ -39,7 +40,9 @@ const BookingCard: React.FC<BookingCardProps> = ({
 
   const totalPrice = booking.total_price ? Number(booking.total_price) : 0;
 
-  //const totalPrice = totalNights * room.price;
+  function getPublicUrl(path: string) {
+    return supabase.storage.from("assets").getPublicUrl(path).data.publicUrl;
+  }
 
   return (
     <Card
@@ -56,7 +59,7 @@ const BookingCard: React.FC<BookingCardProps> = ({
         component="img"
         image={
           room?.images && room.images.length > 0
-            ? `/assets/${room.images[0]}`
+            ? getPublicUrl(room.images[0])
             : "https://via.placeholder.com/400x200?text=Room"
         }
         alt={room?.name || "Room"}

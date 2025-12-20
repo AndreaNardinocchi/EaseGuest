@@ -88,7 +88,7 @@ const SiteHeader: React.FC = () => {
     { label: "About us", path: "/about-us" },
     { label: "Rooms", path: "/rooms" },
     { label: "Facilities", path: "/facilities" },
-    { label: "Contact us", path: "/contact-us" },
+    // { label: "Contact us", path: "/contact-us" },
   ];
 
   /**
@@ -199,12 +199,6 @@ const SiteHeader: React.FC = () => {
                 Home
               </Button>
               <Button
-                // sx={{ textTransform: "none" }}
-                // color="inherit"
-                // onClick={handleMovieMenu}
-                // aria-controls={isMovieMenuOpen ? "movie-menu" : undefined}
-                // aria-haspopup="true"
-                // aria-expanded={isMovieMenuOpen ? "true" : undefined}
                 sx={{ textTransform: "none" }}
                 color="inherit"
                 onClick={() => handleNavigate("/about-us")}

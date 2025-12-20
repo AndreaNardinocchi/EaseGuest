@@ -10,6 +10,7 @@ import {
   Box,
 } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import { supabase } from "../../supabaseClient";
 
 type RoomCardHorizontalProps = {
   id: string;
@@ -43,6 +44,10 @@ const RoomCardHorizontal: React.FC<RoomCardHorizontalProps> = ({
   const queryString = `?checkIn=${encodeURIComponent(
     checkIn
   )}&checkOut=${encodeURIComponent(checkOut)}&guests=${guests}`;
+
+  function getPublicUrl(path: string) {
+    return supabase.storage.from("assets").getPublicUrl(path).data.publicUrl;
+  }
 
   return (
     <Card
@@ -155,7 +160,7 @@ const RoomCardHorizontal: React.FC<RoomCardHorizontalProps> = ({
         component="img"
         image={
           images && images.length > 0
-            ? `/assets/${images[0]}`
+            ? getPublicUrl(images[0])
             : "/assets/placeholder.png"
         }
         alt={name}

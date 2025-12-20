@@ -29,8 +29,10 @@ const AccountPage: React.FC = () => {
     cancelBooking,
     fetchBookings,
     getRoomInfo,
+    roomsLoading,
     loading,
   } = useBooking();
+
   const [tabValue, setTabValue] = useState(0);
   // state for popup
   const [open, setOpen] = useState(false); // <-- NEW
@@ -109,7 +111,7 @@ const AccountPage: React.FC = () => {
     );
   }
 
-  if (loading) {
+  if (loading || roomsLoading) {
     return (
       <Box display="flex" justifyContent="center" mt={6}>
         <CircularProgress color="secondary" />
@@ -125,7 +127,10 @@ const AccountPage: React.FC = () => {
     ) : (
       <Grid container spacing={3} mt={2}>
         {data.map((b) => {
+          // const room = getRoomInfo(b.room_id);
+
           const room = getRoomInfo(b.room_id);
+
           return (
             <Grid item xs={12} sm={6} md={4} key={b.id}>
               <BookingCard

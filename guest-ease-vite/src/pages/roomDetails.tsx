@@ -1,190 +1,3 @@
-// // src/pages/roomDetails.tsx
-// import React, { useEffect, useState } from "react";
-// import { useParams, useNavigate, useLocation } from "react-router-dom";
-// import {
-//   Box,
-//   CircularProgress,
-//   Alert,
-//   Typography,
-//   Button,
-//   Container,
-// } from "@mui/material";
-// import RoomDetailsCard from "../components/roomDetailsCard/roomDetailsCard";
-// import BookingReviews from "../components/bookingReviews/bookingReview";
-// import { StripeCheckout } from "../components/stripeCheckOut/stripeCheckOut";
-// import RoomImageCarousel from "../components/roomDetailsGallery/roomDetailsGallery";
-// import { useBooking } from "../context/bookingContext";
-// import { useAuth } from "../context/useAuth";
-
-// const RoomDetails: React.FC = () => {
-//   const { roomId } = useParams<{ roomId: string }>();
-//   const { searchAvailableRooms, loading, bookRoom, storePayment } =
-//     useBooking();
-//   const { user } = useAuth();
-//   const navigate = useNavigate();
-//   const location = useLocation();
-
-//   const [room, setRoom] = useState<any | null>(null);
-//   const [rooms, setRooms] = useState<any[]>([]);
-//   const [error, setError] = useState<string | null>(null);
-//   const [guests, setGuests] = useState<number>(1);
-//   const [checkIn, setCheckIn] = useState<string>("2025-12-01");
-//   const [checkOut, setCheckOut] = useState<string>("2025-12-02");
-//   const [showPayment, setShowPayment] = useState(false);
-
-//   // Fetch available rooms for the selected dates
-//   useEffect(() => {
-//     if (!roomId) return;
-
-//     const fetchRoomDetails = async () => {
-//       try {
-//         const result = await searchAvailableRooms(checkIn, checkOut);
-//         if (result.success) setRooms(result.rooms);
-//         else setError(result.message || "Failed to fetch rooms.");
-//       } catch {
-//         setError("Unexpected error fetching rooms.");
-//       }
-//     };
-
-//     fetchRoomDetails();
-//   }, [roomId, checkIn, checkOut, searchAvailableRooms]);
-
-//   // Find the current room from the rooms array
-//   useEffect(() => {
-//     if (rooms.length && roomId) {
-//       const found = rooms.find((r) => String(r.id) === String(roomId));
-//       setRoom(found || null);
-//     }
-//   }, [rooms, roomId]);
-
-//   const handleStartPayment = () => {
-//     if (!user) {
-//       navigate("/login", { state: { from: location.pathname } });
-//       return;
-//     }
-//     if (
-//       guests <= 0 ||
-//       !checkIn ||
-//       !checkOut ||
-//       new Date(checkIn) >= new Date(checkOut)
-//     ) {
-//       setError("Please enter valid guests and dates.");
-//       return;
-//     }
-//     setShowPayment(true);
-//   };
-
-//   const handlePaymentSuccess = async (paymentIntent: any) => {
-//     if (!room || !user) return;
-
-//     try {
-//       const nights =
-//         (new Date(checkOut).getTime() - new Date(checkIn).getTime()) /
-//         (1000 * 60 * 60 * 24);
-
-//       const totalPrice = room.price * nights * guests;
-
-//       // ✅ Create booking first
-//       const result = await bookRoom({
-//         room_id: roomId!,
-//         check_in: checkIn,
-//         check_out: checkOut,
-//         guests,
-//         total_price: totalPrice,
-//       });
-
-//       if (!result.success || !result.booking) {
-//         setError(result.message || "Booking failed after payment.");
-//         return;
-//       }
-
-//       const bookingId = result.booking.id;
-
-//       // ✅ Store payment with bookingId
-//       const paymentResult = await storePayment({
-//         payment_intent_id: paymentIntent.id,
-//         amount: totalPrice,
-//         booking_id: bookingId,
-//         user_id: user.id,
-//       });
-
-//       if (!paymentResult.success) {
-//         setError(paymentResult.message || "Payment recording failed.");
-//         return;
-//       }
-
-//       // Navigate to confirmation
-//       navigate("/booking-confirmation", {
-//         state: {
-//           room,
-//           booking: {
-//             check_in: checkIn,
-//             check_out: checkOut,
-//             guests,
-//             total_price: totalPrice,
-//           },
-//         },
-//       });
-//     } catch (err) {
-//       console.error("Payment booking error:", err);
-//       setError("Unexpected error after payment.");
-//     }
-//   };
-
-//   if (loading)
-//     return <CircularProgress sx={{ display: "block", mx: "auto", my: 10 }} />;
-//   if (error) return <Alert severity="error">{error}</Alert>;
-//   if (!room) return <Alert severity="error">Room not found.</Alert>;
-
-//   return (
-//     <Box>
-//       {room.images?.length > 0 && <RoomImageCarousel images={room.images} />}
-
-//       <Container maxWidth="lg">
-//         {showPayment && (
-//           <Box sx={{ p: 4, mb: 4, border: "1px solid #ddd", borderRadius: 2 }}>
-//             <Typography variant="h5" sx={{ mb: 2 }}>
-//               Complete Payment
-//             </Typography>
-
-//             <StripeCheckout
-//               amount={
-//                 (room.price *
-//                   100 *
-//                   (new Date(checkOut).getTime() -
-//                     new Date(checkIn).getTime())) /
-//                 (1000 * 60 * 60 * 24)
-//               }
-//               onSuccess={handlePaymentSuccess}
-//             />
-
-//             <Button sx={{ mt: 2 }} onClick={() => setShowPayment(false)}>
-//               Cancel
-//             </Button>
-//           </Box>
-//         )}
-
-//         <RoomDetailsCard
-//           room={room}
-//           guests={guests}
-//           checkIn={checkIn}
-//           checkOut={checkOut}
-//           setGuests={setGuests}
-//           setCheckIn={setCheckIn}
-//           setCheckOut={setCheckOut}
-//           onBook={handleStartPayment}
-//         />
-
-//         <Box sx={{ mt: 6, mb: 12 }}>
-//           <BookingReviews roomId={roomId!} />
-//         </Box>
-//       </Container>
-//     </Box>
-//   );
-// };
-
-// export default RoomDetails;
-
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import {
@@ -195,10 +8,12 @@ import {
   Button,
   Container,
 } from "@mui/material";
+
 import RoomDetailsCard from "../components/roomDetailsCard/roomDetailsCard";
 import BookingReviews from "../components/bookingReviews/bookingReview";
 import { StripeCheckout } from "../components/stripeCheckOut/stripeCheckOut";
 import RoomImageCarousel from "../components/roomDetailsGallery/roomDetailsGallery";
+
 import { useBooking } from "../context/bookingContext";
 import { useAuth } from "../context/useAuth";
 import { supabase } from "../supabaseClient";
@@ -215,10 +30,9 @@ const RoomDetails: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Read query params (may be empty)
+  // Query params
   const params = new URLSearchParams(location.search);
   const paramCheckIn = params.get("checkIn") || "";
-  console.log("params & paramCheckIn", params, paramCheckIn);
   const paramCheckOut = params.get("checkOut") || "";
   const paramGuests = Number(params.get("guests")) || 1;
 
@@ -232,15 +46,21 @@ const RoomDetails: React.FC = () => {
 
   const [showPayment, setShowPayment] = useState(false);
 
-  // Fetch basic room info *always*
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // Convert Supabase storage path → public URL
+  function getPublicUrl(path: string) {
+    return supabase.storage.from("assets").getPublicUrl(path).data.publicUrl;
+  }
+
+  // Fetch room by ID
   const fetchRoomById = async () => {
     if (!roomId) return;
+
     const { data, error } = await supabase
       .from("rooms")
       .select("*")
       .eq("id", roomId)
       .single();
+
     if (error || !data) {
       setError("Room not found.");
     } else {
@@ -250,13 +70,13 @@ const RoomDetails: React.FC = () => {
 
   useEffect(() => {
     fetchRoomById();
-  }, [fetchRoomById, roomId]);
+  }, [roomId]);
 
-  // Fetch availability only if dates are valid
+  // Fetch availability
   useEffect(() => {
     const validDates =
-      checkIn.match(/^\d{4}-\d{2}-\d{2}$/) &&
-      checkOut.match(/^\d{4}-\d{2}-\d{2}$/) &&
+      /^\d{4}-\d{2}-\d{2}$/.test(checkIn) &&
+      /^\d{4}-\d{2}-\d{2}$/.test(checkOut) &&
       new Date(checkIn) < new Date(checkOut);
 
     if (!validDates) {
@@ -272,7 +92,7 @@ const RoomDetails: React.FC = () => {
         } else {
           setError(result.message || "Failed availability fetch.");
         }
-      } catch (err) {
+      } catch {
         setError("Unexpected availability error.");
       }
     };
@@ -287,6 +107,7 @@ const RoomDetails: React.FC = () => {
       });
       return;
     }
+
     if (
       guests <= 0 ||
       !checkIn ||
@@ -296,6 +117,7 @@ const RoomDetails: React.FC = () => {
       setError("Please enter valid guests and dates before booking.");
       return;
     }
+
     setShowPayment(true);
   };
 
@@ -306,6 +128,7 @@ const RoomDetails: React.FC = () => {
       const nights =
         (new Date(checkOut).getTime() - new Date(checkIn).getTime()) /
         (1000 * 60 * 60 * 24);
+
       const totalPrice = room.price * nights * guests;
 
       const result = await bookRoom({
@@ -315,10 +138,12 @@ const RoomDetails: React.FC = () => {
         guests,
         total_price: totalPrice,
       });
+
       if (!result.success || !result.booking) {
         setError(result.message || "Booking failed after payment.");
         return;
       }
+
       const bookingId = result.booking.id;
 
       const paymentResult = await storePayment({
@@ -327,6 +152,7 @@ const RoomDetails: React.FC = () => {
         booking_id: bookingId,
         user_id: user.id,
       });
+
       if (!paymentResult.success) {
         setError(paymentResult.message || "Payment recording failed.");
         return;
@@ -351,21 +177,33 @@ const RoomDetails: React.FC = () => {
 
   if (bookingLoading)
     return <CircularProgress sx={{ display: "block", mx: "auto", my: 10 }} />;
+
   if (error) return <Alert severity="error">{error}</Alert>;
+
   if (!room) return <Alert severity="error">Room not found.</Alert>;
+
+  // Normalize images → convert to public URLs
+  const normalizedImages = Array.isArray(room.images)
+    ? room.images.map((img: string) => getPublicUrl(img))
+    : typeof room.images === "string"
+    ? JSON.parse(room.images).map((img: string) => getPublicUrl(img))
+    : [];
 
   return (
     <Box>
-      {room.images?.length > 0 && <RoomImageCarousel images={room.images} />}
+      {/* IMAGE CAROUSEL */}
+      {normalizedImages.length > 0 && (
+        <RoomImageCarousel images={normalizedImages} />
+      )}
 
       <Container maxWidth="lg">
-        {/* Show selected dates (from URL or form) */}
-
+        {/* PAYMENT SECTION */}
         {showPayment && (
           <Box sx={{ p: 4, mb: 4, border: "1px solid #ddd", borderRadius: 2 }}>
             <Typography variant="h5" sx={{ mb: 2 }}>
               Complete Payment
             </Typography>
+
             {checkIn && checkOut ? (
               <>
                 <Typography>Check‑in: {checkIn}</Typography>
@@ -395,6 +233,7 @@ const RoomDetails: React.FC = () => {
           </Box>
         )}
 
+        {/* ROOM DETAILS */}
         <RoomDetailsCard
           room={room}
           guests={guests}
@@ -406,6 +245,7 @@ const RoomDetails: React.FC = () => {
           onBook={handleStartPayment}
         />
 
+        {/* REVIEWS */}
         <Box sx={{ mt: 6, mb: 12 }}>
           <BookingReviews roomId={roomId!} />
         </Box>
