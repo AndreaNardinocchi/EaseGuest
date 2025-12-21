@@ -52,7 +52,42 @@ const RoomDetails: React.FC = () => {
   }
 
   // Fetch room by ID
-  const fetchRoomById = async () => {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // const fetchRoomById = async () => {
+  //   if (!roomId) return;
+
+  //   const { data, error } = await supabase
+  //     .from("rooms")
+  //     .select("*")
+  //     .eq("id", roomId)
+  //     .single();
+
+  //   if (error || !data) {
+  //     setError("Room not found.");
+  //   } else {
+  //     setRoom(data);
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   fetchRoomById();
+  // }, [fetchRoomById, roomId]);
+
+  /* 
+  React error: "The final argument passed to useEffect changed size."
+
+  Cause:
+  A function (fetchRoomById) was recreated on every render, so the 
+  useEffect dependency array changed length — which React forbids.
+
+  Fix:
+  Wrap the function in useCallback so its reference stays stable.
+
+  Sources:
+  - React Docs: https://react.dev/reference/react/useEffect
+  - useCallback Docs: https://react.dev/reference/react/useCallback
+*/
+  const fetchRoomById = React.useCallback(async () => {
     if (!roomId) return;
 
     const { data, error } = await supabase
@@ -66,11 +101,11 @@ const RoomDetails: React.FC = () => {
     } else {
       setRoom(data);
     }
-  };
+  }, [roomId]);
 
   useEffect(() => {
     fetchRoomById();
-  }, [roomId]);
+  }, [fetchRoomById]);
 
   // Fetch availability
   useEffect(() => {
@@ -115,6 +150,15 @@ const RoomDetails: React.FC = () => {
       new Date(checkIn) >= new Date(checkOut)
     ) {
       setError("Please enter valid guests and dates before booking.");
+      return;
+    }
+
+    // NEW:   Check if room is available
+    const isAvailable = availability.some((r) => r.id === room.id);
+    console.log("Room", room.id);
+
+    if (!isAvailable) {
+      setError("This room is already booked for the selected dates.");
       return;
     }
 
@@ -174,11 +218,42 @@ const RoomDetails: React.FC = () => {
       setError("Unexpected error after payment.");
     }
   };
+  // This useEffact() will ensure the message will disappear as soon as some available dates are selected
+  useEffect(() => {
+    if (!room) return;
+
+    const isAvailable = availability.some((r) => r.id === room.id);
+
+    // Only clear the error if the room is now available
+    if (isAvailable && error) {
+      setError(null);
+    }
+  }, [availability, room, error]);
+
+  useEffect(() => {
+    // Only close Stripe when dates change
+    if (showPayment) {
+      setShowPayment(false);
+    }
+
+    /**
+     * Clear error only if room becomes available.
+     * Then, when we click on 'Book Now', the showPayment will be set to 'true' as per
+     * handleStartPayment()
+     * */
+    if (room) {
+      const isAvailable = availability.some((r) => r.id === room.id);
+      if (isAvailable && error) {
+        setError(null);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [checkIn, checkOut]);
 
   if (bookingLoading)
     return <CircularProgress sx={{ display: "block", mx: "auto", my: 10 }} />;
 
-  if (error) return <Alert severity="error">{error}</Alert>;
+  // if (error) return <Alert severity="error">{error}</Alert>;
 
   if (!room) return <Alert severity="error">Room not found.</Alert>;
 
@@ -197,6 +272,12 @@ const RoomDetails: React.FC = () => {
       )}
 
       <Container maxWidth="lg">
+        {/* SHOW ERRORS HERE */}
+        {error && (
+          <Alert severity="error" sx={{ my: 2 }}>
+            {error}
+          </Alert>
+        )}
         {/* PAYMENT SECTION */}
         {showPayment && (
           <Box sx={{ p: 4, mb: 4, border: "1px solid #ddd", borderRadius: 2 }}>

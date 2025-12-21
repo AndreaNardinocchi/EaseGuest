@@ -22,7 +22,7 @@ import AdminBookingsPage from "./pages/AdminBookingsPage";
 import AdminUsersPage from "./pages/adminUsersPage";
 import AdminRoomsPage from "./pages/adminRoomsPage";
 import AdminReviewsPage from "./pages/adminReviewsPage";
-import AdminDashboard from "./pages/adminDashboard";
+// import AdminDashboard from "./pages/adminDashboard";
 // import ProtectedRoute from "./routes/protectedRoutes";
 
 const App = () => {
@@ -76,14 +76,14 @@ const App = () => {
               </ProtectedRoute>
             }
           />
-          <Route
+          {/* <Route
             path="/admin"
             element={
               <AdminRoute>
                 <AdminDashboard />
               </AdminRoute>
             }
-          />
+          /> */}
           <Route
             path="/admin/bookings"
             element={

@@ -430,7 +430,7 @@ const UserProfileDrawer: React.FC<UserProfileDrawerProps> = ({
         {auth?.user?.role === "admin" && (
           <MuiLink
             component={Link}
-            to="/admin"
+            to="/admin/bookings"
             underline="hover"
             sx={{ mt: 1, color: "#8E4585", fontWeight: 500 }}
             onClick={onClose}

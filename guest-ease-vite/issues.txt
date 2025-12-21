@@ -1,4 +1,3 @@
-- RoomDetails page should not allow double-booking
 
 - The Administrator should receive email notifications for any bookings, updates or cancellations made by guests
 
