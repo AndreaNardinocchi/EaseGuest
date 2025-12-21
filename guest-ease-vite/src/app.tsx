@@ -11,12 +11,18 @@ import ProfilePage from "./pages/profilePage";
 import FavoritesPage from "./pages/favoritesPage";
 import ProtectedRoute from "./routes/protectedRoutes";
 import BookingConfirmation from "./pages/bookingConfirmationPage";
-import AdminDashboard from "./pages/adminDashboard";
+// import AdminDashboard from "./pages/adminDashboard";
 import AdminRoute from "./routes/AdminRoute";
 import ReviewPage from "./pages/bookingReviewPage";
 import RoomsPage from "./pages/roomsPage";
 import AboutPage from "./pages/aboutUs";
 import FacilitiesPage from "./pages/facilities";
+// import AdminBookings from "./components/adminBookings/adminBookingsPage";
+import AdminBookingsPage from "./pages/AdminBookingsPage";
+import AdminUsersPage from "./pages/adminUsersPage";
+import AdminRoomsPage from "./pages/adminRoomsPage";
+import AdminReviewsPage from "./pages/adminReviewsPage";
+import AdminDashboard from "./pages/adminDashboard";
 // import ProtectedRoute from "./routes/protectedRoutes";
 
 const App = () => {
@@ -78,6 +84,39 @@ const App = () => {
               </AdminRoute>
             }
           />
+          <Route
+            path="/admin/bookings"
+            element={
+              <AdminRoute>
+                <AdminBookingsPage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/users"
+            element={
+              <AdminRoute>
+                <AdminUsersPage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/rooms"
+            element={
+              <AdminRoute>
+                <AdminRoomsPage />
+              </AdminRoute>
+            }
+          />
+          <Route
+            path="/admin/reviews"
+            element={
+              <AdminRoute>
+                <AdminReviewsPage />
+              </AdminRoute>
+            }
+          />
+
           {/* Changed from AdminRoute to ProtectedRoute so normal users can access */}
           <Route
             path="/review/:id"

@@ -38,3 +38,7 @@
 -- where user_id = '99e1da76-9883-484c-9bd6-2e4c5fcbc98d';
 
 SELECT * FROM rooms WHERE id = '136ffb2c-3ba1-4d52-b7eb-21ad232ab925';
+
+Charming compact single ideal for quiet stays or writing retreats.
+
+The Seanchaí Nook is purpose-built for solitude, creativity, and deep focus. With sound-insulated walls, a dedicated writing desk, and Celtic-inspired décor, it stands apart as the most intimate and distraction-free room in the house. Ideal for writers, thinkers, or guests seeking quiet over luxury.
