@@ -556,15 +556,82 @@ app.post("/admin/get_user_by_email", async (req, res) => {
  Create booking
 ---------------------------- */
 
+// app.post("/admin/create_booking", async (req, res) => {
+//   console.log("Received create_booking request:", req.body);
+
+//   const { room_id, user_email, check_in, check_out, guests } = req.body;
+
+//   if (!room_id || !user_email || !check_in || !check_out || !guests) {
+//     return res.status(400).json({ error: "Missing fields" });
+//   }
+
+//   try {
+//     // Find the user by email
+//     const { data: user, error: userError } = await supabaseAdmin
+//       .from("profiles")
+//       .select("id, first_name, email")
+//       .eq("email", user_email)
+//       .single();
+
+//     if (userError || !user) {
+//       return res.status(400).json({ error: "User not found" });
+//     }
+
+//     // Insert booking
+//     const { data, error } = await supabaseAdmin
+//       .from("bookings")
+//       .insert([
+//         {
+//           room_id,
+//           user_id: user.id,
+//           check_in,
+//           check_out,
+//           guests,
+//         },
+//       ])
+//       .select();
+
+//     if (error) {
+//       return res.status(400).json({ error: error.message });
+//     }
+
+//     // --- SEND CONFIRMATION EMAIL ---
+//     const subject = "✨ Your Booking Is Confirmed by Admin — GuestEase";
+//     const body = `
+//       <p>Hi ${user.first_name || "there"},</p>
+//       <p>Your booking has been successfully confirmed! Here are the details:</p>
+//       <ul>
+//         <li>Room ID: ${room_id}</li>
+//         <li>Check-in: ${check_in}</li>
+//         <li>Check-out: ${check_out}</li>
+//         <li>Guests: ${guests}</li>
+//       </ul>
+//       <p>Thank you for choosing GuestEase!</p>
+//     `;
+
+//     await fetch("http://localhost:3000/send_email", {
+//       method: "POST",
+//       headers: { "Content-Type": "application/json" },
+//       body: JSON.stringify({
+//         email: user.email,
+//         subject,
+//         body,
+//       }),
+//     });
+
+//     return res.json({ success: true, booking: data[0] });
+//   } catch (err) {
+//     console.error("Create booking error:", err);
+//     return res.status(500).json({ error: err.message });
+//   }
+// });
+
 app.post("/admin/create_booking", async (req, res) => {
   console.log("Received create_booking request:", req.body);
-
   const { room_id, user_email, check_in, check_out, guests } = req.body;
-
   if (!room_id || !user_email || !check_in || !check_out || !guests) {
     return res.status(400).json({ error: "Missing fields" });
   }
-
   try {
     // Find the user by email
     const { data: user, error: userError } = await supabaseAdmin
@@ -572,53 +639,44 @@ app.post("/admin/create_booking", async (req, res) => {
       .select("id, first_name, email")
       .eq("email", user_email)
       .single();
-
     if (userError || !user) {
       return res.status(400).json({ error: "User not found" });
     }
-
-    // Insert booking
+    // ⭐ Fetch room price
+    const { data: room, error: roomError } = await supabaseAdmin
+      .from("rooms")
+      .select("price")
+      .eq("id", room_id)
+      .single();
+    if (roomError || !room) {
+      return res.status(400).json({ error: "Room not found" });
+    }
+    // ⭐ Calculate nights
+    const nights =
+      (new Date(check_out).getTime() - new Date(check_in).getTime()) /
+      (1000 * 60 * 60 * 24);
+    // ⭐ Calculate total price
+    const total_price = nights * room.price;
+    // ⭐ Insert booking with total_price
     const { data, error } = await supabaseAdmin
       .from("bookings")
       .insert([
-        {
-          room_id,
-          user_id: user.id,
-          check_in,
-          check_out,
-          guests,
-        },
+        { room_id, user_id: user.id, check_in, check_out, guests, total_price },
       ])
       .select();
-
     if (error) {
       return res.status(400).json({ error: error.message });
     }
-
-    // --- SEND CONFIRMATION EMAIL ---
+    // Send confirmation email
     const subject = "✨ Your Booking Is Confirmed by Admin — GuestEase";
-    const body = `
-      <p>Hi ${user.first_name || "there"},</p>
-      <p>Your booking has been successfully confirmed! Here are the details:</p>
-      <ul>
-        <li>Room ID: ${room_id}</li>
-        <li>Check-in: ${check_in}</li>
-        <li>Check-out: ${check_out}</li>
-        <li>Guests: ${guests}</li>
-      </ul>
-      <p>Thank you for choosing GuestEase!</p>
-    `;
-
+    const body = ` <p>Hi ${
+      user.first_name || "there"
+    },</p> <p>Your booking has been successfully confirmed! Here are the details:</p> <ul> <li>Room ID: ${room_id}</li> <li>Check-in: ${check_in}</li> <li>Check-out: ${check_out}</li> <li>Guests: ${guests}</li> <li>Total Price: €${total_price}</li> </ul> <p>Thank you for choosing GuestEase!</p> `;
     await fetch("http://localhost:3000/send_email", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: user.email,
-        subject,
-        body,
-      }),
+      body: JSON.stringify({ email: user.email, subject, body }),
     });
-
     return res.json({ success: true, booking: data[0] });
   } catch (err) {
     console.error("Create booking error:", err);

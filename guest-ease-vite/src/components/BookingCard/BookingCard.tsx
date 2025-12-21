@@ -123,7 +123,30 @@ const BookingCard: React.FC<BookingCardProps> = ({
               color="text.secondary"
               sx={{ fontSize: "0.8rem" }}
             >
-              <strong>Check-in:</strong> {booking.check_in}
+              <strong>Reservation:</strong>
+              <MuiLink
+                component={RouterLink}
+                to={`/booking-confirmation/${booking.id}`}
+                sx={{
+                  textDecoration: "none",
+                  color: "#000000de",
+                  "&:hover": {
+                    // textDecoration: "underline",
+                    color: "#EFF5E0",
+                  },
+                }}
+              >
+                {" "}
+                #{booking.id.slice(-12)}
+              </MuiLink>
+            </Typography>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ fontSize: "0.8rem" }}
+            >
+              <strong>Check-in:</strong>
+              {booking.check_in}
             </Typography>
             <Typography
               variant="body2"
@@ -158,6 +181,14 @@ const BookingCard: React.FC<BookingCardProps> = ({
               color="text.secondary"
               sx={{ fontSize: "0.8rem" }}
             >
+              {/* <strong>Price:</strong> €{room.price.toFixed(2)} */}
+              <strong>Price:</strong> €{room?.price?.toFixed(2) ?? "—"}
+            </Typography>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ fontSize: "0.8rem" }}
+            >
               <strong>Total nights:</strong> {totalNights}
             </Typography>
             <Typography
@@ -165,7 +196,7 @@ const BookingCard: React.FC<BookingCardProps> = ({
               color="text.secondary"
               sx={{ fontSize: "0.8rem" }}
             >
-              <strong>Total price:</strong> {totalPrice.toFixed(2)}
+              <strong>Total price:</strong> €{totalPrice.toFixed(2)}
             </Typography>
           </Grid>
         </Grid>

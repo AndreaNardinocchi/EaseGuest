@@ -143,6 +143,11 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({
       } = await supabase.auth.getUser();
       if (!user) return { success: false, message: "User not authenticated." };
 
+      // ⭐ Ensure rooms are loaded
+      if (rooms.length === 0) {
+        await fetchRooms();
+      }
+
       const nights =
         (new Date(newBooking.check_out).getTime() -
           new Date(newBooking.check_in).getTime()) /

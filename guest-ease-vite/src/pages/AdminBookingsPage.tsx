@@ -233,6 +233,7 @@ const AdminBookingsPage: React.FC = () => {
                 <TableCell>Check-in</TableCell>
                 <TableCell>Check-out</TableCell>
                 <TableCell>Guests</TableCell>
+                <TableCell>Total Price</TableCell>
                 <TableCell>Created At</TableCell>
                 <TableCell>Actions</TableCell>
               </TableRow>
@@ -249,6 +250,7 @@ const AdminBookingsPage: React.FC = () => {
                   <TableCell>{b.check_in}</TableCell>
                   <TableCell>{b.check_out}</TableCell>
                   <TableCell>{b.guests}</TableCell>
+                  <TableCell>{b.total_price}</TableCell>
                   <TableCell>
                     {new Date(b.created_at).toLocaleString()}
                   </TableCell>

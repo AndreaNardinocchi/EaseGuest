@@ -101,7 +101,9 @@ const SiteHeader: React.FC = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const isHomePage = location.pathname === "/";
   const isRoomDetailsPage = location.pathname.startsWith("/room/");
-
+  const isBookingConfirmationPage = location.pathname.startsWith(
+    "/booking-confirmation/"
+  );
   return (
     <>
       <AppBar
@@ -112,23 +114,6 @@ const SiteHeader: React.FC = () => {
       >
         <Toolbar sx={{ color: "white" }}>
           <Link onClick={() => navigate("/")} to={""} rel="noopener"></Link>
-
-          {/* <Typography
-            variant="h4"
-            sx={{
-              flexGrow: 1,
-              color: "white",
-              marginRight: "2%",
-              fontSize: {
-                xs: "1.2rem",
-                sm: "1.5rem",
-                md: "1.7rem",
-                lg: "2.0rem",
-              },
-            }}
-          >
-            GuestEase
-          </Typography> */}
 
           <Link
             to="/"
@@ -250,7 +235,9 @@ const SiteHeader: React.FC = () => {
       </AppBar>
       {/* Only add Offset if not on the homepage */}
       {/* Only add Offset if not on the homepage or RoomDetails page */}
-      {!isHomePage && !isRoomDetailsPage && <Offset />}{" "}
+      {!isHomePage && !isRoomDetailsPage && !isBookingConfirmationPage && (
+        <Offset />
+      )}{" "}
     </>
   );
 };

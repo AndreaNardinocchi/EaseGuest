@@ -293,6 +293,7 @@ export interface Booking {
   created_at: string;
   first_name: string;
   last_name: string;
+  total_price: string;
 }
 
 export interface Room {

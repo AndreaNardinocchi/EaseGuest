@@ -1,19 +1,11 @@
 
 - The Administrator should receive email notifications for any bookings, updates or cancellations made by guests
 
-- Add reviews on the Admin dashboard and work on users logic on the same
-
-- Add totalPricePerNight and the ability to upload images for rooms on the AdminDashboard
-
 - Can you fix the mail queue to reflect what have in the report?
 
 - Create filters on Search Results page
 
-- Improve My Trips page
-
 - Improve Profile page
-
-- Improve Reservation confirmation page
 
 - Check redirections when logging in
 
@@ -23,3 +15,10 @@
 
 - Review bookings policy
 
+
+Admin bookings
+- When updating a reservation from the My Trips page, there can be overlap
+
+- When updating a reservation from /admin/bookings the total price won't update
+
+- If I create a reservation from a newly created room, it won't have a total price
