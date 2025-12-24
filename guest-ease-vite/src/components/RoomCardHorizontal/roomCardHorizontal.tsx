@@ -2,15 +2,17 @@ import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   Card,
-  CardMedia,
   CardContent,
   CardActions,
   Typography,
-  Button,
   Box,
+  Grid,
 } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { supabase } from "../../supabaseClient";
+import { calculateAverageRating } from "../../utils/calculateAverageRating";
+import type { Review } from "../../types/interfaces";
+import BookingCardImageCarousel from "../BookingCardImageCarousel/BookingCardImageCarousel";
 
 type RoomCardHorizontalProps = {
   id: string;
@@ -19,10 +21,11 @@ type RoomCardHorizontalProps = {
   price?: number;
   images?: string[];
   amenities?: string[];
-
   checkIn: string;
   checkOut: string;
   guests: number;
+  capacity: number; // <-- ADD THIS
+  reviews?: Review[];
 };
 
 const RoomCardHorizontal: React.FC<RoomCardHorizontalProps> = ({
@@ -35,12 +38,14 @@ const RoomCardHorizontal: React.FC<RoomCardHorizontalProps> = ({
   checkIn,
   checkOut,
   guests,
+  capacity,
+  reviews,
 }) => {
-  const cardHeight = 350; // fixed height
-  const contentWidth = 400; // fixed content width
-
   const location = useLocation();
-  // Build a query string to include dates + guests
+
+  const avgRating = calculateAverageRating(reviews);
+  console.log("Total ratings: ", reviews);
+
   const queryString = `?checkIn=${encodeURIComponent(
     checkIn
   )}&checkOut=${encodeURIComponent(checkOut)}&guests=${guests}`;
@@ -48,13 +53,21 @@ const RoomCardHorizontal: React.FC<RoomCardHorizontalProps> = ({
   function getPublicUrl(path: string) {
     return supabase.storage.from("assets").getPublicUrl(path).data.publicUrl;
   }
+  console.log("RoomCard props:", { price, capacity });
+
+  const normalizedImages = Array.isArray(images)
+    ? images.map((img: string) => getPublicUrl(img))
+    : typeof images === "string"
+    ? JSON.parse(images).map((img: string) => getPublicUrl(img))
+    : [];
 
   return (
     <Card
       sx={{
         display: "flex",
-        flexDirection: "row",
-        height: cardHeight,
+        flexDirection: { xs: "column", md: "row" },
+        height: { xs: "auto", md: 330 },
+        borderRadius: 2,
         transition: "transform 0.2s, box-shadow 0.2s",
         "&:hover": {
           transform: "translateY(-4px)",
@@ -62,19 +75,53 @@ const RoomCardHorizontal: React.FC<RoomCardHorizontalProps> = ({
         },
       }}
     >
-      {/* Left Content */}
+      <Box sx={{ width: { xs: "100%", md: 500 }, flexShrink: 0 }}>
+        <BookingCardImageCarousel images={normalizedImages} />
+      </Box>
+
+      {/* LEFT CONTENT */}
       <Box
         sx={{
           display: "flex",
           flexDirection: "column",
-          width: contentWidth,
+          width: { xs: "100%", md: 500 },
           flexShrink: 0,
+          order: { xs: 1, md: 0 }, // content second on mobile, first on desktop
         }}
       >
         <CardContent sx={{ flexGrow: 1, padding: "20px", overflow: "hidden" }}>
-          <Typography variant="h6" gutterBottom noWrap>
+          <Typography
+            variant="h6"
+            gutterBottom
+            noWrap
+            sx={{
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              fontWeight: "bold",
+              mb: 2,
+            }}
+          >
             {name}
           </Typography>
+
+          <Box sx={{ mb: 2 }}>
+            {reviews && reviews.length > 0 ? (
+              <Typography variant="body2" color="text.secondary">
+                ★ {avgRating} ({reviews.length}{" "}
+                {reviews.length > 1 ? (
+                  <span>reviews</span>
+                ) : (
+                  <span>review</span>
+                )}
+                ){/* ({reviews?.length ?? 0}) */}
+              </Typography>
+            ) : (
+              <Typography variant="body2" color="text.secondary">
+                No reviews yet
+                {/* ({reviews?.length ?? 0}) */}
+              </Typography>
+            )}
+          </Box>
 
           <Typography
             variant="body2"
@@ -84,12 +131,12 @@ const RoomCardHorizontal: React.FC<RoomCardHorizontalProps> = ({
               overflow: "hidden",
               WebkitLineClamp: 3,
               WebkitBoxOrient: "vertical",
+              mt: 1,
             }}
           >
             {description || "A comfortable room for your stay."}
           </Typography>
 
-          {/* Amenities in 2 columns */}
           {amenities && amenities.length > 0 && (
             <Box
               component="ul"
@@ -117,59 +164,61 @@ const RoomCardHorizontal: React.FC<RoomCardHorizontalProps> = ({
                 >
                   <CheckCircleIcon
                     fontSize="inherit"
-                    sx={{ mr: 0.5, color: "primary.main" }}
+                    sx={{ mr: 0.5, color: "text.secondary" }}
                   />
                   {amenity}
                 </Box>
               ))}
             </Box>
           )}
-
-          {price !== undefined && (
-            <Typography
-              variant="h6"
-              color="primary"
-              sx={{ mt: 2, fontWeight: "bold" }}
-            >
-              €{price} / night
-            </Typography>
-          )}
         </CardContent>
 
         <CardActions sx={{ p: 2 }}>
-          <Button
-            fullWidth
-            variant="contained"
-            color="primary"
-            component={Link}
-            // to={`/room/${id}`}
-            to={`/room/${id}${queryString}`}
-            state={{
-              checkIn,
-              checkOut,
-              guests,
-            }}
+          <Grid
+            container
+            alignItems="center"
+            justifyContent="space-between"
+            sx={{ width: "100%" }}
           >
-            View Details
-          </Button>
+            <Grid item xs="auto">
+              {price !== undefined && capacity != null && (
+                <Typography
+                  variant="body2"
+                  // color="primary"
+                  sx={{
+                    // fontWeight: "bold",
+                    whiteSpace: "nowrap",
+                    fontSize: "1.1rem",
+                    paddingBottom: "3%",
+                  }}
+                >
+                  <span style={{ fontWeight: "bold" }}>{price}</span>
+                  <span style={{ fontSize: "0.7rem" }}> Euro / night</span> ·
+                  guests {capacity}{" "}
+                  <span style={{ fontSize: "0.7rem" }}>(max)</span>
+                </Typography>
+              )}
+            </Grid>
+            <Grid item xs="auto">
+              <Typography
+                // fullWidth
+                variant="body2"
+                color="text.secondary"
+                component={Link}
+                to={`/room/${id}${queryString}`}
+                state={{ checkIn, checkOut, guests }}
+                sx={{
+                  textDecoration: "none",
+                  color: "#000000de",
+                  fontWeight: "bold",
+                }}
+              >
+                View Details →
+              </Typography>
+            </Grid>
+          </Grid>
         </CardActions>
       </Box>
-
-      {/* Right Image */}
-      <CardMedia
-        component="img"
-        image={
-          images && images.length > 0
-            ? getPublicUrl(images[0])
-            : "/assets/placeholder.png"
-        }
-        alt={name}
-        sx={{
-          width: 500, // image width
-          height: "100%",
-          objectFit: "cover",
-        }}
-      />
     </Card>
   );
 };

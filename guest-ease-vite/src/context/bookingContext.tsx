@@ -14,14 +14,15 @@ export type BookingContextType = {
   bookings: Booking[];
   loading: boolean;
   fetchBookings: (roomId?: string) => Promise<void>;
-  bookRoom: (b: Omit<Booking, "id" | "created_at">) => Promise<{
-    booking: any;
-    success: boolean;
-    message?: string;
-  }>;
+
+  bookRoom: (
+    b: Omit<Booking, "id" | "created_at">
+  ) => Promise<{ booking?: Booking; success: boolean; message?: string }>;
+
   searchAvailableRooms: (
     checkIn: string,
-    checkOut: string
+    checkOut: string,
+    guests: number
   ) => Promise<{ success: boolean; rooms: any[]; message?: string }>;
   updateBooking: (
     bookingId: string,
@@ -45,6 +46,7 @@ export type BookingContextType = {
   rooms: any[];
   roomsLoading: boolean;
   getRoomInfo: (roomId: string) => any | null;
+  fetchRooms: () => Promise<void>; // ⭐ add this
 };
 
 /* -------------------------
@@ -60,9 +62,6 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(false);
-  // const [rooms, setRooms] = useState<
-  //   { id: string; name: string; images: string[]; price: number }[]
-  // >([]);
   const [rooms, setRooms] = useState<Room[]>([]);
   const [roomsLoading, setRoomsLoading] = useState(true);
 
@@ -256,10 +255,39 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  const searchAvailableRooms = async (checkIn: string, checkOut: string) => {
+  const searchAvailableRooms = async (
+    checkIn: string,
+    checkOut: string,
+    guests: number
+  ) => {
     try {
-      return await searchRoomsService(checkIn, checkOut);
-    } catch {
+      const result = await searchRoomsService(checkIn, checkOut, guests);
+
+      if (!result.success) return result;
+
+      const rooms = result.rooms;
+
+      // ⭐ Attach reviews here — no loops, no state updates
+      const roomsWithReviews = await Promise.all(
+        rooms.map(async (room: { id: any }) => {
+          const { data: reviews } = await supabase
+            .from("reviews")
+            .select("*")
+            .eq("room_id", room.id)
+            .eq("visibility_status", "visible");
+
+          return {
+            ...room,
+            reviews: reviews ?? [],
+          };
+        })
+      );
+
+      return {
+        ...result,
+        rooms: roomsWithReviews,
+      };
+    } catch (err) {
       return { success: false, rooms: [], message: "Error fetching rooms." };
     }
   };

@@ -121,7 +121,7 @@ const RoomDetails: React.FC = () => {
 
     const fetchRooms = async () => {
       try {
-        const result = await searchAvailableRooms(checkIn, checkOut);
+        const result = await searchAvailableRooms(checkIn, checkOut, guests);
         if (result.success) {
           setAvailability(result.rooms);
         } else {
@@ -133,7 +133,7 @@ const RoomDetails: React.FC = () => {
     };
 
     fetchRooms();
-  }, [checkIn, checkOut, searchAvailableRooms]);
+  }, [checkIn, checkOut, guests, searchAvailableRooms]);
 
   const handleStartPayment = () => {
     if (!user) {

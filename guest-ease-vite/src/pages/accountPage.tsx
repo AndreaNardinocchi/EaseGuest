@@ -15,9 +15,7 @@ import {
 } from "@mui/material";
 import { useAuth } from "../context/useAuth";
 import { useBooking } from "../context/bookingContext";
-// import { Link } from "react-router-dom"; // assuming react-router
 import SubNav from "../components/accountSubNav/accountSubNav";
-// import { error } from "console";
 import { useNavigate } from "react-router-dom";
 import BookingCard from "../components/BookingCard/BookingCard";
 
@@ -45,11 +43,6 @@ const AccountPage: React.FC = () => {
     console.log("Fetching bookings for user:", user?.id);
   }, [user, fetchBookings]);
 
-  // <-- ADD THIS
-  useEffect(() => {
-    console.log("Current bookings array:", bookings);
-  }, [bookings]);
-
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) =>
     setTabValue(newValue);
 
@@ -64,7 +57,6 @@ const AccountPage: React.FC = () => {
     [bookings, today]
   );
 
-  // const handleUpdate = (id: string) => alert(`Update booking ${id}`);
   // Use updateBooking instead of alert
   const handleUpdate = (booking: any) => {
     // <-- CHANGED: pass booking object, not just id
@@ -87,13 +79,18 @@ const AccountPage: React.FC = () => {
   const handleCancel = (booking: any) => {
     setSelectedBooking(booking);
     setCancelOpen(true); // open confirmation popup
-    console.log("Selected booking:", selectedBooking);
   };
 
   const handleConfirmCancel = async () => {
     if (!selectedBooking) return;
     const result = await cancelBooking(selectedBooking.id);
-    alert(result.message);
+    console.log("Cancel result:", result);
+    alert(
+      result.success
+        ? "Booking cancelled successfully"
+        : "Failed to cancel booking"
+    );
+
     setCancelOpen(false);
   };
 
@@ -148,141 +145,152 @@ const AccountPage: React.FC = () => {
     );
 
   return (
-    <Box maxWidth="1200px" mx="auto" mt={4} px={2}>
+    <>
+      <Box maxWidth="1200px" mx="auto" px={2}>
+        <Typography variant="h3" component="h1">
+          Hey {user.first_name}
+        </Typography>
+        <Typography variant="h5" component="h2">
+          Account #{user.id.slice(-8)}
+        </Typography>
+      </Box>
       {/* Sub-navigation */}
-
       <SubNav />
+      <Box maxWidth="1200px" mx="auto" px={2}>
+        <Typography
+          variant="h4"
+          align="center"
+          sx={{ color: "#000000de", mb: 1, mt: 3 }}
+        >
+          My Reservations
+        </Typography>
 
-      <Typography
-        variant="h4"
-        align="center"
-        sx={{ color: "#000000de", mb: 1, mt: 3 }}
-      >
-        My Reservations
-      </Typography>
-      <Typography align="center" sx={{ mb: 3 }}>
-        Hey {user.firstName}
-      </Typography>
+        <Tabs
+          value={tabValue}
+          onChange={handleTabChange}
+          centered
+          textColor="secondary" // keep current inactive look
+          indicatorColor="secondary" // keep default behavior
+          sx={{
+            mb: 2,
+            "& .MuiTab-root.Mui-selected": {
+              color: "#000000de", // active tab color only
+              fontWeight: 600,
+            },
+            "& .MuiTabs-indicator": {
+              backgroundColor: "#000000de", // active underline
+              height: 3,
+              borderRadius: 2,
+            },
+          }}
+        >
+          <Tab label="Upcoming" />
+          <Tab label="Past" />
+        </Tabs>
 
-      <Tabs
-        value={tabValue}
-        onChange={handleTabChange}
-        centered
-        textColor="secondary" // keep current inactive look
-        indicatorColor="secondary" // keep default behavior
-        sx={{
-          mb: 2,
-          "& .MuiTab-root.Mui-selected": {
-            color: "#000000de", // active tab color only
-            fontWeight: 600,
-          },
-          "& .MuiTabs-indicator": {
-            backgroundColor: "#000000de", // active underline
-            height: 3,
-            borderRadius: 2,
-          },
-        }}
-      >
-        <Tab label="Upcoming" />
-        <Tab label="Past" />
-      </Tabs>
+        {tabValue === 0 && renderBookings(upcomingBookings, "upcoming")}
+        {tabValue === 1 && renderBookings(pastBookings, "past")}
 
-      {tabValue === 0 && renderBookings(upcomingBookings, "upcoming")}
-      {tabValue === 1 && renderBookings(pastBookings, "past")}
-
-      {/* Update Booking Dialog */}
-      <Dialog
-        open={open}
-        onClose={() => setOpen(false)}
-        fullWidth
-        maxWidth="sm"
-      >
-        <DialogTitle>Update Booking</DialogTitle>
-        <DialogContent>
-          {selectedBooking && (
-            <>
-              <TextField
-                margin="dense"
-                label="Check-in"
-                type="date"
-                fullWidth
-                value={selectedBooking.check_in}
-                onChange={(e) =>
-                  setSelectedBooking({
-                    ...selectedBooking,
-                    check_in: e.target.value,
-                  })
-                }
-                InputLabelProps={{ shrink: true }}
-              />
-              <TextField
-                margin="dense"
-                label="Check-out"
-                type="date"
-                fullWidth
-                value={selectedBooking.check_out}
-                onChange={(e) =>
-                  setSelectedBooking({
-                    ...selectedBooking,
-                    check_out: e.target.value,
-                  })
-                }
-                InputLabelProps={{ shrink: true }}
-              />
-              <TextField
-                margin="dense"
-                label="Guests"
-                type="number"
-                fullWidth
-                value={selectedBooking.guests}
-                onChange={(e) =>
-                  setSelectedBooking({
-                    ...selectedBooking,
-                    guests: Number(e.target.value),
-                  })
-                }
-              />
-            </>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpen(false)}>Cancel</Button>
-          <Button onClick={handleSave} variant="contained" color="secondary">
-            Save
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Cancel Booking Dialog */}
-      <Dialog
-        open={cancelOpen}
-        onClose={() => setCancelOpen(false)}
-        fullWidth
-        maxWidth="sm"
-      >
-        <DialogTitle>Cancel Booking</DialogTitle>
-        <DialogContent>
-          {selectedBooking && (
-            <Typography>
-              Are you sure you want to cancel your booking for room{" "}
-              <strong>{selectedBooking.room_id}</strong> from{" "}
-              <strong>{selectedBooking.check_in}</strong> to{" "}
-              <strong>{selectedBooking.check_out}</strong>?
-            </Typography>
-          )}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setCancelOpen(false)}>Keep Booking</Button>
-          <Button
-            onClick={handleConfirmCancel}
-            variant="contained"
-            color="error"
+        {/* Update Booking Dialog */}
+        {selectedBooking && (
+          <Dialog
+            open={open}
+            onClose={() => setOpen(false)}
+            fullWidth
+            maxWidth="sm"
           >
-            Confirm Cancel
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
+            <DialogTitle>Update Booking</DialogTitle>
+            <DialogContent>
+              {selectedBooking && (
+                <>
+                  <TextField
+                    margin="dense"
+                    label="Check-in"
+                    type="date"
+                    fullWidth
+                    value={selectedBooking.check_in}
+                    onChange={(e) =>
+                      setSelectedBooking({
+                        ...selectedBooking,
+                        check_in: e.target.value,
+                      })
+                    }
+                    InputLabelProps={{ shrink: true }}
+                  />
+                  <TextField
+                    margin="dense"
+                    label="Check-out"
+                    type="date"
+                    fullWidth
+                    value={selectedBooking.check_out}
+                    onChange={(e) =>
+                      setSelectedBooking({
+                        ...selectedBooking,
+                        check_out: e.target.value,
+                      })
+                    }
+                    InputLabelProps={{ shrink: true }}
+                  />
+                  <TextField
+                    margin="dense"
+                    label="Guests"
+                    type="number"
+                    fullWidth
+                    value={selectedBooking.guests}
+                    onChange={(e) =>
+                      setSelectedBooking({
+                        ...selectedBooking,
+                        guests: Number(e.target.value),
+                      })
+                    }
+                  />
+                </>
+              )}
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setOpen(false)}>Cancel</Button>
+              <Button
+                onClick={handleSave}
+                variant="contained"
+                color="secondary"
+              >
+                Save
+              </Button>
+            </DialogActions>
+          </Dialog>
+        )}
+
+        {/* Cancel Booking Dialog */}
+        <Dialog
+          open={cancelOpen}
+          onClose={() => setCancelOpen(false)}
+          fullWidth
+          maxWidth="sm"
+        >
+          <DialogTitle>Cancel Booking</DialogTitle>
+          <DialogContent>
+            {selectedBooking && (
+              <Typography>
+                Are you sure you want to cancel your booking for room{" "}
+                <strong>{selectedBooking.room_id}</strong> from{" "}
+                <strong>{selectedBooking.check_in}</strong> to{" "}
+                <strong>{selectedBooking.check_out}</strong>?
+              </Typography>
+            )}
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setCancelOpen(false)}>Keep Booking</Button>
+            <Button
+              onClick={handleConfirmCancel}
+              variant="contained"
+              color="error"
+            >
+              Confirm Cancel
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </Box>
+    </>
   );
 };
 

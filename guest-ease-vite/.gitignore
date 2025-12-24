@@ -39,3 +39,4 @@ dist-ssr
 # Optional: coverage reports
 coverage/
 
+node_modules

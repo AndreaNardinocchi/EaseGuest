@@ -14,7 +14,7 @@
 import React, { useState, type MouseEvent, useEffect, useContext } from "react";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
+//import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import Button from "@mui/material/Button";
 
@@ -43,7 +43,7 @@ const SiteHeader: React.FC = () => {
   useEffect(
     () => {
       // You can remove this or set it from somewhere else if needed
-      setUserName(user?.firstName ?? "User");
+      setUserName(user?.first_name ?? "User");
     }, // Run this effect every time `token` changes ensuring the 'userFirstName' is up-to-date
     [token, user]
   );
@@ -59,19 +59,19 @@ const SiteHeader: React.FC = () => {
   const [mobileAnchorEl, setMobileAnchorEl] = useState<null | HTMLElement>(
     null
   );
-  const [movieMenuAnchorEl, setMovieMenuAnchorEl] =
-    useState<null | HTMLElement>(null);
+  // const [movieMenuAnchorEl, setMovieMenuAnchorEl] =
+  //   useState<null | HTMLElement>(null);
 
   const mobileMenuOpen = Boolean(mobileAnchorEl);
-  const isMovieMenuOpen = Boolean(movieMenuAnchorEl);
+  // const isMovieMenuOpen = Boolean(movieMenuAnchorEl);
 
   const handleMobileMenu = (event: MouseEvent<HTMLElement>) => {
     setMobileAnchorEl(event.currentTarget);
   };
 
-  const handleMovieMenu = (event: MouseEvent<HTMLElement>) => {
-    setMovieMenuAnchorEl(event.currentTarget);
-  };
+  // const handleMovieMenu = (event: MouseEvent<HTMLElement>) => {
+  //   setMovieMenuAnchorEl(event.currentTarget);
+  // };
 
   const handleMenuClose = () => {
     setMobileAnchorEl(null);

@@ -181,9 +181,36 @@ app.post("/admin/update_booking", async (req, res) => {
     const { createClient } = await import("@supabase/supabase-js");
     const supabaseAdmin = createClient(SUPABASE_URL, SERVICE_KEY);
 
+    /* -------------------------- 1. FETCH ROOM PRICE --------------------------- */
+    /**
+     * We get the room 'price' where the room id is the one for which we are updating the booking
+     */
+    const { data: roomData, error: roomError } = await supabaseAdmin
+      .from("rooms")
+      .select("price")
+      .eq("id", updates.room_id)
+      .single();
+    if (roomError || !roomData) {
+      return res.status(400).json({ error: "Room not found" });
+    }
+
+    /* -------------------------- 2. CALCULATE TOTAL PRICE --------------------------- */
+    /**
+     * We, then, calculate 'nights' and 'total price'
+     */
+    const nights =
+      (new Date(updates.check_out) - new Date(updates.check_in)) /
+      (1000 * 60 * 60 * 24);
+    const total_price = nights * roomData.price;
+
+    /* -------------------------- 3. UPDATE BOOKING --------------------------- */
+    /**
+     * We finally update the booking including the 'recalculated' 'total_price'
+     */
+
     const { data, error } = await supabaseAdmin
       .from("bookings")
-      .update(updates)
+      .update({ ...updates, total_price })
       .eq("id", bookingId)
       /**
        * We created a relationship between bookings.user_id and profiles.id through a
@@ -314,65 +341,6 @@ app.post("/admin/delete_booking", async (req, res) => {
 /* ---------------------------
  Create user
 ---------------------------- */
-// app.post("/api/admin/create_user", async (req, res) => {
-//   try {
-//     const { email, role, first_name, last_name, country, zip_code } = req.body;
-
-//     if (!email) {
-//       return res.status(400).json({ error: "Email is required" });
-//     }
-
-//     const password = Math.random().toString(36).slice(-10);
-
-//     const { data, error } = await supabaseAdmin.auth.admin.createUser({
-//       email,
-//       password,
-//       email_confirm: true,
-//       user_metadata: {
-//         role,
-//         first_name,
-//         last_name,
-//         country,
-//         zip_code,
-//       },
-//     });
-
-//     if (error) {
-//       console.error("Create user error:", error);
-//       return res.status(400).json({ error: error.message });
-//     }
-
-//     const authUser = data.user;
-//     // ⭐ AUTOMATIC PROFILE CREATION ⭐
-//     const { error: profileError } = await supabaseAdmin
-//       .from("profiles")
-//       .insert({
-//         id: authUser.id,
-//         email: authUser.email,
-//         role: role || "user",
-//         first_name,
-//         last_name,
-//         country,
-//         zip_code,
-//         created_at: new Date().toISOString(),
-
-//       });
-
-//     if (profileError) {
-//       console.error("Profile insert error:", profileError);
-//       return res.status(500).json({ error: profileError.message });
-//     }
-
-//     return res.status(201).json({
-//       success: true,
-//       user: data.user,
-//       tempPassword: password, // optional
-//     });
-//   } catch (err) {
-//     console.error("Create user exception:", err);
-//     return res.status(500).json({ error: err.message });
-//   }
-// });
 
 app.post("/api/admin/create_user", async (req, res) => {
   try {
@@ -555,76 +523,6 @@ app.post("/admin/get_user_by_email", async (req, res) => {
 /* ---------------------------
  Create booking
 ---------------------------- */
-
-// app.post("/admin/create_booking", async (req, res) => {
-//   console.log("Received create_booking request:", req.body);
-
-//   const { room_id, user_email, check_in, check_out, guests } = req.body;
-
-//   if (!room_id || !user_email || !check_in || !check_out || !guests) {
-//     return res.status(400).json({ error: "Missing fields" });
-//   }
-
-//   try {
-//     // Find the user by email
-//     const { data: user, error: userError } = await supabaseAdmin
-//       .from("profiles")
-//       .select("id, first_name, email")
-//       .eq("email", user_email)
-//       .single();
-
-//     if (userError || !user) {
-//       return res.status(400).json({ error: "User not found" });
-//     }
-
-//     // Insert booking
-//     const { data, error } = await supabaseAdmin
-//       .from("bookings")
-//       .insert([
-//         {
-//           room_id,
-//           user_id: user.id,
-//           check_in,
-//           check_out,
-//           guests,
-//         },
-//       ])
-//       .select();
-
-//     if (error) {
-//       return res.status(400).json({ error: error.message });
-//     }
-
-//     // --- SEND CONFIRMATION EMAIL ---
-//     const subject = "✨ Your Booking Is Confirmed by Admin — GuestEase";
-//     const body = `
-//       <p>Hi ${user.first_name || "there"},</p>
-//       <p>Your booking has been successfully confirmed! Here are the details:</p>
-//       <ul>
-//         <li>Room ID: ${room_id}</li>
-//         <li>Check-in: ${check_in}</li>
-//         <li>Check-out: ${check_out}</li>
-//         <li>Guests: ${guests}</li>
-//       </ul>
-//       <p>Thank you for choosing GuestEase!</p>
-//     `;
-
-//     await fetch("http://localhost:3000/send_email", {
-//       method: "POST",
-//       headers: { "Content-Type": "application/json" },
-//       body: JSON.stringify({
-//         email: user.email,
-//         subject,
-//         body,
-//       }),
-//     });
-
-//     return res.json({ success: true, booking: data[0] });
-//   } catch (err) {
-//     console.error("Create booking error:", err);
-//     return res.status(500).json({ error: err.message });
-//   }
-// });
 
 app.post("/admin/create_booking", async (req, res) => {
   console.log("Received create_booking request:", req.body);

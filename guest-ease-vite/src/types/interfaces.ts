@@ -7,7 +7,7 @@ export interface User {
   zip_code: string;
   id: string;
   email?: string;
-  role?: string;
+  role: string;
   avatarUrl?: string; // ✅ Added optional avatar support
   country: string;
   created_at: string;
@@ -30,11 +30,12 @@ export interface AuthContextInterface {
   loading: any;
   token: string | null;
   // User object added
-  user?: User;
+  user: User | null;
   // authenticate: (username: string, password: string) => void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   authenticate: (user: any) => void;
   signout: () => void;
+  deleteUser: () => Promise<void>;
 }
 
 export interface Country {
@@ -273,6 +274,7 @@ export const countries: Country[] = [
 ];
 
 export interface Review {
+  visibility_status: string;
   id?: string;
   booking_id: string;
   room_id: string;

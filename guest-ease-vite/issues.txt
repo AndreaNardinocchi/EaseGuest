@@ -19,6 +19,4 @@
 Admin bookings
 - When updating a reservation from the My Trips page, there can be overlap
 
-- When updating a reservation from /admin/bookings the total price won't update
 
-- If I create a reservation from a newly created room, it won't have a total price

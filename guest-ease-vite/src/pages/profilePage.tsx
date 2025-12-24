@@ -171,7 +171,7 @@ const ProfilePage: React.FC = () => {
             </Typography>
             <Typography>
               <strong>Joined:</strong>{" "}
-              {new Date(user.createdAt).toLocaleDateString()}
+              {new Date(user.created_at).toLocaleDateString()}
             </Typography>
 
             <Stack direction="row" spacing={2} mt={2}>

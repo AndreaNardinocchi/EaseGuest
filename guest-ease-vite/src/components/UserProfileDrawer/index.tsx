@@ -356,25 +356,25 @@ const UserProfileDrawer: React.FC<UserProfileDrawerProps> = ({
   const user: User | null = supabaseUser
     ? {
         id: supabaseUser.id || "",
-        firstName: supabaseUser.firstName || "User",
-        lastName: supabaseUser.lastName || "User",
+        first_name: supabaseUser.first_name || "User",
+        last_name: supabaseUser.last_name || "User",
         email: supabaseUser.email || "user@example.com",
         role: supabaseUser.role || "guest",
         avatarUrl: supabaseUser.avatarUrl || "",
-        createdAt: supabaseUser.createdAt || "",
+        created_at: supabaseUser.created_at || "",
         country: supabaseUser.country || "Unknown",
-        zipCode: supabaseUser.zipCode || "",
+        zip_code: supabaseUser.zip_code || "",
       }
     : null;
 
   if (!user) return null;
 
-  const initials = `${user.firstName.charAt(0)}${user.lastName.charAt(
+  const initials = `${user.first_name.charAt(0)}${user.last_name.charAt(
     0
   )}`.toUpperCase();
 
-  const formattedDate = user.createdAt
-    ? new Date(user.createdAt).toLocaleDateString(undefined, {
+  const formattedDate = user.created_at
+    ? new Date(user.created_at).toLocaleDateString(undefined, {
         year: "numeric",
         month: "long",
         day: "numeric",
@@ -404,7 +404,7 @@ const UserProfileDrawer: React.FC<UserProfileDrawerProps> = ({
         {user.avatarUrl ? (
           <Avatar
             src={user.avatarUrl}
-            alt={`${user.firstName} ${user.lastName}`}
+            alt={`${user.first_name} ${user.last_name}`}
             sx={{ width: 80, height: 80, mb: 2 }}
           />
         ) : (
@@ -421,7 +421,7 @@ const UserProfileDrawer: React.FC<UserProfileDrawerProps> = ({
           </Avatar>
         )}
         <Typography variant="h6" align="center">
-          {user.firstName} {user.lastName}
+          {user.first_name} {user.last_name}
         </Typography>
         <Typography variant="body2" color="text.secondary" align="center">
           {user.email}

@@ -13,7 +13,12 @@ const SubNav: React.FC = () => {
   ];
 
   return (
-    <AppBar position="static" color="transparent" elevation={0}>
+    <AppBar
+      position="sticky"
+      color="transparent"
+      elevation={0}
+      sx={{ top: 80, backgroundColor: "#f5f5f5", zIndex: 1200 }}
+    >
       <Toolbar sx={{ justifyContent: "center", gap: 4 }}>
         {links.map((link) => (
           <MuiLink

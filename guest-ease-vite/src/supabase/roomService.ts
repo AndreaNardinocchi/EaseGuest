@@ -26,12 +26,14 @@ import { supabase } from "../supabaseClient";
 
 export const searchAvailableRooms = async (
   checkIn: string,
-  checkOut: string
+  checkOut: string,
+  guests: number
 ) => {
   try {
     const { data, error } = await supabase.rpc("get_available_rooms", {
       check_in: checkIn,
       check_out: checkOut,
+      guests: guests,
     });
 
     if (error) throw error;

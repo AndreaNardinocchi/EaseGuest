@@ -225,8 +225,11 @@ const BookingForm: React.FC = () => {
 
     const result = await searchAvailableRooms(
       formData.checkIn,
-      formData.checkOut
+      formData.checkOut,
+      formData.guests
     );
+
+    console.log("UI sending:", formData);
 
     if (!result.success) {
       alert(`❌ ${result.message}`);

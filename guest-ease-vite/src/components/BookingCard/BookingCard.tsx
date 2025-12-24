@@ -77,18 +77,9 @@ const BookingCard: React.FC<BookingCardProps> = ({
           padding: "7%",
         }}
       >
-        <Divider
-          sx={{
-            borderColor: "#ccc", // line color
-            borderBottomWidth: 1, // thickness
-            width: "60%", // ensure full width
-            mb: 1, // space below
-            mx: "auto",
-          }}
-        />
         <Typography
           variant="h6"
-          sx={{ color: "#000000de", mb: 1, fontWeight: "bold" }}
+          sx={{ color: "#000000de", fontWeight: "bold" }}
         >
           <MuiLink
             component={RouterLink}
@@ -102,6 +93,15 @@ const BookingCard: React.FC<BookingCardProps> = ({
             Room: {room?.name || `Room ${booking.room_id.slice(0, 6)}`}
           </MuiLink>
         </Typography>
+        <Divider
+          sx={{
+            borderColor: "#ccc", // line color
+            borderBottomWidth: 1, // thickness
+            width: "70%", // ensure full width
+            my: 1.5, // space below
+            mx: "auto",
+          }}
+        />
         <Grid container spacing={{ xs: 0, sm: 2 }}>
           {/* LEFT COLUMN — IMAGE * */}
 
@@ -145,7 +145,7 @@ const BookingCard: React.FC<BookingCardProps> = ({
               color="text.secondary"
               sx={{ fontSize: "0.8rem" }}
             >
-              <strong>Check-in:</strong>
+              <strong>Check-in: </strong>
               {booking.check_in}
             </Typography>
             <Typography
@@ -153,7 +153,7 @@ const BookingCard: React.FC<BookingCardProps> = ({
               color="text.secondary"
               sx={{ fontSize: "0.8rem" }}
             >
-              <strong>Check-out:</strong> {booking.check_out}
+              <strong>Check-out: </strong> {booking.check_out}
             </Typography>
             <Typography
               variant="body2"

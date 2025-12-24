@@ -212,8 +212,13 @@ const AuthContextProvider: React.FC<React.PropsWithChildren> = (props) => {
     async (supabaseData: { user: SupaUser; session: Session }) => {
       const { user, session } = supabaseData;
 
+      // if (!user || !session) {
+      //   console.error("Missing user or session");
+      //   return;
+      // }
+
       if (!user || !session) {
-        console.error("Missing user or session");
+        // Session not ready yet — this is normal during page load
         return;
       }
 
@@ -221,13 +226,13 @@ const AuthContextProvider: React.FC<React.PropsWithChildren> = (props) => {
 
       const newUser: User = {
         id: user.id,
-        firstName: metadata.first_name || "User",
-        lastName: metadata.last_name || "User",
+        first_name: metadata.first_name || "User",
+        last_name: metadata.last_name || "User",
         email: user.email || "user@example.com",
         role: metadata.role || "guest",
-        createdAt: user.created_at || new Date().toISOString(),
+        created_at: user.created_at || new Date().toISOString(),
         country: metadata.country || "Unknown",
-        zipCode: metadata.zip_code || "Unknown",
+        zip_code: metadata.zip_code || "Unknown",
       };
 
       // <<< THIS IS WHERE THE USER STATE IS UPDATED >>>
