@@ -27,7 +27,8 @@ import AdminSubNav from "../components/adminSubNav/adminSubNav";
 import AdminDashboardHeader from "../components/adminDashboardHeader/adminDashboardHeader";
 
 import type { Booking, Room } from "../types/interfaces";
-import BookingsFilter from "../components/filters/bookingFilters";
+
+import BookingFilterUI from "../components/bookingFilterUI/bookingFilterUI";
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL!,
@@ -311,143 +312,15 @@ const AdminBookingsPage: React.FC = () => {
           <Typography variant="h4">Bookings</Typography>
           <Button
             variant="contained"
-            color="success"
+            sx={{ backgroundColor: "#e26d5c" }}
+            // color="#e26d5c"
             onClick={handleOpenCreateBooking}
           >
             + Create Booking
           </Button>
         </Box>
 
-        {/* <Box
-          sx={{
-            display: "flex",
-            flexWrap: "wrap",
-            gap: 2,
-            mb: 3,
-            p: 2,
-
-            borderRadius: 2,
-            boxShadow: 3,
-            backgroundColor: "#f9f9f9",
-            padding: 5,
-          }}
-        >
-          <TextField
-            label="Search all fields"
-            value={filters.search}
-            onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-            sx={{ flex: 1, minWidth: 150, maxWidth: 150 }}
-          />
-
-          <Select
-            value={filters.room}
-            onChange={(e) =>
-              setFilters({ ...filters, room: e.target.value as string })
-            }
-            displayEmpty
-            sx={{ maxWidth: 130 }}
-          >
-            <MenuItem value="">All Rooms</MenuItem>
-            {rooms.map((r) => (
-              <MenuItem key={r.id} value={r.id}>
-                {r.name}
-              </MenuItem>
-            ))}
-          </Select>
-
-          <TextField
-            label="First Name"
-            value={filters.first_name}
-            onChange={(e) =>
-              setFilters({ ...filters, first_name: e.target.value })
-            }
-            sx={{ minWidth: 100, maxWidth: 130 }}
-          />
-
-          <TextField
-            label="Last Name"
-            value={filters.last_name}
-            onChange={(e) =>
-              setFilters({ ...filters, last_name: e.target.value })
-            }
-            sx={{ minWidth: 100, maxWidth: 150 }}
-          />
-
-          <TextField
-            label="Email"
-            value={filters.email}
-            onChange={(e) => setFilters({ ...filters, email: e.target.value })}
-            sx={{ minWidth: 100, maxWidth: 150 }}
-          />
-
-          <Select
-            label="Guests"
-            value={filters.guests}
-            onChange={(e) => setFilters({ ...filters, guests: e.target.value })}
-            displayEmpty
-            sx={{ minWidth: 130, maxWidth: 130 }}
-          >
-            <MenuItem value="">All Guests</MenuItem>
-            <MenuItem value="1">1 Guest</MenuItem>
-            <MenuItem value="2">2 Guests</MenuItem>
-            <MenuItem value="3">3 Guests</MenuItem>
-            <MenuItem value="4">4 Guests</MenuItem>
-          </Select>
-
-          <TextField
-            label="Check in"
-            type="date"
-            InputLabelProps={{ shrink: true }}
-            value={filters.check_in}
-            onChange={(e) =>
-              setFilters({ ...filters, check_in: e.target.value })
-            }
-            sx={{ minWidth: 150, maxWidth: 150 }}
-          />
-
-          <TextField
-            label="Check out"
-            type="date"
-            InputLabelProps={{ shrink: true }}
-            value={filters.check_out}
-            onChange={(e) =>
-              setFilters({ ...filters, check_out: e.target.value })
-            }
-            sx={{ minWidth: 150, maxWidth: 150 }}
-          />
-
-          <TextField
-            label="Created at"
-            type="date"
-            InputLabelProps={{ shrink: true }}
-            value={filters.created_at}
-            onChange={(e) =>
-              setFilters({ ...filters, created_at: e.target.value })
-            }
-            sx={{ minWidth: 150, maxWidth: 150 }}
-          />
-
-          <Button
-            variant="outlined"
-            onClick={() =>
-              setFilters({
-                search: "",
-                room: "",
-                first_name: "",
-                last_name: "",
-                email: "",
-                guests: "",
-                check_in: "",
-                check_out: "",
-                created_at: "",
-              })
-            }
-          >
-            Reset
-          </Button>
-        </Box> */}
-
-        <BookingsFilter
+        <BookingFilterUI
           filters={filters}
           setFilters={setFilters}
           rooms={rooms}

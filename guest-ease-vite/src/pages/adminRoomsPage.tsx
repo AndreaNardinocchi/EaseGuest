@@ -224,7 +224,11 @@ const AdminRoomsPage: React.FC = () => {
       <Container sx={{ pb: 8, overflow: "visible" }}>
         <Box my={4} display="flex" justifyContent="space-between">
           <Typography variant="h4">Rooms</Typography>
-          <Button variant="contained" onClick={handleOpenCreateRoom}>
+          <Button
+            variant="contained"
+            onClick={handleOpenCreateRoom}
+            sx={{ backgroundColor: "#e26d5c" }}
+          >
             + Create Room
           </Button>
         </Box>

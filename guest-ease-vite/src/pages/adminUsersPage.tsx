@@ -24,6 +24,7 @@ import AdminSubNav from "../components/adminSubNav/adminSubNav";
 
 import type { User } from "../types/interfaces";
 import AdminDashboardHeader from "../components/adminDashboardHeader/adminDashboardHeader";
+import UserFilterUI from "../userFilterUI/userFilterUI";
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL!,
@@ -38,6 +39,16 @@ const AdminUsersPage: React.FC = () => {
 
   const [openUserModal, setOpenUserModal] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
+
+  const [filters, setFilters] = useState({
+    search: "",
+    email: "",
+    first_name: "",
+    last_name: "",
+    country: "",
+    role: "",
+    created_at: "",
+  });
 
   const [userForm, setUserForm] = useState({
     first_name: "",
@@ -151,6 +162,73 @@ const AdminUsersPage: React.FC = () => {
     fetchUsers();
   };
 
+  /** Apply all active filters to the bookings list */
+  const filteredUsers = users.filter((u) => {
+    /** Normalize the global search text */
+    const search = filters.search.toLowerCase();
+
+    /** Build a combined string so the global search can match any field */
+    const searchString = [
+      u.email,
+      u.first_name,
+      u.last_name,
+      u.country,
+      u.zip_code,
+      u.role,
+      new Date(u.created_at).toLocaleString(),
+    ]
+      .join(" ")
+      .toLowerCase();
+
+    /** Global search filter */
+    const matchesSearch = searchString.includes(search);
+
+    /** Room filter (exact match) */
+    const matchesEmail = filters.email
+      ? String(u.email) === String(filters.email)
+      : true;
+
+    /** First name filter (partial match) */
+    const matchesFirst = filters.first_name
+      ? u.first_name?.toLowerCase().includes(filters.first_name.toLowerCase())
+      : true;
+
+    /** Last name filter (partial match) */
+    const matchesLast = filters.last_name
+      ? u.last_name?.toLowerCase().includes(filters.last_name.toLowerCase())
+      : true;
+
+    /** Email filter (partial match) */
+    const matchesCountry = filters.country
+      ? u.country?.toLowerCase().includes(filters.country.toLowerCase())
+      : true;
+
+    // /** Guests filter (exact numeric match) */
+    // const matchesZipCode = filters.zip_code
+    //   ? u.zip_code === filters.zip_code
+    //   : true;
+
+    /** Guests filter (exact numeric match) */
+    const matchesRole = filters.role ? u.role === filters.role : true;
+
+    /** Created‑at filter (exact day match) */
+    const matchesCreatedAt = filters.created_at
+      ? new Date(u.created_at).toDateString() ===
+        new Date(filters.created_at).toDateString()
+      : true;
+
+    /** Only include bookings that match ALL filters */
+    return (
+      matchesSearch &&
+      matchesEmail &&
+      matchesFirst &&
+      matchesLast &&
+      matchesCountry &&
+      matchesRole &&
+      matchesCreatedAt
+    );
+  });
+
   // -----------------------------
   // Loading State
   // -----------------------------
@@ -173,62 +251,16 @@ const AdminUsersPage: React.FC = () => {
       <Container sx={{ pb: 8, overflow: "visible" }}>
         <Box my={4} display="flex" justifyContent="space-between">
           <Typography variant="h4">Users</Typography>
-          <Button variant="contained" onClick={handleOpenCreateUser}>
+          <Button
+            variant="contained"
+            onClick={handleOpenCreateUser}
+            sx={{ backgroundColor: "#e26d5c" }}
+          >
             + Create User
           </Button>
         </Box>
 
-        {/* <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>User ID</TableCell>
-                <TableCell>Email</TableCell>
-                <TableCell>First Name</TableCell>
-                <TableCell>Last Name</TableCell>
-                <TableCell>Country</TableCell>
-                <TableCell>Zip Code</TableCell>
-                <TableCell>Role</TableCell>
-                <TableCell>Created At</TableCell>
-                <TableCell>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-
-            <TableBody>
-              {users.map((u) => (
-                <TableRow key={u.id}>
-                  <TableCell>{u.id}</TableCell>
-                  <TableCell>{u.email}</TableCell>
-                  <TableCell>{u.first_name}</TableCell>
-                  <TableCell>{u.last_name}</TableCell>
-                  <TableCell>{u.country}</TableCell>
-                  <TableCell>{u.zip_code}</TableCell>
-                  <TableCell>{u.role}</TableCell>
-                  <TableCell>
-                    {new Date(u.created_at).toLocaleString()}
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      variant="outlined"
-                      sx={{ mr: 1 }}
-                      onClick={() => handleOpenUpdateUser(u)}
-                    >
-                      Update
-                    </Button>
-                    <Button
-                      variant="outlined"
-                      color="error"
-                      onClick={() => handleDeleteUser(u.id, u.role)}
-                    >
-                      Delete
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer> */}
-
+        <UserFilterUI filters={filters} setFilters={setFilters} />
         <TableContainer
           component={Paper}
           sx={{
@@ -287,7 +319,7 @@ const AdminUsersPage: React.FC = () => {
             </TableHead>
 
             <TableBody>
-              {users.map((u) => (
+              {filteredUsers.map((u) => (
                 <TableRow
                   key={u.id}
                   sx={{
