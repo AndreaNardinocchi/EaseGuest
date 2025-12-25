@@ -94,7 +94,7 @@ const AdminReviewsPage: React.FC = () => {
           <Typography variant="h4">Reviews</Typography>
         </Box>
 
-        <TableContainer component={Paper} sx={{ mb: 6 }}>
+        {/* <TableContainer component={Paper} sx={{ mb: 6 }}>
           <Table>
             <TableHead>
               <TableRow>
@@ -116,6 +116,90 @@ const AdminReviewsPage: React.FC = () => {
                   <TableCell>{r.rating}</TableCell>
                   <TableCell>{r.comment}</TableCell>
                   <TableCell>
+                    {new Date(r.created_at).toLocaleString()}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer> */}
+        <TableContainer
+          component={Paper}
+          sx={{
+            mb: 6,
+            overflowX: "auto",
+            borderRadius: 2,
+            boxShadow: 3,
+            "&::-webkit-scrollbar": { height: 8 },
+            "&::-webkit-scrollbar-thumb": {
+              backgroundColor: "#bbb",
+              borderRadius: 4,
+            },
+          }}
+        >
+          <Table sx={{ minWidth: 900 }}>
+            <TableHead>
+              <TableRow sx={{ backgroundColor: "#f5f5f5" }}>
+                <TableCell sx={{ fontWeight: "bold" }}>Review ID</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Booking ID</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Room Name</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Rating</TableCell>
+
+                {/* Hide on mobile */}
+                <TableCell
+                  sx={{
+                    fontWeight: "bold",
+                    display: { xs: "none", sm: "table-cell" },
+                  }}
+                >
+                  Comment
+                </TableCell>
+
+                {/* Hide on mobile */}
+                <TableCell
+                  sx={{
+                    fontWeight: "bold",
+                    display: { xs: "none", sm: "table-cell" },
+                  }}
+                >
+                  Created At
+                </TableCell>
+              </TableRow>
+            </TableHead>
+
+            <TableBody>
+              {reviews.map((r) => (
+                <TableRow
+                  key={r.id}
+                  sx={{
+                    "&:hover": { backgroundColor: "#fafafa" },
+                    transition: "0.2s",
+                  }}
+                >
+                  <TableCell sx={{ fontWeight: 500 }}>{r.id}</TableCell>
+
+                  <TableCell>{r.booking_id}</TableCell>
+                  <TableCell>{getRoomName(r.room_id)}</TableCell>
+                  <TableCell>{r.rating}</TableCell>
+
+                  {/* WRAPPED COMMENT */}
+                  <TableCell
+                    sx={{
+                      display: { xs: "none", sm: "table-cell" },
+                      // whiteSpace: "normal",
+                      // wordBreak: "break-word",
+                      maxWidth: 250,
+                    }}
+                  >
+                    {r.comment}
+                  </TableCell>
+
+                  <TableCell
+                    sx={{
+                      display: { xs: "none", sm: "table-cell" },
+                      // whiteSpace: "nowrap",
+                    }}
+                  >
                     {new Date(r.created_at).toLocaleString()}
                   </TableCell>
                 </TableRow>

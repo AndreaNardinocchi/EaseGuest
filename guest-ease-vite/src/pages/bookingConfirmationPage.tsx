@@ -172,7 +172,8 @@ const BookingConfirmation: React.FC = () => {
                       </Typography>
                       <Typography sx={{ mb: 2 }}>
                         <strong>Price per night:</strong> €
-                        {room.price.toFixed(2)}
+                        {/* {room.price.toFixed(2)} */}
+                        {room?.price ? Number(room.price).toFixed(2) : "—"}
                       </Typography>
                       <Typography sx={{ mb: 2 }}>
                         <strong>Nights:</strong> {totalNights}

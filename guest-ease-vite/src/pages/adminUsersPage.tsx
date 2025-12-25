@@ -178,7 +178,7 @@ const AdminUsersPage: React.FC = () => {
           </Button>
         </Box>
 
-        <TableContainer component={Paper}>
+        {/* <TableContainer component={Paper}>
           <Table>
             <TableHead>
               <TableRow>
@@ -207,6 +207,120 @@ const AdminUsersPage: React.FC = () => {
                   <TableCell>
                     {new Date(u.created_at).toLocaleString()}
                   </TableCell>
+                  <TableCell>
+                    <Button
+                      variant="outlined"
+                      sx={{ mr: 1 }}
+                      onClick={() => handleOpenUpdateUser(u)}
+                    >
+                      Update
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      onClick={() => handleDeleteUser(u.id, u.role)}
+                    >
+                      Delete
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer> */}
+
+        <TableContainer
+          component={Paper}
+          sx={{
+            mb: 6,
+            overflowX: "auto",
+            borderRadius: 2,
+            boxShadow: 3,
+            "&::-webkit-scrollbar": { height: 8 },
+            "&::-webkit-scrollbar-thumb": {
+              backgroundColor: "#bbb",
+              borderRadius: 4,
+            },
+          }}
+        >
+          <Table sx={{ minWidth: 900 }}>
+            <TableHead>
+              <TableRow sx={{ backgroundColor: "#f5f5f5" }}>
+                <TableCell sx={{ fontWeight: "bold" }}>User ID</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Email</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>First Name</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Last Name</TableCell>
+
+                {/* Hide on mobile */}
+                <TableCell
+                  sx={{
+                    fontWeight: "bold",
+                    display: { xs: "none", sm: "table-cell" },
+                  }}
+                >
+                  Country
+                </TableCell>
+
+                <TableCell
+                  sx={{
+                    fontWeight: "bold",
+                    display: { xs: "none", sm: "table-cell" },
+                  }}
+                >
+                  Zip Code
+                </TableCell>
+
+                <TableCell sx={{ fontWeight: "bold" }}>Role</TableCell>
+
+                {/* Hide on mobile */}
+                <TableCell
+                  sx={{
+                    fontWeight: "bold",
+                    display: { xs: "none", sm: "table-cell" },
+                  }}
+                >
+                  Created At
+                </TableCell>
+
+                <TableCell sx={{ fontWeight: "bold" }}>Actions</TableCell>
+              </TableRow>
+            </TableHead>
+
+            <TableBody>
+              {users.map((u) => (
+                <TableRow
+                  key={u.id}
+                  sx={{
+                    "&:hover": { backgroundColor: "#fafafa" },
+                    transition: "0.2s",
+                  }}
+                >
+                  <TableCell sx={{ fontWeight: 500 }}>{u.id}</TableCell>
+
+                  {/* WRAPPED EMAIL */}
+                  <TableCell
+                    sx={{ whiteSpace: "normal", wordBreak: "break-word" }}
+                  >
+                    {u.email}
+                  </TableCell>
+
+                  <TableCell>{u.first_name}</TableCell>
+                  <TableCell>{u.last_name}</TableCell>
+
+                  <TableCell sx={{ display: { xs: "none", sm: "table-cell" } }}>
+                    {u.country}
+                  </TableCell>
+
+                  <TableCell sx={{ display: { xs: "none", sm: "table-cell" } }}>
+                    {u.zip_code}
+                  </TableCell>
+
+                  <TableCell>{u.role}</TableCell>
+
+                  <TableCell sx={{ display: { xs: "none", sm: "table-cell" } }}>
+                    {new Date(u.created_at).toLocaleString()}
+                  </TableCell>
+
                   <TableCell>
                     <Button
                       variant="outlined"

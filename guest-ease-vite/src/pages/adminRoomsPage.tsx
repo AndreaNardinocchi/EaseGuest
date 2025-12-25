@@ -229,7 +229,7 @@ const AdminRoomsPage: React.FC = () => {
           </Button>
         </Box>
 
-        <TableContainer component={Paper} sx={{ mb: 6 }}>
+        {/* <TableContainer component={Paper} sx={{ mb: 6 }}>
           <Table>
             <TableHead>
               <TableRow>
@@ -260,6 +260,144 @@ const AdminRoomsPage: React.FC = () => {
                       ? JSON.parse(r.images).join(", ")
                       : "No images"}
                   </TableCell>
+                  <TableCell>
+                    <Button
+                      variant="outlined"
+                      sx={{ mr: 1 }}
+                      onClick={() => handleOpenUpdateRoom(r)}
+                    >
+                      Update
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      onClick={() => handleDeleteRoom(r.id)}
+                    >
+                      Delete
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer> */}
+
+        <TableContainer
+          component={Paper}
+          sx={{
+            mb: 6,
+            overflowX: "auto",
+            borderRadius: 2,
+            boxShadow: 3,
+            "&::-webkit-scrollbar": { height: 8 },
+            "&::-webkit-scrollbar-thumb": {
+              backgroundColor: "#bbb",
+              borderRadius: 4,
+            },
+          }}
+        >
+          <Table sx={{ minWidth: 900 }}>
+            <TableHead>
+              <TableRow sx={{ backgroundColor: "#f5f5f5" }}>
+                <TableCell sx={{ fontWeight: "bold" }}>Room ID</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Name</TableCell>
+
+                {/* Hide on mobile */}
+                <TableCell
+                  sx={{
+                    fontWeight: "bold",
+                    display: { xs: "none", sm: "table-cell" },
+                  }}
+                >
+                  Description
+                </TableCell>
+
+                {/* Hide on mobile */}
+                <TableCell
+                  sx={{
+                    fontWeight: "bold",
+                    display: { xs: "none", sm: "table-cell" },
+                  }}
+                >
+                  Amenities
+                </TableCell>
+
+                <TableCell sx={{ fontWeight: "bold" }}>Capacity</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Price</TableCell>
+
+                {/* Hide on mobile */}
+                <TableCell
+                  sx={{
+                    fontWeight: "bold",
+                    display: { xs: "none", sm: "table-cell" },
+                  }}
+                >
+                  Images
+                </TableCell>
+
+                <TableCell sx={{ fontWeight: "bold" }}>Actions</TableCell>
+              </TableRow>
+            </TableHead>
+
+            <TableBody>
+              {rooms.map((r) => (
+                <TableRow
+                  key={r.id}
+                  sx={{
+                    "&:hover": { backgroundColor: "#fafafa" },
+                    transition: "0.2s",
+                  }}
+                >
+                  <TableCell sx={{ fontWeight: 500 }}>{r.id}</TableCell>
+
+                  <TableCell>{r.name}</TableCell>
+
+                  {/* WRAPPED DESCRIPTION */}
+                  <TableCell
+                    sx={{
+                      display: { xs: "none", sm: "table-cell" },
+                      // whiteSpace: "normal",
+                      // wordBreak: "break-word",
+                      maxWidth: 250,
+                    }}
+                  >
+                    {r.description}
+                  </TableCell>
+
+                  {/* WRAPPED AMENITIES */}
+                  <TableCell
+                    sx={{
+                      display: { xs: "none", sm: "table-cell" },
+                      // whiteSpace: "normal",
+                      // wordBreak: "break-word",
+                      maxWidth: 200,
+                    }}
+                  >
+                    {r.amenities?.join(", ")}
+                  </TableCell>
+
+                  <TableCell sx={{ textAlign: "center" }}>
+                    {r.capacity}
+                  </TableCell>
+
+                  <TableCell>€{r.price}</TableCell>
+
+                  {/* WRAPPED IMAGES */}
+                  <TableCell
+                    sx={{
+                      display: { xs: "none", sm: "table-cell" },
+                      // whiteSpace: "normal",
+                      // wordBreak: "break-word",
+                      maxWidth: 200,
+                    }}
+                  >
+                    {Array.isArray(r.images)
+                      ? r.images.join(", ")
+                      : typeof r.images === "string"
+                      ? JSON.parse(r.images).join(", ")
+                      : "No images"}
+                  </TableCell>
+
                   <TableCell>
                     <Button
                       variant="outlined"

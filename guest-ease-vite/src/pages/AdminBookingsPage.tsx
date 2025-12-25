@@ -8,7 +8,10 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  InputLabel,
+  MenuItem,
   Paper,
+  Select,
   Table,
   TableBody,
   TableCell,
@@ -21,9 +24,10 @@ import {
 
 import { createClient } from "@supabase/supabase-js";
 import AdminSubNav from "../components/adminSubNav/adminSubNav";
+import AdminDashboardHeader from "../components/adminDashboardHeader/adminDashboardHeader";
 
 import type { Booking, Room } from "../types/interfaces";
-import AdminDashboardHeader from "../components/adminDashboardHeader/adminDashboardHeader";
+import BookingsFilter from "../components/filters/bookingFilters";
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL!,
@@ -39,6 +43,18 @@ const AdminBookingsPage: React.FC = () => {
 
   const [openBookingModal, setOpenBookingModal] = useState(false);
   const [editingBooking, setEditingBooking] = useState<Booking | null>(null);
+
+  const [filters, setFilters] = useState({
+    search: "",
+    room: "",
+    first_name: "",
+    last_name: "",
+    email: "",
+    check_in: "",
+    check_out: "",
+    created_at: "",
+    guests: "",
+  });
 
   const [bookingForm, setBookingForm] = useState({
     room_id: "",
@@ -189,6 +205,87 @@ const AdminBookingsPage: React.FC = () => {
     fetchBookings();
   };
 
+  /** Apply all active filters to the bookings list */
+  const filteredBookings = bookings.filter((b) => {
+    /** Normalize the global search text */
+    const search = filters.search.toLowerCase();
+
+    /** Build a combined string so the global search can match any field */
+    const searchString = [
+      b.id,
+      b.first_name,
+      b.last_name,
+      b.user_email,
+      getRoomName(b.room_id),
+      b.check_in,
+      b.check_out,
+      b.guests,
+      b.total_price,
+      new Date(b.created_at).toLocaleString(),
+    ]
+      .join(" ")
+      .toLowerCase();
+
+    /** Global search filter */
+    const matchesSearch = searchString.includes(search);
+
+    /** Room filter (exact match) */
+    const matchesRoom = filters.room
+      ? String(b.room_id) === String(filters.room)
+      : true;
+
+    /** First name filter (partial match) */
+    const matchesFirst = filters.first_name
+      ? b.first_name?.toLowerCase().includes(filters.first_name.toLowerCase())
+      : true;
+
+    /** Last name filter (partial match) */
+    const matchesLast = filters.last_name
+      ? b.last_name?.toLowerCase().includes(filters.last_name.toLowerCase())
+      : true;
+
+    /** Email filter (partial match) */
+    const matchesEmail = filters.email
+      ? b.user_email?.toLowerCase().includes(filters.email.toLowerCase())
+      : true;
+
+    /** Guests filter (exact numeric match) */
+    const matchesGuests = filters.guests
+      ? b.guests === Number(filters.guests)
+      : true;
+
+    /** Check‑in date filter (exact day match) */
+    const matchesCheckIn = filters.check_in
+      ? new Date(b.check_in).toDateString() ===
+        new Date(filters.check_in).toDateString()
+      : true;
+
+    /** Check‑out date filter (exact day match) */
+    const matchesCheckOut = filters.check_out
+      ? new Date(b.check_out).toDateString() ===
+        new Date(filters.check_out).toDateString()
+      : true;
+
+    /** Created‑at filter (exact day match) */
+    const matchesCreatedAt = filters.created_at
+      ? new Date(b.created_at).toDateString() ===
+        new Date(filters.created_at).toDateString()
+      : true;
+
+    /** Only include bookings that match ALL filters */
+    return (
+      matchesSearch &&
+      matchesRoom &&
+      matchesFirst &&
+      matchesLast &&
+      matchesEmail &&
+      matchesGuests &&
+      matchesCheckIn &&
+      matchesCheckOut &&
+      matchesCreatedAt
+    );
+  });
+
   // -----------------------------
   // Loading State
   // -----------------------------
@@ -221,39 +318,222 @@ const AdminBookingsPage: React.FC = () => {
           </Button>
         </Box>
 
-        <TableContainer component={Paper} sx={{ mb: 6 }}>
-          <Table>
+        {/* <Box
+          sx={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: 2,
+            mb: 3,
+            p: 2,
+
+            borderRadius: 2,
+            boxShadow: 3,
+            backgroundColor: "#f9f9f9",
+            padding: 5,
+          }}
+        >
+          <TextField
+            label="Search all fields"
+            value={filters.search}
+            onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+            sx={{ flex: 1, minWidth: 150, maxWidth: 150 }}
+          />
+
+          <Select
+            value={filters.room}
+            onChange={(e) =>
+              setFilters({ ...filters, room: e.target.value as string })
+            }
+            displayEmpty
+            sx={{ maxWidth: 130 }}
+          >
+            <MenuItem value="">All Rooms</MenuItem>
+            {rooms.map((r) => (
+              <MenuItem key={r.id} value={r.id}>
+                {r.name}
+              </MenuItem>
+            ))}
+          </Select>
+
+          <TextField
+            label="First Name"
+            value={filters.first_name}
+            onChange={(e) =>
+              setFilters({ ...filters, first_name: e.target.value })
+            }
+            sx={{ minWidth: 100, maxWidth: 130 }}
+          />
+
+          <TextField
+            label="Last Name"
+            value={filters.last_name}
+            onChange={(e) =>
+              setFilters({ ...filters, last_name: e.target.value })
+            }
+            sx={{ minWidth: 100, maxWidth: 150 }}
+          />
+
+          <TextField
+            label="Email"
+            value={filters.email}
+            onChange={(e) => setFilters({ ...filters, email: e.target.value })}
+            sx={{ minWidth: 100, maxWidth: 150 }}
+          />
+
+          <Select
+            label="Guests"
+            value={filters.guests}
+            onChange={(e) => setFilters({ ...filters, guests: e.target.value })}
+            displayEmpty
+            sx={{ minWidth: 130, maxWidth: 130 }}
+          >
+            <MenuItem value="">All Guests</MenuItem>
+            <MenuItem value="1">1 Guest</MenuItem>
+            <MenuItem value="2">2 Guests</MenuItem>
+            <MenuItem value="3">3 Guests</MenuItem>
+            <MenuItem value="4">4 Guests</MenuItem>
+          </Select>
+
+          <TextField
+            label="Check in"
+            type="date"
+            InputLabelProps={{ shrink: true }}
+            value={filters.check_in}
+            onChange={(e) =>
+              setFilters({ ...filters, check_in: e.target.value })
+            }
+            sx={{ minWidth: 150, maxWidth: 150 }}
+          />
+
+          <TextField
+            label="Check out"
+            type="date"
+            InputLabelProps={{ shrink: true }}
+            value={filters.check_out}
+            onChange={(e) =>
+              setFilters({ ...filters, check_out: e.target.value })
+            }
+            sx={{ minWidth: 150, maxWidth: 150 }}
+          />
+
+          <TextField
+            label="Created at"
+            type="date"
+            InputLabelProps={{ shrink: true }}
+            value={filters.created_at}
+            onChange={(e) =>
+              setFilters({ ...filters, created_at: e.target.value })
+            }
+            sx={{ minWidth: 150, maxWidth: 150 }}
+          />
+
+          <Button
+            variant="outlined"
+            onClick={() =>
+              setFilters({
+                search: "",
+                room: "",
+                first_name: "",
+                last_name: "",
+                email: "",
+                guests: "",
+                check_in: "",
+                check_out: "",
+                created_at: "",
+              })
+            }
+          >
+            Reset
+          </Button>
+        </Box> */}
+
+        <BookingsFilter
+          filters={filters}
+          setFilters={setFilters}
+          rooms={rooms}
+        />
+
+        {/* Responsive Table */}
+        <TableContainer
+          component={Paper}
+          sx={{
+            mb: 6,
+            overflowX: "auto",
+            borderRadius: 2,
+            boxShadow: 3,
+            "&::-webkit-scrollbar": { height: 8 },
+            "&::-webkit-scrollbar-thumb": {
+              backgroundColor: "#bbb",
+              borderRadius: 4,
+            },
+          }}
+        >
+          <Table sx={{ minWidth: 900 }}>
             <TableHead>
-              <TableRow>
-                <TableCell>Booking ID</TableCell>
-                <TableCell>Room Name</TableCell>
-                <TableCell>First Name</TableCell>
-                <TableCell>Last Name</TableCell>
-                <TableCell>User Email</TableCell>
-                <TableCell>Check-in</TableCell>
-                <TableCell>Check-out</TableCell>
-                <TableCell>Guests</TableCell>
-                <TableCell>Total Price</TableCell>
-                <TableCell>Created At</TableCell>
-                <TableCell>Actions</TableCell>
+              <TableRow sx={{ backgroundColor: "#f5f5f5" }}>
+                <TableCell sx={{ fontWeight: "bold" }}>Booking ID</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Room</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>First Name</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Last Name</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Email</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Check‑in</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Check‑out</TableCell>
+                <TableCell sx={{ fontWeight: "bold" }}>Guests</TableCell>
+
+                {/* Hide on mobile */}
+                <TableCell
+                  sx={{
+                    fontWeight: "bold",
+                    display: { xs: "none", sm: "table-cell" },
+                  }}
+                >
+                  Total Price
+                </TableCell>
+
+                <TableCell
+                  sx={{
+                    fontWeight: "bold",
+                    display: { xs: "none", sm: "table-cell" },
+                  }}
+                >
+                  Created At
+                </TableCell>
+
+                <TableCell sx={{ fontWeight: "bold" }}>Actions</TableCell>
               </TableRow>
             </TableHead>
 
             <TableBody>
-              {bookings.map((b) => (
-                <TableRow key={b.id}>
-                  <TableCell>{b.id}</TableCell>
+              {filteredBookings.map((b) => (
+                <TableRow
+                  key={b.id}
+                  sx={{
+                    "&:hover": { backgroundColor: "#fafafa" },
+                    transition: "0.2s",
+                  }}
+                >
+                  <TableCell sx={{ fontWeight: 500 }}>{b.id}</TableCell>
+
                   <TableCell>{getRoomName(b.room_id)}</TableCell>
                   <TableCell>{b.first_name}</TableCell>
                   <TableCell>{b.last_name}</TableCell>
-                  <TableCell>{b.user_email}</TableCell>
+                  <TableCell
+                    sx={{ whiteSpace: "normal", wordBreak: "break-word" }}
+                  >
+                    {b.user_email}
+                  </TableCell>
                   <TableCell>{b.check_in}</TableCell>
                   <TableCell>{b.check_out}</TableCell>
                   <TableCell>{b.guests}</TableCell>
-                  <TableCell>{b.total_price}</TableCell>
-                  <TableCell>
+
+                  <TableCell sx={{ display: { xs: "none", sm: "table-cell" } }}>
+                    €{b.total_price}
+                  </TableCell>
+
+                  <TableCell sx={{ display: { xs: "none", sm: "table-cell" } }}>
                     {new Date(b.created_at).toLocaleString()}
                   </TableCell>
+
                   <TableCell>
                     <Button
                       variant="outlined"
@@ -282,21 +562,32 @@ const AdminBookingsPage: React.FC = () => {
           onClose={() => setOpenBookingModal(false)}
           fullWidth
           maxWidth="sm"
+          PaperProps={{ sx: { mx: 2 } }}
         >
           <DialogTitle>
             {editingBooking ? "Update Booking" : "Create Booking"}
           </DialogTitle>
 
           <DialogContent>
-            <TextField
-              margin="dense"
-              label="Room ID"
-              fullWidth
+            <InputLabel id="rooms">Rooms</InputLabel>
+            <Select
+              labelId="Room ID"
               value={bookingForm.room_id}
+              fullWidth
+              displayEmpty
+              renderValue={(value) =>
+                value ? value : <span style={{ color: "#aaa" }}>Rooms</span>
+              }
               onChange={(e) =>
                 setBookingForm({ ...bookingForm, room_id: e.target.value })
               }
-            />
+            >
+              {rooms.map((r) => (
+                <MenuItem key={r.id} value={r.id}>
+                  {getRoomName(r.id)}
+                </MenuItem>
+              ))}
+            </Select>
 
             {!editingBooking && (
               <TextField
