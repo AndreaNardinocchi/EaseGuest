@@ -320,3 +320,15 @@ export interface AdminUser {
   role: string | null;
   created_at: string;
 }
+
+export interface SearchModifyBarProps {
+  initialCheckIn: string;
+  initialCheckOut: string;
+  initialGuests: number;
+}
+
+export interface BookingFormData {
+  checkIn: string;
+  checkOut: string;
+  guests: number;
+}

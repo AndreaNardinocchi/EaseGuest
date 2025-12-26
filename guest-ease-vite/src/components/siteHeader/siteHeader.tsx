@@ -75,7 +75,7 @@ const SiteHeader: React.FC = () => {
 
   const handleMenuClose = () => {
     setMobileAnchorEl(null);
-    setMovieMenuAnchorEl(null);
+    // setMovieMenuAnchorEl(null);
   };
 
   const handleNavigate = (path: string) => {
@@ -104,6 +104,7 @@ const SiteHeader: React.FC = () => {
   const isBookingConfirmationPage = location.pathname.startsWith(
     "/booking-confirmation/"
   );
+
   return (
     <>
       <AppBar

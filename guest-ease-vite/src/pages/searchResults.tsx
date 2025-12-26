@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { useBooking } from "../context/bookingContext";
 import RoomCardHorizontal from "../components/RoomCardHorizontal/roomCardHorizontal";
+import SearchModifyBar from "../components/searchModifyBar/searchModifyBar";
 
 import {
   AppBar,
@@ -17,16 +18,18 @@ import {
 
 import HotelIcon from "@mui/icons-material/Hotel";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import type { Room } from "../types/interfaces";
+import StickyBox from "../components/stickyComp/stickyComp";
 
-type Room = {
-  id: string;
-  name: string;
-  description?: string;
-  capacity?: number;
-  price?: number;
-  images?: string[];
-  amenities?: string[];
-};
+// type Room = {
+//   id: string;
+//   name: string;
+//   description?: string;
+//   capacity?: number;
+//   price?: number;
+//   images?: string[];
+//   amenities?: string[];
+// };
 
 const SearchResults: React.FC = () => {
   const location = useLocation();
@@ -83,23 +86,30 @@ const SearchResults: React.FC = () => {
 
   return (
     <>
-      <AppBar position="static" color="primary">
+      <AppBar position="static" sx={{ backgroundColor: "#EFF5E0" }}>
         <Toolbar>
-          <HotelIcon sx={{ mr: 1 }} />
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
+          <HotelIcon sx={{ mr: 1, color: "#000000de" }} />
+          <Typography variant="h6" sx={{ flexGrow: 1, color: "#000000de" }}>
             Search Results
           </Typography>
 
           {datesAreValid && (
             <Box display="flex" alignItems="center" gap={1}>
-              <CalendarMonthIcon />
-              <Typography variant="body2">
+              <CalendarMonthIcon sx={{ color: "#000000de" }} />
+              <Typography variant="body2" sx={{ color: "#000000de" }}>
                 {checkIn} → {checkOut} ({guests} guests)
               </Typography>
             </Box>
           )}
         </Toolbar>
       </AppBar>
+      <StickyBox>
+        <SearchModifyBar
+          initialCheckIn={checkIn}
+          initialCheckOut={checkOut}
+          initialGuests={guests}
+        />
+      </StickyBox>
 
       <Container sx={{ py: 6 }}>
         {loading ? (
