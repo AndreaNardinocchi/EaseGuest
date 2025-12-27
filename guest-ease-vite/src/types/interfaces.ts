@@ -6,24 +6,12 @@ export interface User {
   last_name: string;
   zip_code: string;
   id: string;
-  email?: string;
-  role: string;
-  avatarUrl?: string; // ✅ Added optional avatar support
+  email: string;
+  role?: string;
+  avatarUrl?: string; // Added optional avatar support
   country: string;
   created_at: string;
 }
-
-// export interface AppUser {
-//   id: string;
-//   firstName: string;
-//   lastName: string;
-//   email: string;
-//   country?: string;
-//   zipCode?: string;
-//   avatarUrl?: string;
-//   role?: string;
-//   createdAt?: string;
-// }
 
 // AuthContext Interface
 export interface AuthContextInterface {
@@ -331,4 +319,31 @@ export interface BookingFormData {
   checkIn: string;
   checkOut: string;
   guests: number;
+}
+
+/**
+ * React state setter for updating the selected amenities.
+ *
+ * The type React.Dispatch<React.SetStateAction<string[]>> comes directly from
+ * the React useState API. It means this setter can accept either:
+ *
+ * 1. A new array value:
+ *    setSelectedAmenities(["WiFi", "Parking"])
+ *
+ * 2. A function that receives the previous state:
+ *    setSelectedAmenities(prev => [...prev, "WiFi"])
+ *
+ * The functional form is important because it guarantees you are working with
+ * the most up‑to‑date state, especially when updates happen quickly or in
+ * batches. This is the recommended pattern in React’s official documentation.
+ *
+ * Sources:
+ * - React useState docs: https://react.dev/reference/react/useState
+ * - React state updates may be asynchronous: https://react.dev/learn/state-as-a-snapshot
+ */
+
+export interface AmenitiesFilterProps {
+  allAmenities: string[];
+  selectedAmenities: string[];
+  setSelectedAmenities: React.Dispatch<React.SetStateAction<string[]>>;
 }

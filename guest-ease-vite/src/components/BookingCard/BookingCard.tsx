@@ -77,16 +77,13 @@ const BookingCard: React.FC<BookingCardProps> = ({
           padding: "7%",
         }}
       >
-        <Typography
-          variant="h6"
-          sx={{ color: "#000000de", fontWeight: "bold" }}
-        >
+        <Typography variant="h6" sx={{ color: "#472d30", fontWeight: "bold" }}>
           <MuiLink
             component={RouterLink}
             to={`/room/${booking.room_id}`}
             sx={{
               textDecoration: "none",
-              color: "#000000de",
+              color: "#472d30",
               "&:hover": { color: "#EFF5E0" },
             }}
           >
@@ -129,7 +126,7 @@ const BookingCard: React.FC<BookingCardProps> = ({
                 to={`/booking-confirmation/${booking.id}`}
                 sx={{
                   textDecoration: "none",
-                  color: "#000000de",
+                  color: "#472d30",
                   "&:hover": {
                     // textDecoration: "underline",
                     color: "#EFF5E0",
@@ -216,9 +213,9 @@ const BookingCard: React.FC<BookingCardProps> = ({
                 onClick={() => handleUpdate(booking)}
                 fullWidth
                 sx={{
-                  backgroundColor: "#000000de",
+                  backgroundColor: "#472d30",
                   color: "#fff",
-                  "&:hover": { backgroundColor: "#EFF5E0", color: "#000000de" },
+                  "&:hover": { backgroundColor: "#EFF5E0", color: "#472d30" },
                 }}
               >
                 Update

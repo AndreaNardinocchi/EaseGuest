@@ -118,7 +118,7 @@ const BookingForm: React.FC = () => {
     fontWeight: 500,
     borderRadius: "10px",
     border: "none",
-    backgroundColor: "#8E4585",
+    backgroundColor: "#472d30",
     color: "#fff",
     cursor: "pointer",
     transition: "all 0.2s ease",

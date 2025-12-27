@@ -22,6 +22,9 @@ const BookingConfirmation: React.FC = () => {
 
   const [booking, setBooking] = useState<any | null>(null);
   const [room, setRoom] = useState<any | null>(null);
+
+  const [userProfile, setUserProfile] = useState<any | null>(null);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -46,6 +49,19 @@ const BookingConfirmation: React.FC = () => {
         }
 
         setBooking(bookingData);
+
+        // ⭐ Fetch the user's profile here
+        const { data: profile, error: profileError } = await supabase
+          .from("profiles")
+          .select("first_name, last_name, id")
+          .eq("id", bookingData.user_id)
+          .single();
+        if (profileError) {
+          console.error("Profile fetch error:", profileError);
+        }
+        // You can store it in state if you want:
+
+        setUserProfile(profile);
 
         const { data: roomData, error: roomError } = await supabase
           .from("rooms")
@@ -155,12 +171,15 @@ const BookingConfirmation: React.FC = () => {
                     {/* LEFT SIDE */}
                     <Grid item xs={12} sm={6}>
                       <Typography sx={{ mb: 2 }}>
+                        <strong>Guest:</strong> {userProfile?.first_name}{" "}
+                        {userProfile?.last_name}
+                        <br />
+                        <strong>Account</strong>: #{userProfile.id.slice(-8)}
+                        <br />
                         <strong>Room name:</strong> {room.name}
-                      </Typography>
-                      <Typography sx={{ mb: 2 }}>
+                        <br />
                         <strong>Check-in:</strong> {booking.check_in}
-                      </Typography>
-                      <Typography sx={{ mb: 2 }}>
+                        <br />
                         <strong>Check-out:</strong> {booking.check_out}
                       </Typography>
                     </Grid>
@@ -169,14 +188,15 @@ const BookingConfirmation: React.FC = () => {
                     <Grid item xs={12} sm={6}>
                       <Typography sx={{ mb: 2 }}>
                         <strong>Guests:</strong> {booking.guests}
-                      </Typography>
-                      <Typography sx={{ mb: 2 }}>
+                        <br />
                         <strong>Price per night:</strong> €
                         {/* {room.price.toFixed(2)} */}
                         {room?.price ? Number(room.price).toFixed(2) : "—"}
-                      </Typography>
-                      <Typography sx={{ mb: 2 }}>
+                        <br />
                         <strong>Nights:</strong> {totalNights}
+                        <br />
+                        <strong>Booked on:</strong>{" "}
+                        {new Date(booking.created_at).toLocaleDateString()}
                       </Typography>
                     </Grid>
                   </Grid>

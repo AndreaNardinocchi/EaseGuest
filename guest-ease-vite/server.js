@@ -403,7 +403,7 @@ app.post("/api/admin/create_user", async (req, res) => {
 });
 
 // /* ---------------------------
-//    Admin update booking endpoint
+//    Admin update user
 // ---------------------------- */
 // Admin update booking endpoint
 app.post("/api/admin/update_user", async (req, res) => {
@@ -555,6 +555,8 @@ app.post("/admin/create_booking", async (req, res) => {
       (1000 * 60 * 60 * 24);
     // ⭐ Calculate total price
     const total_price = nights * room.price;
+    console.log("ROOM PRICE:", room.price, typeof room.price);
+
     // ⭐ Insert booking with total_price
     const { data, error } = await supabaseAdmin
       .from("bookings")

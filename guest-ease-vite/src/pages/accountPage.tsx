@@ -160,7 +160,7 @@ const AccountPage: React.FC = () => {
         <Typography
           variant="h4"
           align="center"
-          sx={{ color: "#000000de", mb: 1, mt: 3 }}
+          sx={{ color: "#472d30", mb: 1, mt: 3 }}
         >
           My Reservations
         </Typography>
@@ -174,11 +174,11 @@ const AccountPage: React.FC = () => {
           sx={{
             mb: 2,
             "& .MuiTab-root.Mui-selected": {
-              color: "#000000de", // active tab color only
+              color: "#472d30", // active tab color only
               fontWeight: 600,
             },
             "& .MuiTabs-indicator": {
-              backgroundColor: "#000000de", // active underline
+              backgroundColor: "#472d30", // active underline
               height: 3,
               borderRadius: 2,
             },

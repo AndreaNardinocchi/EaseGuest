@@ -3,8 +3,6 @@ import {
   Box,
   Typography,
   Grid,
-  Card,
-  CardMedia,
   Button,
   Stack,
   Dialog,
@@ -16,39 +14,31 @@ import {
 import { useAuth } from "../context/useAuth";
 import SubNav from "../components/accountSubNav/accountSubNav";
 import { supabase } from "../supabaseClient";
-
-interface AppUser {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  country?: string;
-  zipCode?: string;
-  avatarUrl?: string;
-  role: string;
-  createdAt: string;
-}
+import type { User } from "../types/interfaces";
 
 interface FormData {
-  firstName: string;
-  lastName: string;
+  first_name: string;
+  last_name: string;
   email: string;
   country: string;
-  zipCode: string;
+  zip_code: string;
 }
 
 const ProfilePage: React.FC = () => {
-  const { user, authenticate, deleteUser } = useAuth(); // <<< include deleteUser
+  const { user, authenticate, deleteUser } = useAuth();
   const [open, setOpen] = useState(false);
 
   const [formData, setFormData] = useState<FormData>({
-    firstName: "",
-    lastName: "",
+    first_name: "",
+    last_name: "",
     email: "",
     country: "",
-    zipCode: "",
+    zip_code: "",
   });
 
+  // ---------------------------------------------------
+  // FETCH USER
+  // ---------------------------------------------------
   const fetchUser = useCallback(async () => {
     try {
       const { data, error } = await supabase.auth.getUser();
@@ -57,28 +47,27 @@ const ProfilePage: React.FC = () => {
 
       const sUser = data.user;
 
-      const updatedUser: AppUser = {
+      const updatedUser: User = {
         id: sUser.id,
         email: sUser.email || "",
-        firstName: sUser.user_metadata?.first_name || "",
-        lastName: sUser.user_metadata?.last_name || "",
+        first_name: sUser.user_metadata?.first_name || "",
+        last_name: sUser.user_metadata?.last_name || "",
         country: sUser.user_metadata?.country || "",
-        zipCode: sUser.user_metadata?.zip_code || "",
+        zip_code: sUser.user_metadata?.zip_code || "",
         avatarUrl: sUser.user_metadata?.avatar_url || "",
         role: sUser.role,
-        createdAt: sUser.created_at,
+        created_at: sUser.created_at,
       };
 
       setFormData({
-        firstName: updatedUser.firstName,
-        lastName: updatedUser.lastName,
+        first_name: updatedUser.first_name,
+        last_name: updatedUser.last_name,
         email: updatedUser.email,
         country: updatedUser.country || "",
-        zipCode: updatedUser.zipCode || "",
+        zip_code: updatedUser.zip_code || "",
       });
 
-      // Update context user state
-      authenticate?.(updatedUser as any); // cast to match your context type
+      authenticate?.(updatedUser as any);
     } catch (err: any) {
       console.error("Error fetching user:", err.message);
     }
@@ -95,19 +84,45 @@ const ProfilePage: React.FC = () => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  // ---------------------------------------------------
+  // SAVE PROFILE
+  // ---------------------------------------------------
   const handleSave = async () => {
     try {
-      const { error } = await supabase.auth.updateUser({
-        email: formData.email,
+      // 1. Update Auth metadata (NOT email)
+      const { error: authError } = await supabase.auth.updateUser({
         data: {
-          first_name: formData.firstName,
-          last_name: formData.lastName,
+          first_name: formData.first_name,
+          last_name: formData.last_name,
           country: formData.country,
-          zip_code: formData.zipCode,
+          zip_code: formData.zip_code,
         },
       });
+      if (authError) throw authError;
 
-      if (error) throw error;
+      // 2. Get REAL authenticated user ID
+      const { data: sessionData } = await supabase.auth.getSession();
+      const authId = sessionData.session?.user?.id;
+
+      if (!authId) throw new Error("No authenticated user ID found");
+
+      // 3. Prepare DB fields
+      const fieldsToUpdate = {
+        first_name: formData.first_name,
+        last_name: formData.last_name,
+        country: formData.country,
+        zip_code: formData.zip_code,
+      };
+
+      // 4. Update profiles table
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .update(fieldsToUpdate)
+        .eq("id", authId)
+        .select("*")
+        .single();
+
+      if (profileError) throw profileError;
 
       await fetchUser();
       handleClose();
@@ -116,6 +131,9 @@ const ProfilePage: React.FC = () => {
     }
   };
 
+  // ---------------------------------------------------
+  // DELETE ACCOUNT
+  // ---------------------------------------------------
   const handleDeleteAccount = async () => {
     const confirmed = window.confirm(
       "Are you sure you want to delete your account? This action cannot be undone."
@@ -123,7 +141,7 @@ const ProfilePage: React.FC = () => {
     if (!confirmed) return;
 
     try {
-      await deleteUser?.(); // call the deleteUser function from context
+      await deleteUser?.();
     } catch (err: any) {
       alert("Failed to delete account: " + err.message);
     }
@@ -140,130 +158,177 @@ const ProfilePage: React.FC = () => {
   }
 
   return (
-    <Box maxWidth="1200px" mx="auto" mt={4} px={2}>
-      <SubNav />
+    <>
+      <Box maxWidth="1200px" mx="auto" px={2}>
+        <Typography variant="h3">Hey {user.first_name}</Typography>
+        <Typography variant="h5">Account #{user.id.slice(-8)}</Typography>
+      </Box>
 
-      <Typography variant="h4" align="center" sx={{ color: "#8E4585", mb: 4 }}>
-        My Profile
-      </Typography>
+      <Box maxWidth="1200px" mx="auto" mt={4} px={2}>
+        <SubNav />
 
-      <Grid container spacing={4}>
-        {/* Left Column */}
-        <Grid item xs={12} md={6}>
-          <Stack spacing={2}>
-            <Typography>
-              <strong>First Name:</strong> {formData.firstName}
-            </Typography>
-            <Typography>
-              <strong>Last Name:</strong> {formData.lastName}
-            </Typography>
-            <Typography>
-              <strong>Email:</strong> {formData.email}
-            </Typography>
-            <Typography>
-              <strong>Country:</strong> {formData.country || "-"}
-            </Typography>
-            <Typography>
-              <strong>Zip Code:</strong> {formData.zipCode || "-"}
-            </Typography>
-            <Typography>
-              <strong>Role:</strong> {user.role}
-            </Typography>
-            <Typography>
-              <strong>Joined:</strong>{" "}
-              {new Date(user.created_at).toLocaleDateString()}
-            </Typography>
+        <Typography
+          variant="h4"
+          align="center"
+          sx={{ color: "#472d30", mb: 1, mt: 3 }}
+        >
+          My Profile
+        </Typography>
 
-            <Stack direction="row" spacing={2} mt={2}>
-              <Button
-                variant="contained"
-                color="secondary"
-                onClick={handleOpen}
-                fullWidth
-              >
-                Update Profile
-              </Button>
+        <Grid container spacing={8} sx={{ mt: 6 }}>
+          {/* LEFT COLUMN */}
+          <Grid item xs={12} md={6} pt={4}>
+            <Stack spacing={2}>
+              <Typography>
+                <strong>First Name:</strong> {formData.first_name}
+              </Typography>
+              <Typography>
+                <strong>Last Name:</strong> {formData.last_name}
+              </Typography>
+              <Typography>
+                <strong>Email:</strong> {formData.email}
+              </Typography>
+              <Typography>
+                <strong>Country:</strong> {formData.country || "-"}
+              </Typography>
+              <Typography>
+                <strong>Zip Code:</strong> {formData.zip_code || "-"}
+              </Typography>
+              <Typography>
+                <strong>Role:</strong> {user.role}
+              </Typography>
+              <Typography>
+                <strong>Joined:</strong>{" "}
+                {new Date(user.created_at).toLocaleDateString()}
+              </Typography>
 
-              <Button
-                variant="outlined"
-                color="error"
-                onClick={handleDeleteAccount}
-                fullWidth
-              >
-                Delete Account
-              </Button>
+              {/* BUTTONS */}
+              <Box mt={6}>
+                <Stack direction="row" spacing={2}>
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={handleOpen}
+                    fullWidth
+                    sx={{
+                      backgroundColor: "#472d30",
+                      color: "#fff",
+                      "&:hover": {
+                        backgroundColor: "#EFF5E0",
+                        color: "#472d30",
+                      },
+                    }}
+                  >
+                    Update
+                  </Button>
+
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    onClick={handleDeleteAccount}
+                    fullWidth
+                  >
+                    Delete
+                  </Button>
+                </Stack>
+              </Box>
             </Stack>
-          </Stack>
+          </Grid>
+
+          {/* RIGHT COLUMN */}
+          <Grid item xs={12} md={6}>
+            <Box
+              sx={{
+                mb: 12,
+                py: 6,
+                px: "5%",
+                ml: { xs: 0, md: "20%" }, // responsive alignment
+                bgcolor: "background.paper",
+                textAlign: "center",
+                borderTop: "1px solid",
+                borderColor: "divider",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 2,
+                borderRadius: 2,
+              }}
+            >
+              <Box
+                component="img"
+                src="/assets/GuestEaseLogo.png"
+                alt="GuestEase"
+                sx={{
+                  width: { xs: "60%", sm: "50%", md: "40%" },
+                  height: "auto",
+                }}
+              />
+
+              <Typography variant="h6" color="text.primary" gutterBottom>
+                Comfort, Convenience, and Care
+              </Typography>
+
+              <Typography variant="body2" color="text.secondary" maxWidth={600}>
+                At GuestEase, we make sure every stay feels like home. Enjoy
+                cozy rooms, complimentary breakfast, and curated experiences
+                around our guesthouse.
+              </Typography>
+            </Box>
+          </Grid>
         </Grid>
 
-        {/* Right Column */}
-        <Grid item xs={12} md={6}>
-          <Card sx={{ borderRadius: 3, overflow: "hidden" }}>
-            <CardMedia
-              component="img"
-              image={
-                user.avatarUrl ||
-                "https://via.placeholder.com/500x400?text=Profile+Image"
-              }
-              alt="Profile"
-              sx={{ height: "100%", objectFit: "cover" }}
-            />
-          </Card>
-        </Grid>
-      </Grid>
+        {/* UPDATE DIALOG */}
+        <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
+          <DialogTitle>Update Profile</DialogTitle>
 
-      {/* Update Dialog */}
-      <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
-        <DialogTitle>Update Profile</DialogTitle>
+          <DialogContent>
+            <Stack spacing={2} mt={1}>
+              <TextField
+                label="First Name"
+                value={formData.first_name}
+                onChange={(e) => handleChange("first_name", e.target.value)}
+                fullWidth
+              />
 
-        <DialogContent>
-          <Stack spacing={2} mt={1}>
-            <TextField
-              label="First Name"
-              value={formData.firstName}
-              onChange={(e) => handleChange("firstName", e.target.value)}
-              fullWidth
-            />
+              <TextField
+                label="Last Name"
+                value={formData.last_name}
+                onChange={(e) => handleChange("last_name", e.target.value)}
+                fullWidth
+              />
 
-            <TextField
-              label="Last Name"
-              value={formData.lastName}
-              onChange={(e) => handleChange("lastName", e.target.value)}
-              fullWidth
-            />
+              <TextField
+                label="Email (cannot change here)"
+                value={formData.email}
+                disabled
+                fullWidth
+              />
 
-            <TextField
-              label="Email"
-              value={formData.email}
-              onChange={(e) => handleChange("email", e.target.value)}
-              fullWidth
-            />
+              <TextField
+                label="Country"
+                value={formData.country}
+                onChange={(e) => handleChange("country", e.target.value)}
+                fullWidth
+              />
 
-            <TextField
-              label="Country"
-              value={formData.country}
-              onChange={(e) => handleChange("country", e.target.value)}
-              fullWidth
-            />
+              <TextField
+                label="Zip Code"
+                value={formData.zip_code}
+                onChange={(e) => handleChange("zip_code", e.target.value)}
+                fullWidth
+              />
+            </Stack>
+          </DialogContent>
 
-            <TextField
-              label="Zip Code"
-              value={formData.zipCode}
-              onChange={(e) => handleChange("zipCode", e.target.value)}
-              fullWidth
-            />
-          </Stack>
-        </DialogContent>
-
-        <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-
-          <Button variant="contained" color="secondary" onClick={handleSave}>
-            Save
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Box>
+          <DialogActions>
+            <Button onClick={handleClose}>Cancel</Button>
+            <Button variant="contained" color="secondary" onClick={handleSave}>
+              Save
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </Box>
+    </>
   );
 };
 
