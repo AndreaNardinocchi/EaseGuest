@@ -5,6 +5,8 @@ import { useBooking } from "../../context/bookingContext";
 import type { BookingFormData } from "../../types/interfaces";
 
 const BookingForm: React.FC = () => {
+  const today = new Date().toISOString().split("T")[0];
+
   const navigate = useNavigate();
   const { bookRoom } = useBooking();
 
@@ -137,6 +139,7 @@ const BookingForm: React.FC = () => {
           value={formData.checkIn}
           onChange={handleChange}
           required
+          min={today}
           style={inputStyle}
         />
       </div>
@@ -149,6 +152,7 @@ const BookingForm: React.FC = () => {
           value={formData.checkOut}
           onChange={handleChange}
           required
+          min={formData.checkIn || today}
           style={inputStyle}
         />
       </div>

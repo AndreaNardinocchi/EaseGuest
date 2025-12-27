@@ -6,6 +6,7 @@ const SearchModifyBar: React.FC<SearchModifyBarProps> = ({
   initialCheckOut,
   initialGuests,
 }) => {
+  const today = new Date().toISOString().split("T")[0];
   const [checkIn, setCheckIn] = useState(initialCheckIn);
   const [checkOut, setCheckOut] = useState(initialCheckOut);
   const [guests, setGuests] = useState(initialGuests);
@@ -92,6 +93,8 @@ const SearchModifyBar: React.FC<SearchModifyBarProps> = ({
           type="date"
           value={checkIn}
           onChange={(e) => setCheckIn(e.target.value)}
+          required
+          min={today}
           style={inputStyle}
         />
       </div>
@@ -102,6 +105,8 @@ const SearchModifyBar: React.FC<SearchModifyBarProps> = ({
           type="date"
           value={checkOut}
           onChange={(e) => setCheckOut(e.target.value)}
+          required
+          min={checkIn || today}
           style={inputStyle}
         />
       </div>

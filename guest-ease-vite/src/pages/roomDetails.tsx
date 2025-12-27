@@ -37,6 +37,7 @@ const RoomDetails: React.FC = () => {
   const paramGuests = Number(params.get("guests")) || 1;
 
   const [room, setRoom] = useState<any | null>(null);
+  const [reviews, setReviews] = useState<any | null>(null);
   const [availability, setAvailability] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
 
@@ -50,28 +51,6 @@ const RoomDetails: React.FC = () => {
   function getPublicUrl(path: string) {
     return supabase.storage.from("assets").getPublicUrl(path).data.publicUrl;
   }
-
-  // Fetch room by ID
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  // const fetchRoomById = async () => {
-  //   if (!roomId) return;
-
-  //   const { data, error } = await supabase
-  //     .from("rooms")
-  //     .select("*")
-  //     .eq("id", roomId)
-  //     .single();
-
-  //   if (error || !data) {
-  //     setError("Room not found.");
-  //   } else {
-  //     setRoom(data);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   fetchRoomById();
-  // }, [fetchRoomById, roomId]);
 
   /* 
   React error: "The final argument passed to useEffect changed size."
@@ -106,6 +85,23 @@ const RoomDetails: React.FC = () => {
   useEffect(() => {
     fetchRoomById();
   }, [fetchRoomById]);
+
+  useEffect(() => {
+    if (!roomId) return;
+
+    const fetchReviews = async () => {
+      const { data, error } = await supabase
+        .from("reviews")
+        .select("*")
+        .eq("room_id", roomId);
+
+      if (!error && data) {
+        setReviews(data);
+      }
+    };
+
+    fetchReviews();
+  }, [roomId]);
 
   // Fetch availability
   useEffect(() => {
@@ -324,6 +320,7 @@ const RoomDetails: React.FC = () => {
           setCheckIn={setCheckIn}
           setCheckOut={setCheckOut}
           onBook={handleStartPayment}
+          reviews={reviews}
         />
 
         {/* REVIEWS */}

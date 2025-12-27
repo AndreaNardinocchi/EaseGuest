@@ -176,7 +176,7 @@ const BookingConfirmation: React.FC = () => {
                         <br />
                         <strong>Account</strong>: #{userProfile.id.slice(-8)}
                         <br />
-                        <strong>Room name:</strong> {room.name}
+                        <strong>Room:</strong> {room.name}
                         <br />
                         <strong>Check-in:</strong> {booking.check_in}
                         <br />
