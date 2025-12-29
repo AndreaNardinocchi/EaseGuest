@@ -136,7 +136,13 @@ const CheckoutForm = ({
             variant="contained"
             fullWidth
             disabled={!stripe || loading}
-            sx={{ py: 1.5, borderRadius: 2 }}
+            sx={{
+              py: 1.5,
+              borderRadius: 2,
+              backgroundColor: "#472d30",
+              color: "#fff",
+              "&:hover": { backgroundColor: "#EFF5E0", color: "#472d30" },
+            }}
           >
             {loading ? (
               <CircularProgress size={26} />

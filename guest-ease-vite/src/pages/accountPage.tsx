@@ -21,6 +21,11 @@ import BookingCard from "../components/BookingCard/BookingCard";
 
 const AccountPage: React.FC = () => {
   const { user } = useAuth();
+  useEffect(() => {
+    // document.title = `${t("login")} | MoviesApp`;
+    document.title = `${user?.first_name}'s My Trips | GuestEase`;
+    //   }, [t]);
+  });
   const {
     bookings,
     updateBooking,
@@ -156,7 +161,7 @@ const AccountPage: React.FC = () => {
       </Box>
       {/* Sub-navigation */}
       <SubNav />
-      <Box maxWidth="1200px" mx="auto" px={2}>
+      <Box maxWidth="1200px" mx="auto" px={2} sx={{ mb: 12 }}>
         <Typography
           variant="h4"
           align="center"
@@ -252,7 +257,7 @@ const AccountPage: React.FC = () => {
               <Button
                 onClick={handleSave}
                 variant="contained"
-                color="secondary"
+                sx={{ backgroundColor: "#472d30" }}
               >
                 Save
               </Button>

@@ -22,16 +22,6 @@ import type { Room } from "../types/interfaces";
 import StickyBox from "../components/stickyComp/stickyComp";
 import AmenitiesFilter from "../components/amenitiesFilter/amenitiesFilter";
 
-// type Room = {
-//   id: string;
-//   name: string;
-//   description?: string;
-//   capacity?: number;
-//   price?: number;
-//   images?: string[];
-//   amenities?: string[];
-// };
-
 const SearchResults: React.FC = () => {
   const location = useLocation();
   const { searchAvailableRooms } = useBooking();
@@ -44,6 +34,10 @@ const SearchResults: React.FC = () => {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    document.title = `Search Results Page | GuestEase`;
+  });
 
   const datesAreValid =
     checkIn &&
@@ -144,24 +138,27 @@ const SearchResults: React.FC = () => {
           initialGuests={guests}
         />
       </StickyBox>
-      <Container sx={{ width: "900px" }}>
-        <AmenitiesFilter
-          // allAmenities={allAmenities}
-          allAmenities={[
-            "Comfort Bathing",
-            "Tea & Coffee Tray",
-            "King Bed",
-            "Two double-beds",
-            "Mini-fridge",
-            "Microwave",
-            "Kitchenette",
-            "Remote‑Work Friendly",
-            "Single bed",
-          ]} // cherry-picked
-          selectedAmenities={selectedAmenities}
-          setSelectedAmenities={setSelectedAmenities}
-        />
-      </Container>
+      {allAmenities && (
+        <Container>
+          <AmenitiesFilter
+            // allAmenities={allAmenities}
+            allAmenities={[
+              "Comfort Bathing",
+              "Tea & Coffee Tray",
+              "King Bed",
+              "Two double-beds",
+              "Mini-fridge",
+              "Microwave",
+              "Kitchenette",
+              "Remote‑Work Friendly",
+              "Single bed",
+              "Balcony",
+            ]} // cherry-picked
+            selectedAmenities={selectedAmenities}
+            setSelectedAmenities={setSelectedAmenities}
+          />
+        </Container>
+      )}
 
       <Container sx={{ py: 6 }}>
         {loading ? (

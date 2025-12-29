@@ -34,6 +34,12 @@ const ReviewPage: React.FC = () => {
   const [guestAccount, setGuestAccount] = useState<string>("Guest");
 
   useEffect(() => {
+    // document.title = `${t("login")} | MoviesApp`;
+    document.title = `${room?.name}'s Review Page | GuestEase`;
+    //   }, [t]);
+  });
+
+  useEffect(() => {
     async function loadData() {
       setLoading(true);
       try {
@@ -143,7 +149,7 @@ const ReviewPage: React.FC = () => {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 1 }}>
+    <Container maxWidth="lg" sx={{ mt: 1, mb: 12 }}>
       <Typography variant="h3" component={"h1"}>
         Hello <strong>{firstName}</strong>!
       </Typography>

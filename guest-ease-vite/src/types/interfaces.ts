@@ -24,6 +24,7 @@ export interface AuthContextInterface {
   authenticate: (user: any) => void;
   signout: () => void;
   deleteUser: () => Promise<void>;
+  resetPassword: (user: any) => void;
 }
 
 export interface Country {

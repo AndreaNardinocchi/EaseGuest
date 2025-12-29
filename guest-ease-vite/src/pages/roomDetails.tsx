@@ -52,6 +52,12 @@ const RoomDetails: React.FC = () => {
     return supabase.storage.from("assets").getPublicUrl(path).data.publicUrl;
   }
 
+  useEffect(() => {
+    // document.title = `${t("login")} | MoviesApp`;
+    document.title = `${room?.name}'s Details Page | GuestEase`;
+    //   }, [t]);
+  });
+
   /* 
   React error: "The final argument passed to useEffect changed size."
 
@@ -304,7 +310,10 @@ const RoomDetails: React.FC = () => {
               onSuccess={handlePaymentSuccess}
             />
 
-            <Button sx={{ mt: 2 }} onClick={() => setShowPayment(false)}>
+            <Button
+              sx={{ mt: 2, color: "#472d30" }}
+              onClick={() => setShowPayment(false)}
+            >
               Cancel
             </Button>
           </Box>

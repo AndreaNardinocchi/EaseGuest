@@ -65,6 +65,12 @@ const AdminBookingsPage: React.FC = () => {
     guests: "",
   });
 
+  useEffect(() => {
+    // document.title = `${t("login")} | MoviesApp`;
+    document.title = `Bookings Admin Dashboard | GuestEase`;
+    //   }, [t]);
+  });
+
   // -----------------------------
   // Fetch Data
   // -----------------------------

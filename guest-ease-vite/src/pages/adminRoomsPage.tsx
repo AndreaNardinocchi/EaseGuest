@@ -49,6 +49,12 @@ const AdminRoomsPage: React.FC = () => {
     price: "",
   });
 
+  useEffect(() => {
+    // document.title = `${t("login")} | MoviesApp`;
+    document.title = `Rooms Admin Dashboard | GuestEase`;
+    //   }, [t]);
+  });
+
   // -----------------------------
   // Fetch Rooms
   // -----------------------------
@@ -233,59 +239,6 @@ const AdminRoomsPage: React.FC = () => {
           </Button>
         </Box>
 
-        {/* <TableContainer component={Paper} sx={{ mb: 6 }}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Room ID</TableCell>
-                <TableCell>Name</TableCell>
-                <TableCell>Description</TableCell>
-                <TableCell>Amenities</TableCell>
-                <TableCell>Capacity</TableCell>
-                <TableCell>Price</TableCell>
-                <TableCell>Images</TableCell>
-                <TableCell>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-
-            <TableBody>
-              {rooms.map((r) => (
-                <TableRow key={r.id}>
-                  <TableCell>{r.id}</TableCell>
-                  <TableCell>{r.name}</TableCell>
-                  <TableCell>{r.description}</TableCell>
-                  <TableCell>{r.amenities?.join(", ")}</TableCell>
-                  <TableCell>{r.capacity}</TableCell>
-                  <TableCell>€{r.price}</TableCell>
-                  <TableCell>
-                    {Array.isArray(r.images)
-                      ? r.images.join(", ")
-                      : typeof r.images === "string"
-                      ? JSON.parse(r.images).join(", ")
-                      : "No images"}
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      variant="outlined"
-                      sx={{ mr: 1 }}
-                      onClick={() => handleOpenUpdateRoom(r)}
-                    >
-                      Update
-                    </Button>
-                    <Button
-                      variant="outlined"
-                      color="error"
-                      onClick={() => handleDeleteRoom(r.id)}
-                    >
-                      Delete
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer> */}
-
         <TableContainer
           component={Paper}
           sx={{
@@ -372,8 +325,7 @@ const AdminRoomsPage: React.FC = () => {
                   <TableCell
                     sx={{
                       display: { xs: "none", sm: "table-cell" },
-                      // whiteSpace: "normal",
-                      // wordBreak: "break-word",
+
                       maxWidth: 200,
                     }}
                   >
@@ -390,8 +342,7 @@ const AdminRoomsPage: React.FC = () => {
                   <TableCell
                     sx={{
                       display: { xs: "none", sm: "table-cell" },
-                      // whiteSpace: "normal",
-                      // wordBreak: "break-word",
+
                       maxWidth: 200,
                     }}
                   >

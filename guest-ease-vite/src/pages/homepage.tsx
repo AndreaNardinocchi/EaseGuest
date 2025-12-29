@@ -7,8 +7,6 @@ import {
   Card,
   CardMedia,
   CardContent,
-  CardActions,
-  Button,
 } from "@mui/material";
 import BookingForm from "../components/bookingForm/bookingForm";
 import StickyBox from "../components/stickyComp/stickyComp";
@@ -174,11 +172,6 @@ const HomePage: React.FC = () => {
                     perfectly.
                   </Typography>
                 </CardContent>
-                {/* <CardActions>
-                  <Button size="small" color="primary">
-                    Learn More
-                  </Button>
-                </CardActions> */}
               </Card>
             </Grid>
 

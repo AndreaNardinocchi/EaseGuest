@@ -1,14 +1,6 @@
 import React from "react";
-import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  Box,
-  Chip,
-  Typography,
-} from "@mui/material";
+import { Box, Chip, Typography } from "@mui/material";
 import type { AmenitiesFilterProps } from "../../types/interfaces";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 const AmenitiesFilter: React.FC<AmenitiesFilterProps> = ({
   allAmenities,
@@ -57,11 +49,27 @@ const AmenitiesFilter: React.FC<AmenitiesFilterProps> = ({
             label={amenity}
             clickable
             onClick={() => toggleAmenities(amenity)}
-            color={selectedAmenities.includes(amenity) ? "primary" : "default"}
             variant={
               selectedAmenities.includes(amenity) ? "filled" : "outlined"
             }
-            sx={{ borderRadius: "8px", fontWeight: 500 }}
+            sx={{
+              borderRadius: "8px",
+              fontWeight: 500,
+              backgroundColor: selectedAmenities.includes(amenity)
+                ? "#e26d5c" // selected background
+                : "transparent",
+              color: selectedAmenities.includes(amenity)
+                ? "#fff" // text color when selected
+                : "inherit",
+              borderColor: selectedAmenities.includes(amenity)
+                ? "#e26d5c" // border matches selected color
+                : "rgba(0,0,0,0.23)",
+              "&:hover": {
+                backgroundColor: selectedAmenities.includes(amenity)
+                  ? "#d45f50" // slightly darker hover shade
+                  : "rgba(0,0,0,0.04)",
+              },
+            }}
           />
         ))}{" "}
       </Box>{" "}

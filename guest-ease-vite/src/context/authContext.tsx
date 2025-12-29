@@ -289,38 +289,29 @@ const AuthContextProvider: React.FC<React.PropsWithChildren> = (props) => {
     }
   };
 
-  // const deleteUser = async () => {
-  //   if (!user) {
-  //     console.error("No user logged in to delete");
-  //     return;
-  //   }
+  // https://supabase.com/docs/reference/javascript/auth-resetpasswordforemail
+  const resetPassword = async (email: string) => {
+    if (!email) {
+      console.error("Email is required for password reset");
+      return { error: "Email is required" };
+    }
 
-  //   try {
-  //     // Option 1: Sign the user out first (client-side)
-  //     await supabase.auth.signOut();
+    try {
+      const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: "http://localhost:5173/update-password", // or your deployed URL
+      });
 
-  //     // Option 2: Call a Supabase Function / Admin API to delete user
-  //     const { error } = await supabase.functions.invoke("delete-user", {
-  //       body: { userId: user.id },
-  //     });
+      if (error) {
+        console.error("Reset password error:", error.message);
+        return { error: error.message };
+      }
 
-  //     if (error) {
-  //       console.error("Failed to delete user:", error.message);
-  //       return;
-  //     }
-
-  //     // Clear local state
-  //     setUser(null);
-  //     setToken(null);
-
-  //     // Redirect to home
-  //     navigate("/");
-
-  //     console.log("User deleted successfully!");
-  //   } catch (err) {
-  //     console.error("Error deleting user:", err);
-  //   }
-  // };
+      return { success: true };
+    } catch (err: any) {
+      console.error("Reset password exception:", err.message);
+      return { error: err.message };
+    }
+  };
 
   useEffect(() => {
     /**
@@ -399,6 +390,7 @@ const AuthContextProvider: React.FC<React.PropsWithChildren> = (props) => {
         deleteUser, // <<< newly added
         authenticate,
         signout,
+        resetPassword,
       }}
     >
       {props.children}

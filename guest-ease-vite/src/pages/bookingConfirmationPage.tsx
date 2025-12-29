@@ -27,6 +27,18 @@ const BookingConfirmation: React.FC = () => {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  useEffect(() => {
+    // document.title = `${t("login")} | MoviesApp`;
+    // document.title = `${room?.name}'s #${booking.id.slice(
+    //   -8
+    // )} Reservation | GuestEase`;
+
+    document.title = `${room?.name || ""}'s #${
+      booking?.id?.slice(-8) || ""
+    } Reservation | GuestEase`;
+
+    //   }, [t]);
+  });
 
   useEffect(() => {
     const fetchBooking = async () => {
@@ -133,7 +145,7 @@ const BookingConfirmation: React.FC = () => {
         />
       </Box>
 
-      <Container maxWidth="lg">
+      <Container maxWidth="lg" sx={{ mb: 12 }}>
         <Box sx={{ px: 4, py: 3 }}>
           <Typography
             variant="h4"

@@ -14,10 +14,8 @@
 import React, { useState, type MouseEvent, useEffect, useContext } from "react";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
-//import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import Button from "@mui/material/Button";
-
 import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
 import { styled, useTheme } from "@mui/material/styles";
@@ -27,10 +25,6 @@ import MenuIcon from "@mui/icons-material/Menu";
 import LoginIcon from "@mui/icons-material/Login";
 import { AuthContext } from "../../context/authContext";
 import UserProfileDrawer from "../UserProfileDrawer";
-
-// import VideoCameraFrontIcon from "@mui/icons-material/VideoCameraFront";
-// import LanguageSwitcher from "../languageSwitcher";
-// import UserProfileDrawer from "../UserProfileDrawer";
 
 const Offset = styled("div")(({ theme }) => theme.mixins.toolbar);
 
@@ -54,28 +48,18 @@ const SiteHeader: React.FC = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("lg"));
 
-  //   const [drawerOpen, setDrawerOpen] = useState(false);
-
   const [mobileAnchorEl, setMobileAnchorEl] = useState<null | HTMLElement>(
     null
   );
-  // const [movieMenuAnchorEl, setMovieMenuAnchorEl] =
-  //   useState<null | HTMLElement>(null);
 
   const mobileMenuOpen = Boolean(mobileAnchorEl);
-  // const isMovieMenuOpen = Boolean(movieMenuAnchorEl);
 
   const handleMobileMenu = (event: MouseEvent<HTMLElement>) => {
     setMobileAnchorEl(event.currentTarget);
   };
 
-  // const handleMovieMenu = (event: MouseEvent<HTMLElement>) => {
-  //   setMovieMenuAnchorEl(event.currentTarget);
-  // };
-
   const handleMenuClose = () => {
     setMobileAnchorEl(null);
-    // setMovieMenuAnchorEl(null);
   };
 
   const handleNavigate = (path: string) => {
@@ -88,7 +72,6 @@ const SiteHeader: React.FC = () => {
     { label: "About us", path: "/about-us" },
     { label: "Rooms", path: "/rooms" },
     { label: "Facilities", path: "/facilities" },
-    // { label: "Contact us", path: "/contact-us" },
   ];
 
   /**
@@ -104,6 +87,9 @@ const SiteHeader: React.FC = () => {
   const isBookingConfirmationPage = location.pathname.startsWith(
     "/booking-confirmation/"
   );
+  const isLogingPage = location.pathname.startsWith("/login");
+  const isSignUpPage = location.pathname.startsWith("/signup");
+  const isUpdatePasswordPage = location.pathname.startsWith("/update-password");
 
   return (
     <>
@@ -236,9 +222,12 @@ const SiteHeader: React.FC = () => {
       </AppBar>
       {/* Only add Offset if not on the homepage */}
       {/* Only add Offset if not on the homepage or RoomDetails page */}
-      {!isHomePage && !isRoomDetailsPage && !isBookingConfirmationPage && (
-        <Offset />
-      )}{" "}
+      {!isHomePage &&
+        !isRoomDetailsPage &&
+        !isBookingConfirmationPage &&
+        !isLogingPage &&
+        !isSignUpPage &&
+        !isUpdatePasswordPage && <Offset />}{" "}
     </>
   );
 };

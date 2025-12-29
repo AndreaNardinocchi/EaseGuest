@@ -6,7 +6,7 @@ const Footer: React.FC = () => {
   return (
     <Box
       component="footer"
-      sx={{ backgroundColor: "grey.900", color: "common.white", pt: 4, mt: 14 }}
+      sx={{ backgroundColor: "grey.900", color: "common.white", pt: 4 }}
     >
       <Container maxWidth="lg" sx={{ padding: "2rem" }}>
         <Grid

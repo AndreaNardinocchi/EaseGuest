@@ -62,7 +62,7 @@ const RoomsPage: React.FC = () => {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 2, mb: 8 }}>
+    <Container maxWidth="lg" sx={{ mt: 2, mb: 12 }}>
       <Box textAlign="center" mb={5}>
         <Typography variant="h3" gutterBottom>
           Our Rooms

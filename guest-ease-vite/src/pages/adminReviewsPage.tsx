@@ -274,6 +274,12 @@ const AdminReviewsPage: React.FC = () => {
     created_at: "",
   });
 
+  useEffect(() => {
+    // document.title = `${t("login")} | MoviesApp`;
+    document.title = `Reviews Admin Dashboard | GuestEase`;
+    //   }, [t]);
+  });
+
   // -----------------------------
   // Fetch Reviews
   // -----------------------------

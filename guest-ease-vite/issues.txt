@@ -3,8 +3,6 @@
 
 - Can you fix the mail queue to reflect what have in the report?
 
-- Create filters on Search Results page
-
 - Improve Profile page
 
 - Check redirections when logging in
@@ -18,6 +16,6 @@
 
 Admin bookings
 - When updating a reservation from the My Trips page, there can be overlap
-' Total Price 0 when booking a room for the first time
+
 
 

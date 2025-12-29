@@ -71,7 +71,9 @@ const BookingReviews: React.FC<BookingReviewsProps> = ({ roomId }) => {
 
   return (
     <Box mt={3}>
-      <Typography variant="h6">Reviews:</Typography>
+      <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+        Reviews:
+      </Typography>
       {reviews.map((review) => (
         <Box
           key={review.id}
@@ -87,7 +89,8 @@ const BookingReviews: React.FC<BookingReviewsProps> = ({ roomId }) => {
             <strong>Rating:</strong> {review.rating} / 5
           </Typography>
           <Typography>
-            <strong>Comment:</strong> {review.comment}
+            <strong>Comment:</strong>{" "}
+            <span style={{ fontStyle: "italic" }}>{review.comment}</span>
           </Typography>
           <Typography variant="caption" color="text.secondary">
             {new Date(review.created_at!).toLocaleDateString()}

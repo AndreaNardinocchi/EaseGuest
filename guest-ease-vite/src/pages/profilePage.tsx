@@ -147,6 +147,12 @@ const ProfilePage: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    // document.title = `${t("login")} | MoviesApp`;
+    document.title = `${user?.first_name}'s Profile Page | GuestEase`;
+    //   }, [t]);
+  });
+
   if (!user) {
     return (
       <Box textAlign="center" mt={4}>

@@ -22,6 +22,7 @@ import AdminBookingsPage from "./pages/AdminBookingsPage";
 import AdminUsersPage from "./pages/adminUsersPage";
 import AdminRoomsPage from "./pages/adminRoomsPage";
 import AdminReviewsPage from "./pages/adminReviewsPage";
+import UpdatePasswordPage from "./pages/updatePassword";
 // import AdminDashboard from "./pages/adminDashboard";
 // import ProtectedRoute from "./routes/protectedRoutes";
 
@@ -126,6 +127,7 @@ const App = () => {
               </ProtectedRoute>
             }
           />
+          <Route path="/update-password" element={<UpdatePasswordPage />} />
         </Routes>
       </AuthContextProvider>
     </>

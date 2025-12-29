@@ -47,15 +47,19 @@ const RoomDetailsCard: React.FC<RoomDetailsCardProps> = ({
     <Box
       sx={{
         p: 3,
-        border: "1px solid #ddd",
-        borderRadius: 2,
+        // border: "1px solid #ddd",
+        // borderRadius: 2,
         display: "flex",
         flexDirection: "column",
         mb: 8,
       }}
     >
       {/* Room Title */}
-      <Typography variant="h5" gutterBottom sx={{ fontWeight: "bold", mb: 3 }}>
+      <Typography
+        variant="h4"
+        gutterBottom
+        sx={{ fontWeight: "bold", mb: 3, mt: 2 }}
+      >
         <strong> {room.name} </strong>
       </Typography>
 
@@ -112,7 +116,7 @@ const RoomDetailsCard: React.FC<RoomDetailsCardProps> = ({
 
       <Grid container spacing={2}>
         {/* LEFT COLUMN */}
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12} md={6} sx={{ mb: 4 }}>
           <Box sx={{ display: "flex", flexDirection: "column" }}>
             {/* Check-in / Check-out */}
             <Grid container spacing={2}>
@@ -158,7 +162,12 @@ const RoomDetailsCard: React.FC<RoomDetailsCardProps> = ({
               />
               <Button
                 variant="contained"
-                color="primary"
+                // color="#472d30"
+                sx={{
+                  backgroundColor: " #472d30",
+                  color: "#fff",
+                  "&:hover": { backgroundColor: "#EFF5E0", color: "#472d30" },
+                }}
                 fullWidth
                 onClick={onBook}
               >
@@ -189,7 +198,7 @@ const RoomDetailsCard: React.FC<RoomDetailsCardProps> = ({
                     marginBottom: 2,
                   }}
                 >
-                  <CheckCircleIcon sx={{ mr: 1, color: "primary.main" }} />
+                  <CheckCircleIcon sx={{ mr: 1, color: "#472d30" }} />
                   <Typography variant="body2">{service}</Typography>
                 </li>
               ))}

@@ -347,6 +347,7 @@ app.post("/api/admin/create_user", async (req, res) => {
     const { email, role, first_name, last_name, country, zip_code } = req.body;
 
     if (!email) {
+      console.error("❌ Missing email in request");
       return res.status(400).json({ error: "Email is required" });
     }
 
@@ -371,6 +372,28 @@ app.post("/api/admin/create_user", async (req, res) => {
     }
 
     const authUser = data.user;
+    console.log("Attempting to send welcome email...");
+    const emailRes = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+      },
+      body: JSON.stringify({
+        to: email,
+        from: "onboarding@resend.dev",
+        subject: "Your GuestEase Account",
+        html: `
+      <h2>Welcome to GuestEase!</h2>
+      <p>Your temporary password is:</p>
+      <p><strong>${password}</strong></p>
+    `,
+      }),
+    });
+
+    console.log("Email endpoint status:", emailRes.status);
+    const emailText = await emailRes.text();
+    console.log("Email endpoint response:", emailText);
 
     // ⭐ AUTOMATIC PROFILE CREATION ⭐
     const { error: profileError } = await supabaseAdmin

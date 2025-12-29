@@ -59,6 +59,12 @@ const AdminUsersPage: React.FC = () => {
     role: "guest",
   });
 
+  useEffect(() => {
+    // document.title = `${t("login")} | MoviesApp`;
+    document.title = `Users Admin Dashboard | GuestEase`;
+    //   }, [t]);
+  });
+
   // -----------------------------
   // Fetch Users
   // -----------------------------
@@ -202,11 +208,6 @@ const AdminUsersPage: React.FC = () => {
     const matchesCountry = filters.country
       ? u.country?.toLowerCase().includes(filters.country.toLowerCase())
       : true;
-
-    // /** Guests filter (exact numeric match) */
-    // const matchesZipCode = filters.zip_code
-    //   ? u.zip_code === filters.zip_code
-    //   : true;
 
     /** Guests filter (exact numeric match) */
     const matchesRole = filters.role ? u.role === filters.role : true;
