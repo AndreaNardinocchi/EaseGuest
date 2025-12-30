@@ -15,6 +15,7 @@ import {
 } from "@mui/material";
 import { supabase } from "../supabaseClient";
 import { Link as RouterLink } from "react-router-dom";
+import { calculateNightsPrice } from "../utils/calculateNightsPrice";
 
 const BookingConfirmation: React.FC = () => {
   const { id } = useParams();
@@ -111,12 +112,19 @@ const BookingConfirmation: React.FC = () => {
   if (error) return <Alert severity="error">{error}</Alert>;
   if (!booking || !room) return null;
 
-  const totalNights =
-    (new Date(booking.check_out).getTime() -
-      new Date(booking.check_in).getTime()) /
-    (1000 * 60 * 60 * 24);
+  // const totalNights =
+  //   (new Date(booking.check_out).getTime() -
+  //     new Date(booking.check_in).getTime()) /
+  //   (1000 * 60 * 60 * 24);
 
-  const totalPrice = totalNights * room.price;
+  // const totalPrice = totalNights * room.price;
+
+  // sing the util calculateNightsPrice.ts
+  const { nights: totalNights, total: totalPrice } = calculateNightsPrice(
+    booking.check_in,
+    booking.check_out,
+    room.price
+  );
 
   function getPublicUrl(path: string) {
     return supabase.storage.from("assets").getPublicUrl(path).data.publicUrl;

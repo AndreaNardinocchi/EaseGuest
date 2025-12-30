@@ -12,6 +12,7 @@
  */
 
 import React, { useState, type MouseEvent, useEffect, useContext } from "react";
+import { useLocation } from "react-router-dom";
 import AppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
@@ -74,6 +75,9 @@ const SiteHeader: React.FC = () => {
     { label: "Facilities", path: "/facilities" },
   ];
 
+  // React Router gives us a hook that tells us the current URL:
+  const location = useLocation();
+
   /**
    * 'drawerOpen' state has been set for the logged in user state. The reason behind that is
    * that to manage the open/close state of the UserProfileDrawer 'UserProfileDrawer/index.tsx',
@@ -90,6 +94,13 @@ const SiteHeader: React.FC = () => {
   const isLogingPage = location.pathname.startsWith("/login");
   const isSignUpPage = location.pathname.startsWith("/signup");
   const isUpdatePasswordPage = location.pathname.startsWith("/update-password");
+
+  // We can make the page we landed on as 'active'
+  const isActive = (path: string) => location.pathname === path;
+  const isUserArea =
+    location.pathname.startsWith("/account") ||
+    location.pathname.startsWith("/account/profile") ||
+    location.pathname.startsWith("/account/favorites");
 
   return (
     <>
@@ -163,8 +174,13 @@ const SiteHeader: React.FC = () => {
           ) : (
             <>
               {/* <LanguageSwitcher /> */}
-              <Button
-                sx={{ textTransform: "none" }}
+              {/* <Button
+                sx={{
+                  textTransform: "none",
+                  color: isActive("/") ? "#EFF5E0" : "inherit",
+                  borderBottom: isActive("/") ? "3px solid #EFF5E0" : "none",
+                  fontWeight: isActive("/") ? "bold" : "inherit",
+                }}
                 color="inherit"
                 onClick={() => handleNavigate("/")}
               >
@@ -190,21 +206,108 @@ const SiteHeader: React.FC = () => {
                 onClick={() => handleNavigate("/facilities")}
               >
                 Facilities
+              </Button> */}
+
+              <Button
+                sx={{
+                  textTransform: "none",
+                  color: isActive("/") ? "#EFF5E0" : "inherit",
+                  borderBottom: isActive("/") ? "3px solid #EFF5E0" : "none",
+                  fontWeight: isActive("/") ? "bold" : "inherit",
+                }}
+                color="inherit"
+                onClick={() => handleNavigate("/")}
+              >
+                Home
+              </Button>
+
+              <Button
+                sx={{
+                  textTransform: "none",
+                  color: isActive("/about-us") ? "#EFF5E0" : "inherit",
+                  borderBottom: isActive("/about-us")
+                    ? "3px solid #EFF5E0"
+                    : "none",
+                  fontWeight: isActive("/about-us") ? "bold" : "inherit",
+                }}
+                color="inherit"
+                onClick={() => handleNavigate("/about-us")}
+              >
+                About us
+              </Button>
+
+              <Button
+                sx={{
+                  textTransform: "none",
+                  color: isActive("/rooms") ? "#EFF5E0" : "inherit",
+                  borderBottom: isActive("/rooms")
+                    ? "3px solid #EFF5E0"
+                    : "none",
+                  fontWeight: isActive("/rooms") ? "bold" : "inherit",
+                }}
+                color="inherit"
+                onClick={() => handleNavigate("/rooms")}
+              >
+                Rooms
+              </Button>
+
+              <Button
+                sx={{
+                  textTransform: "none",
+                  color: isActive("/facilities") ? "#EFF5E0" : "inherit",
+                  borderBottom: isActive("/facilities")
+                    ? "3px solid #EFF5E0"
+                    : "none",
+                  fontWeight: isActive("/facilities") ? "bold" : "inherit",
+                }}
+                color="inherit"
+                onClick={() => handleNavigate("/facilities")}
+              >
+                Facilities
               </Button>
 
               {token ? (
                 <>
-                  <Button
+                  {/* <Button
                     sx={{ textTransform: "none" }}
                     color="inherit"
                     onClick={() => setDrawerOpen(true)}
                   >
                     Welcome {userName}!
+                  </Button> */}
+
+                  <Button
+                    sx={{
+                      textTransform: "none",
+                      color: isUserArea ? "#EFF5E0" : "inherit",
+                      borderBottom: isUserArea ? "3px solid #EFF5E0" : "none",
+                      fontWeight: isUserArea ? "bold" : "inherit",
+                    }}
+                    color="inherit"
+                    onClick={() => setDrawerOpen(true)}
+                  >
+                    {" "}
+                    Welcome {userName}!{" "}
                   </Button>
                 </>
               ) : (
+                // <Button
+                //   sx={{ textTransform: "none" }}
+                //   color="inherit"
+                //   onClick={() => navigate("/login")}
+                // >
+                //   Login <LoginIcon sx={{ ml: 1 }} />
+                // </Button>
+
                 <Button
-                  sx={{ textTransform: "none" }}
+                  sx={{
+                    textTransform: "none",
+                    color: isActive("/login") ? "#EFF5E0" : "inherit",
+                    borderBottom: isActive("/login")
+                      ? "3px solid #EFF5E0"
+                      : "none",
+                    fontWeight: isActive("/login") ? "bold" : "inherit",
+                  }}
                   color="inherit"
                   onClick={() => navigate("/login")}
                 >
@@ -220,8 +323,7 @@ const SiteHeader: React.FC = () => {
           onClose={() => setDrawerOpen(false)}
         />
       </AppBar>
-      {/* Only add Offset if not on the homepage */}
-      {/* Only add Offset if not on the homepage or RoomDetails page */}
+      {/* Only add Offset if not one of the below pages */}
       {!isHomePage &&
         !isRoomDetailsPage &&
         !isBookingConfirmationPage &&

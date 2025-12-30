@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "build:scripts": "tsc scripts/set-admin.ts --outDir dist/scripts",
     "set-admin": "npm run build:scripts && node dist/scripts/set-admin.js",
-    "start": "cross-env node server.js"
+    "start": "cross-env node server/server.js"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

@@ -9,6 +9,7 @@ import { supabase } from "../supabaseClient";
 import { searchAvailableRooms as searchRoomsService } from "../supabase/roomService";
 import type { Review, Room } from "../types/interfaces";
 import type { Booking } from "../types/interfaces";
+import { calculateNightsPrice } from "../utils/calculateNightsPrice";
 
 export type BookingContextType = {
   bookings: Booking[];
@@ -147,10 +148,10 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({
         await fetchRooms();
       }
 
-      const nights =
-        (new Date(newBooking.check_out).getTime() -
-          new Date(newBooking.check_in).getTime()) /
-        (1000 * 60 * 60 * 24);
+      // const nights =
+      //   (new Date(newBooking.check_out).getTime() -
+      //     new Date(newBooking.check_in).getTime()) /
+      //   (1000 * 60 * 60 * 24);
 
       // get room price
       const room = rooms.find((r) => r.id === newBooking.room_id);
@@ -158,7 +159,13 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({
       console.log("Room price:", roomPrice);
 
       // calculate total price
-      const total_price = nights * roomPrice;
+      //   const total_price = nights * roomPrice;
+
+      const { total: total_price } = calculateNightsPrice(
+        newBooking.check_in,
+        newBooking.check_out,
+        roomPrice
+      );
 
       const sanitized = {
         ...newBooking,
@@ -318,17 +325,23 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({
       const booking = updated[0];
 
       // Calculate nights
-      const nights =
-        (new Date(booking.check_out).getTime() -
-          new Date(booking.check_in).getTime()) /
-        (1000 * 60 * 60 * 24);
+      // const nights =
+      //   (new Date(booking.check_out).getTime() -
+      //     new Date(booking.check_in).getTime()) /
+      //   (1000 * 60 * 60 * 24);
 
       // Get room price
       const room = rooms.find((r) => r.id === booking.room_id);
       const roomPrice = room?.price ?? 0;
       console.log("Room price:", roomPrice);
       // Calculate total price
-      const total_price = nights * roomPrice;
+      // const total_price = nights * roomPrice;
+
+      const { total: total_price } = calculateNightsPrice(
+        booking.check_in,
+        booking.check_out,
+        roomPrice
+      );
 
       // 🔑 Update Supabase with total_price
       const { error: priceError } = await supabase
