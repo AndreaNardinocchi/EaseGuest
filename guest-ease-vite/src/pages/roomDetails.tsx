@@ -370,7 +370,7 @@ const RoomDetails: React.FC = () => {
     searchAvailableRooms,
     loading: bookingLoading,
     bookRoom,
-    storePayment,
+    // storePayment,
   } = useBooking();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -392,6 +392,20 @@ const RoomDetails: React.FC = () => {
   const [guests, setGuests] = useState<number>(paramGuests);
 
   const [showPayment, setShowPayment] = useState(false);
+
+  const storePayment = async (paymentData: any) => {
+    try {
+      const res = await fetch("http://localhost:3000/store-payment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(paymentData),
+      });
+      return await res.json();
+    } catch (error) {
+      console.error("Store payment error:", error);
+      return { success: false, message: "Payment save failed" };
+    }
+  };
 
   function getPublicUrl(path: string) {
     return supabase.storage.from("assets").getPublicUrl(path).data.publicUrl;

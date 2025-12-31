@@ -76,6 +76,7 @@ const AccountPage: React.FC = () => {
       check_in: selectedBooking.check_in,
       check_out: selectedBooking.check_out,
       guests: selectedBooking.guests,
+      room_id: selectedBooking.room_id,
     });
     alert(result.message);
     setOpen(false);

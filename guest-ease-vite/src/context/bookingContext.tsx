@@ -38,12 +38,12 @@ export type BookingContextType = {
     comment: string
   ) => Promise<{ success: boolean; message?: string }>;
   fetchReviewsByRoom: (roomId: string) => Promise<Review[]>;
-  storePayment: (payment: {
-    payment_intent_id: string;
-    amount: number;
-    booking_id: string;
-    user_id: string;
-  }) => Promise<{ success: boolean; message?: string }>;
+  // storePayment: (payment: {
+  //   payment_intent_id: string;
+  //   amount: number;
+  //   booking_id: string;
+  //   user_id: string;
+  // }) => Promise<{ success: boolean; message?: string }>;
   rooms: any[];
   roomsLoading: boolean;
   getRoomInfo: (roomId: string) => any | null;
@@ -148,19 +148,12 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({
         await fetchRooms();
       }
 
-      // const nights =
-      //   (new Date(newBooking.check_out).getTime() -
-      //     new Date(newBooking.check_in).getTime()) /
-      //   (1000 * 60 * 60 * 24);
-
       // get room price
       const room = rooms.find((r) => r.id === newBooking.room_id);
       const roomPrice = room?.price ?? 0;
       console.log("Room price:", roomPrice);
 
       // calculate total price
-      //   const total_price = nights * roomPrice;
-
       const { total: total_price } = calculateNightsPrice(
         newBooking.check_in,
         newBooking.check_out,
@@ -299,10 +292,252 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
+  // /* ---------------------------------------
+  //  * UPDATE BOOKING
+  //  * --------------------------------------- */
+  // const updateBooking = async (bookingId: string, updates: any) => {
+  //   setLoading(true);
+  //   try {
+  //     const {
+  //       data: { user },
+  //     } = await supabase.auth.getUser();
+  //     if (!user) return { success: false, message: "Not authenticated." };
+
+  //     const { data: updated, error } = await supabase
+  //       .from("bookings")
+  //       .update(updates)
+  //       .eq("id", bookingId)
+  //       .eq("user_id", user.id)
+  //       .select();
+  //     if (error)
+  //       return { success: false, message: "Failed to update booking." };
+
+  //     if (!updated || updated.length === 0)
+  //       return { success: false, message: "No booking found." };
+
+  //     const booking = updated[0];
+
+  //     // Get room price
+  //     const room = rooms.find((r) => r.id === booking.room_id);
+  //     const roomPrice = room?.price ?? 0;
+  //     console.log("Room price:", roomPrice);
+
+  //     // Calculate total price
+  //     const { total: total_price } = calculateNightsPrice(
+  //       booking.check_in,
+  //       booking.check_out,
+  //       roomPrice
+  //     );
+
+  //     // Update Supabase with total_price
+  //     const { error: priceError } = await supabase
+  //       .from("bookings")
+  //       .update({ total_price })
+  //       .eq("id", bookingId)
+  //       .eq("user_id", user.id);
+  //     if (priceError) {
+  //       console.error("Failed to update total_price:", priceError);
+  //     }
+
+  //     // Update local state
+  //     setBookings((prev) =>
+  //       prev.map((b) => (b.id === bookingId ? { ...booking, total_price } : b))
+  //     );
+
+  //     /* EMAIL NOTICE */
+  //     await sendEmail(
+  //       user.email!,
+  //       "Your Booking Was Updated",
+  //       `
+  // <div style="background:#fafafa; padding:20px; font-family:Arial, sans-serif;">
+  //   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
+  //          style="max-width:600px; margin:auto; background:#ffffff; border-radius:8px; border:1px solid #e5e7eb;">
+
+  //     <!-- HEADER -->
+  //     <tr>
+  //       <td style="padding:20px; text-align:center; background:#e26d5c; border-bottom:1px solid #e5e7eb;">
+  //         <h2 style="margin:0; font-weight:600; font-size:20px; color:#fff;">
+  //           Your Booking Has Been Updated
+  //         </h2>
+  //       </td>
+  //     </tr>
+
+  //     <!-- BODY -->
+  //     <tr>
+  //       <td style="padding:24px; color:#444; font-size:15px; line-height:1.6;">
+  //         <p>Hello <strong>${
+  //           user.user_metadata.first_name ?? user.email
+  //         }</strong>,</p>
+
+  //         <p>We wanted to let you know that your booking has been successfully updated. Here are the latest details:</p>
+
+  //         <!-- UPDATED BOOKING DETAILS -->
+  //         <div style="
+  //             background:#f9f9f9;
+  //             border:1px solid #e5e7eb;
+  //             padding:16px;
+  //             margin:18px 0;
+  //             border-radius:6px;
+  //         ">
+  //           <p style="margin:6px 0;"><strong>Check-in:</strong> ${
+  //             updates.check_in
+  //           }</p>
+  //           <p style="margin:6px 0;"><strong>Check-out:</strong> ${
+  //             updates.check_out
+  //           }</p>
+  //           <p style="margin:6px 0;"><strong>Guests:</strong> ${
+  //             updates.guests
+  //           }</p>
+  //         </div>
+
+  //         <p>If you have any questions or need to make further changes, feel free to reply to this email or click on the below 'My Trips' button. Thank you!!!</p>
+
+  //         <!-- BUTTON -->
+  //         <div style="text-align:center; margin:24px 0;">
+  //           <a href="http://localhost:5173/account"
+  //             style="background:#e26d5c; color:#fff; padding:10px 20px;
+  //             text-decoration:none; border-radius:5px; font-size:15px;">
+  //             My Trips
+  //           </a>
+  //         </div>
+  //       </td>
+  //     </tr>
+
+  //     <!-- FOOTER -->
+  //     <tr>
+  //       <td style="text-align:center; padding:16px; font-size:12px; color:#777;">
+  //         © ${new Date().getFullYear()} GuestEase. All rights reserved.
+  //       </td>
+  //     </tr>
+
+  //   </table>
+  // </div>
+  // `
+  //     );
+
+  //     return { success: true, message: "Booking updated successfully." };
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  // const storePayment = async (paymentData: any) => {
+  //   try {
+  //     const res = await fetch("http://localhost:3000/store-payment", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify(paymentData),
+  //     });
+  //     return await res.json();
+  //   } catch (error) {
+  //     console.error("Store payment error:", error);
+  //     return { success: false, message: "Payment save failed" };
+  //   }
+  // };
+
   /* ---------------------------------------
-   * UPDATE BOOKING
+   * UPDATE BOOKING (calls backend)
    * --------------------------------------- */
-  const updateBooking = async (bookingId: string, updates: any) => {
+  // const updateBooking = async (bookingId: string, updates: any) => {
+  //   setLoading(true);
+  //   try {
+  //     const {
+  //       data: { user },
+  //     } = await supabase.auth.getUser();
+  //     if (!user) return { success: false, message: "Not authenticated." };
+
+  //     // Call backend route instead of updating Supabase directly
+  //     const res = await fetch("http://localhost:3000/user/update_booking", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({
+  //         bookingId,
+  //         updates,
+  //         userId: user.id,
+  //       }),
+  //     });
+
+  //     const result = await res.json();
+
+  //     if (!result.success) {
+  //       return { success: false, message: result.error || "Update failed." };
+  //     }
+
+  //     const updatedBooking = result.booking;
+
+  //     // Update local state
+  //     setBookings((prev) =>
+  //       prev.map((b) => (b.id === bookingId ? { ...updatedBooking } : b))
+  //     );
+
+  //     /* EMAIL NOTICE */
+  //     await sendEmail(
+  //       user.email!,
+  //       "Your Booking Was Updated",
+  //       `
+  //     <div style="background:#fafafa; padding:20px; font-family:Arial, sans-serif;">
+  //       <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
+  //             style="max-width:600px; margin:auto; background:#ffffff; border-radius:8px; border:1px solid #e5e7eb;">
+
+  //         <tr>
+  //           <td style="padding:20px; text-align:center; background:#e26d5c; border-bottom:1px solid #e5e7eb;">
+  //             <h2 style="margin:0; font-weight:600; font-size:20px; color:#fff;">
+  //               Your Booking Has Been Updated
+  //             </h2>
+  //           </td>
+  //         </tr>
+
+  //         <tr>
+  //           <td style="padding:24px; color:#444; font-size:15px; line-height:1.6;">
+  //             <p>Hello <strong>${
+  //               user.user_metadata.first_name ?? user.email
+  //             }</strong>,</p>
+
+  //             <p>Your booking has been successfully updated. Here are the latest details:</p>
+
+  //             <div style="
+  //                 background:#f9f9f9;
+  //                 border:1px solid #e5e7eb;
+  //                 padding:16px;
+  //                 margin:18px 0;
+  //                 border-radius:6px;
+  //             ">
+  //               <p><strong>Check-in:</strong> ${updates.check_in}</p>
+  //               <p><strong>Check-out:</strong> ${updates.check_out}</p>
+  //               <p><strong>Guests:</strong> ${updates.guests}</p>
+  //             </div>
+
+  //             <div style="text-align:center; margin:24px 0;">
+  //               <a href="http://localhost:5173/account"
+  //                 style="background:#e26d5c; color:#fff; padding:10px 20px;
+  //                 text-decoration:none; border-radius:5px; font-size:15px;">
+  //                 My Trips
+  //               </a>
+  //             </div>
+  //           </td>
+  //         </tr>
+
+  //         <tr>
+  //           <td style="text-align:center; padding:16px; font-size:12px; color:#777;">
+  //             © ${new Date().getFullYear()} GuestEase. All rights reserved.
+  //           </td>
+  //         </tr>
+
+  //       </table>
+  //     </div>
+  //     `
+  //     );
+
+  //     return { success: true, message: "Booking updated successfully." };
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  /* ---------------------------------------
+   * UPDATE BOOKING (USER)
+   * --------------------------------------- */
+  const updateBooking = async (bookingId: string, bookingForm: any) => {
     setLoading(true);
     try {
       const {
@@ -310,55 +545,39 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({
       } = await supabase.auth.getUser();
       if (!user) return { success: false, message: "Not authenticated." };
 
-      const { data: updated, error } = await supabase
-        .from("bookings")
-        .update(updates)
-        .eq("id", bookingId)
-        .eq("user_id", user.id)
-        .select();
-      if (error)
-        return { success: false, message: "Failed to update booking." };
+      // ⭐ Build updates object (must include room_id)
+      const updates = {
+        room_id: bookingForm.room_id,
+        check_in: bookingForm.check_in,
+        check_out: bookingForm.check_out,
+        guests: Number(bookingForm.guests),
+      };
 
-      if (!updated || updated.length === 0)
-        return { success: false, message: "No booking found." };
+      // ⭐ Call backend route instead of updating Supabase directly
+      const res = await fetch("http://localhost:3000/user/update_booking", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          bookingId,
+          updates,
+          userId: user.id,
+        }),
+      });
 
-      const booking = updated[0];
+      const result = await res.json();
 
-      // Calculate nights
-      // const nights =
-      //   (new Date(booking.check_out).getTime() -
-      //     new Date(booking.check_in).getTime()) /
-      //   (1000 * 60 * 60 * 24);
-
-      // Get room price
-      const room = rooms.find((r) => r.id === booking.room_id);
-      const roomPrice = room?.price ?? 0;
-      console.log("Room price:", roomPrice);
-      // Calculate total price
-      // const total_price = nights * roomPrice;
-
-      const { total: total_price } = calculateNightsPrice(
-        booking.check_in,
-        booking.check_out,
-        roomPrice
-      );
-
-      // 🔑 Update Supabase with total_price
-      const { error: priceError } = await supabase
-        .from("bookings")
-        .update({ total_price })
-        .eq("id", bookingId)
-        .eq("user_id", user.id);
-      if (priceError) {
-        console.error("Failed to update total_price:", priceError);
+      if (!result.success) {
+        return { success: false, message: result.error || "Update failed." };
       }
 
       // Update local state
       setBookings((prev) =>
-        prev.map((b) => (b.id === bookingId ? { ...booking, total_price } : b))
+        prev.map((b) => (b.id === bookingId ? result.booking : b))
       );
 
-      /* EMAIL NOTICE */
+      /* ---------------------------------------
+       * SEND EMAIL NOTIFICATION
+       * --------------------------------------- */
       await sendEmail(
         user.email!,
         "Your Booking Was Updated",
@@ -404,7 +623,7 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({
             }</p>
           </div>
 
-          <p>If you have any questions or need to make further changes, feel free to reply to this email or click on the below 'My Trips' button. Thank you!!!</p>
+          <p>If you have any questions or need to make further changes, feel free to reply to this email or click the button below.</p>
 
           <!-- BUTTON -->
           <div style="text-align:center; margin:24px 0;">
@@ -426,26 +645,12 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({
 
     </table>
   </div>
-  `
+      `
       );
 
       return { success: true, message: "Booking updated successfully." };
     } finally {
       setLoading(false);
-    }
-  };
-
-  const storePayment = async (paymentData: any) => {
-    try {
-      const res = await fetch("http://localhost:3000/store-payment", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(paymentData),
-      });
-      return await res.json();
-    } catch (error) {
-      console.error("Store payment error:", error);
-      return { success: false, message: "Payment save failed" };
     }
   };
 
@@ -666,7 +871,7 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({
         cancelBooking,
         submitReview,
         fetchReviewsByRoom,
-        storePayment,
+        // storePayment,
         rooms,
         roomsLoading,
         getRoomInfo,

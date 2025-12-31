@@ -698,6 +698,7 @@ import emailRoutes from "./routes/email.js";
 import adminBookings from "./routes/adminBookings.js";
 import adminUsers from "./routes/adminUsers.js";
 import payments from "./routes/payments.js";
+import userBookings from "./routes/userBookings.js";
 
 const app = express();
 app.use(express.json());
@@ -789,6 +790,7 @@ app.post("/delete_user", async (req, res) => {
 app.use(emailRoutes);
 app.use(adminBookings);
 app.use(adminUsers);
+app.use(userBookings);
 app.use(payments);
 
 /* ---------------------------
