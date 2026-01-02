@@ -1,18 +1,14 @@
 
 - The Administrator should receive email notifications for any bookings, updates or cancellations made by guests
 
-- Can you fix the mail queue to reflect what have in the report?
-
-- Improve Profile page
-
 - Check redirections when logging in
 
 - Fix Admin emails
 
-- SEO
-
 - Review bookings policy
 
+- 2 emails sent out when updating a reservation
+- delete user won't delete profiles
 
 Admin bookings
 - When updating a reservation from the My Trips page, there can be overlap

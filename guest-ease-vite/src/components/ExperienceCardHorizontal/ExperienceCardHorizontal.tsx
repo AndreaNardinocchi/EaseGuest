@@ -46,7 +46,7 @@ const ExperienceCardHorizontal: React.FC<ExperienceCardProps> = ({
         }}
       >
         <CardContent sx={{ padding: "24px", flexGrow: 1 }}>
-          <Typography variant="h5" gutterBottom noWrap>
+          <Typography variant="h5" gutterBottom>
             {title}
           </Typography>
           <Typography

@@ -89,7 +89,9 @@ const AccountPage: React.FC = () => {
 
   const handleConfirmCancel = async () => {
     if (!selectedBooking) return;
-    const result = await cancelBooking(selectedBooking.id);
+    //  const result = await cancelBooking(selectedBooking.id);
+    const result = await cancelBooking(selectedBooking);
+
     console.log("Cancel result:", result);
     alert(
       result.success

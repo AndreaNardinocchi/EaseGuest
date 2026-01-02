@@ -173,41 +173,6 @@ const SiteHeader: React.FC = () => {
             </>
           ) : (
             <>
-              {/* <LanguageSwitcher /> */}
-              {/* <Button
-                sx={{
-                  textTransform: "none",
-                  color: isActive("/") ? "#EFF5E0" : "inherit",
-                  borderBottom: isActive("/") ? "3px solid #EFF5E0" : "none",
-                  fontWeight: isActive("/") ? "bold" : "inherit",
-                }}
-                color="inherit"
-                onClick={() => handleNavigate("/")}
-              >
-                Home
-              </Button>
-              <Button
-                sx={{ textTransform: "none" }}
-                color="inherit"
-                onClick={() => handleNavigate("/about-us")}
-              >
-                About us
-              </Button>
-              <Button
-                sx={{ textTransform: "none" }}
-                color="inherit"
-                onClick={() => handleNavigate("/rooms")}
-              >
-                Rooms
-              </Button>
-              <Button
-                sx={{ textTransform: "none" }}
-                color="inherit"
-                onClick={() => handleNavigate("/facilities")}
-              >
-                Facilities
-              </Button> */}
-
               <Button
                 sx={{
                   textTransform: "none",
@@ -268,14 +233,6 @@ const SiteHeader: React.FC = () => {
 
               {token ? (
                 <>
-                  {/* <Button
-                    sx={{ textTransform: "none" }}
-                    color="inherit"
-                    onClick={() => setDrawerOpen(true)}
-                  >
-                    Welcome {userName}!
-                  </Button> */}
-
                   <Button
                     sx={{
                       textTransform: "none",
@@ -291,14 +248,6 @@ const SiteHeader: React.FC = () => {
                   </Button>
                 </>
               ) : (
-                // <Button
-                //   sx={{ textTransform: "none" }}
-                //   color="inherit"
-                //   onClick={() => navigate("/login")}
-                // >
-                //   Login <LoginIcon sx={{ ml: 1 }} />
-                // </Button>
-
                 <Button
                   sx={{
                     textTransform: "none",

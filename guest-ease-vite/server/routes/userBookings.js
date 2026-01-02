@@ -192,4 +192,82 @@ router.post("/user/update_booking", async (req, res) => {
   }
 });
 
+/**--------------------------------------------
+ *
+ *      Cancel Booking
+ *
+ * --------------------------------------------------
+ */
+router.post("/user/cancel_booking", async (req, res) => {
+  console.log("SUPABASE URL:", process.env.SUPABASE_URL);
+  console.log(
+    "SERVICE KEY START:",
+    process.env.SUPABASE_SERVICE_KEY?.slice(0, 8)
+  );
+
+  // Accept camelCase from frontend
+  const { bookingId, userId } = req.body;
+
+  console.log("CANCEL BODY RECEIVED:", req.body);
+  console.log("bookingId:", bookingId);
+  console.log("userId:", userId);
+
+  if (!bookingId || !userId) {
+    return res.status(400).json({ error: "Missing fields" });
+  }
+
+  try {
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+    // 1. Fetch payment info
+    const { data: payment } = await supabaseAdmin
+      .from("payments")
+      .select("amount, payment_intent_id, refunded_amount")
+      .eq("booking_id", bookingId) // FIXED
+      .single();
+
+    if (!payment) {
+      return res.status(400).json({ error: "Payment record not found" });
+    }
+
+    const totalAmount = payment.amount * 100;
+
+    // 2. Prevent double refunds
+    if (payment.refunded_amount >= payment.amount) {
+      return res.status(400).json({ error: "Booking already refunded" });
+    }
+
+    // 3. Issue full refund
+    const refund = await stripe.refunds.create({
+      payment_intent: payment.payment_intent_id,
+      amount: totalAmount,
+    });
+
+    // 4. Delete booking
+    await supabaseAdmin
+      .from("bookings")
+      .delete()
+      .eq("id", bookingId) // FIXED
+      .eq("user_id", userId); // FIXED
+
+    // 5. Update payment record
+    await supabaseAdmin
+      .from("payments")
+      .update({
+        refunded_amount: payment.amount,
+        refund_id: refund.id,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("booking_id", bookingId); // FIXED
+
+    return res.json({
+      success: true,
+      refund,
+    });
+  } catch (err) {
+    console.error("Cancel booking error:", err);
+    return res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;

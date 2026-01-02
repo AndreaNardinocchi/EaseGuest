@@ -29,9 +29,10 @@ export type BookingContextType = {
     bookingId: string,
     updates: Partial<Omit<Booking, "id" | "created_at" | "user_id">>
   ) => Promise<{ success: boolean; message?: string }>;
-  cancelBooking: (
-    bookingId: string
-  ) => Promise<{ success: boolean; message?: string }>;
+  cancelBooking: (booking: {
+    id: string;
+  }) => Promise<{ success: boolean; message?: string }>;
+
   submitReview: (
     bookingId: string,
     rating: number,
@@ -659,123 +660,214 @@ export const BookingProvider: React.FC<{ children: React.ReactNode }> = ({
    * CANCEL BOOKING
 
    * --------------------------------------- */
-  const cancelBooking = async (bookingId: string) => {
+  // const cancelBooking = async (bookingId: string) => {
+  //   setLoading(true);
+  //   try {
+  //     const {
+  //       data: { user },
+  //     } = await supabase.auth.getUser();
+  //     if (!user) return { success: false, message: "Not authenticated." };
+
+  //     await supabase
+  //       .from("bookings")
+  //       .delete()
+  //       .eq("id", bookingId)
+  //       .eq("user_id", user.id);
+  //     setBookings((prev) => prev.filter((b) => b.id !== bookingId));
+
+  //     /* EMAIL NOTICE */
+
+  //     await sendEmail(
+  //       user.email!,
+
+  //       "Your Booking Has Been Cancelled 😢",
+
+  //       `
+
+  // <div style="background:#fafafa; padding:20px; font-family:Arial, sans-serif;">
+
+  //   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
+
+  //          style="max-width:600px; margin:auto; background:#ffffff; border-radius:8px; border:1px solid #e5e7eb;">
+
+  //     <!-- HEADER -->
+
+  //     <tr>
+
+  //       <td style="padding:20px; text-align:center; background:#e26d5c; border-bottom:1px solid #e5e7eb;">
+
+  //         <h2 style="margin:0; font-weight:600; font-size:20px; color:#fff;">
+
+  //           Your Booking Has Been Cancelled 😢
+
+  //         </h2>
+
+  //       </td>
+
+  //     </tr>
+
+  //     <!-- BODY -->
+
+  //     <tr>
+
+  //       <td style="padding:24px; color:#444; font-size:15px; line-height:1.6;">
+
+  //         <p>Hello <strong>${
+  //           user.user_metadata.first_name ?? user.email
+  //         }</strong>,</p>
+
+  //         <p>We’re sorry to hear that you won’t be staying with GuestEase. Here are the details of your booking cancellation:</p>
+
+  //         <!-- CANCELLED BOOKING DETAILS -->
+
+  //         <div style="
+
+  //             background:#f9f9f9;
+
+  //             border:1px solid #e5e7eb;
+
+  //             padding:16px;
+
+  //             margin:18px 0;
+
+  //             border-radius:6px;
+
+  //         ">
+
+  //           <p style="margin:6px 0;"><strong>Booking ID:</strong> ${bookingId}</p>
+
+  //         </div>
+
+  //         <p>If you have any questions or want to make a new booking, feel free to reply to this email or click the 'My Trips' button below.</p>
+
+  //         <!-- BUTTON -->
+
+  //         <div style="text-align:center; margin:24px 0;">
+
+  //           <a href="http://localhost:5173/account"
+
+  //              style="background:#e26d5c; color:#fff; padding:10px 20px;
+
+  //                     text-decoration:none; border-radius:5px; font-size:15px;">
+
+  //             My Trips
+
+  //           </a>
+
+  //         </div>
+
+  //       </td>
+
+  //     </tr>
+
+  //     <!-- FOOTER -->
+
+  //     <tr>
+
+  //       <td style="text-align:center; padding:16px; font-size:12px; color:#777;">
+
+  //         © ${new Date().getFullYear()} GuestEase. All rights reserved.
+
+  //       </td>
+
+  //     </tr>
+
+  //   </table>
+
+  // </div>
+
+  // `
+  //     );
+
+  //     return { success: true };
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  const cancelBooking = async (booking: { id: string }) => {
     setLoading(true);
+
     try {
       const {
         data: { user },
       } = await supabase.auth.getUser();
+
       if (!user) return { success: false, message: "Not authenticated." };
 
-      await supabase
-        .from("bookings")
-        .delete()
-        .eq("id", bookingId)
-        .eq("user_id", user.id);
+      const bookingId = booking.id;
+
+      console.log("Sending to backend:", {
+        bookingId,
+        userId: user.id,
+      });
+
+      // 1. Call backend to refund + delete
+      const res = await fetch("http://localhost:3000/user/cancel_booking", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          bookingId,
+          userId: user.id,
+        }),
+      });
+
+      const result = await res.json();
+
+      if (!result.success) {
+        return { success: false, message: result.error };
+      }
+
+      // 2. Remove from UI
       setBookings((prev) => prev.filter((b) => b.id !== bookingId));
 
-      /* EMAIL NOTICE */
-
+      // 3. Send cancellation email
       await sendEmail(
         user.email!,
-
         "Your Booking Has Been Cancelled 😢",
-
         `
+      <div style="background:#fafafa; padding:20px; font-family:Arial, sans-serif;">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
+               style="max-width:600px; margin:auto; background:#ffffff; border-radius:8px; border:1px solid #e5e7eb;">
+          
+          <tr>
+            <td style="padding:20px; text-align:center; background:#e26d5c; border-bottom:1px solid #e5e7eb;">
+              <h2 style="margin:0; font-weight:600; font-size:20px; color:#fff;">
+                Your Booking Has Been Cancelled 😢
+              </h2>
+            </td>
+          </tr>
 
-  <div style="background:#fafafa; padding:20px; font-family:Arial, sans-serif;">
+          <tr>
+            <td style="padding:24px; color:#444; font-size:15px; line-height:1.6;">
+              <p>Hello <strong>${
+                user.user_metadata.first_name ?? user.email
+              }</strong>,</p>
 
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
+              <p>Your booking has been cancelled. Here are the details:</p>
 
-           style="max-width:600px; margin:auto; background:#ffffff; border-radius:8px; border:1px solid #e5e7eb;">
+              <div style="background:#f9f9f9; border:1px solid #e5e7eb; padding:16px; margin:18px 0; border-radius:6px;">
+                <p style="margin:6px 0;"><strong>Booking ID:</strong> ${bookingId}</p>
+              </div>
 
-      <!-- HEADER -->
+              <div style="text-align:center; margin:24px 0;">
+                <a href="http://localhost:5173/account"
+                   style="background:#e26d5c; color:#fff; padding:10px 20px;
+                          text-decoration:none; border-radius:5px; font-size:15px;">
+                  My Trips
+                </a>
+              </div>
+            </td>
+          </tr>
 
-      <tr>
+          <tr>
+            <td style="text-align:center; padding:16px; font-size:12px; color:#777;">
+              © ${new Date().getFullYear()} GuestEase. All rights reserved.
+            </td>
+          </tr>
 
-        <td style="padding:20px; text-align:center; background:#e26d5c; border-bottom:1px solid #e5e7eb;">
-
-          <h2 style="margin:0; font-weight:600; font-size:20px; color:#fff;">
-
-            Your Booking Has Been Cancelled 😢
-
-          </h2>
-
-        </td>
-
-      </tr>
-
-      <!-- BODY -->
-
-      <tr>
-
-        <td style="padding:24px; color:#444; font-size:15px; line-height:1.6;">
-
-          <p>Hello <strong>${
-            user.user_metadata.first_name ?? user.email
-          }</strong>,</p>
-
-          <p>We’re sorry to hear that you won’t be staying with GuestEase. Here are the details of your booking cancellation:</p>
-
-          <!-- CANCELLED BOOKING DETAILS -->
-
-          <div style="
-
-              background:#f9f9f9;
-
-              border:1px solid #e5e7eb;
-
-              padding:16px;
-
-              margin:18px 0;
-
-              border-radius:6px;
-
-          ">
-
-            <p style="margin:6px 0;"><strong>Booking ID:</strong> ${bookingId}</p>
-
-          </div>
-
-          <p>If you have any questions or want to make a new booking, feel free to reply to this email or click the 'My Trips' button below.</p>
-
-          <!-- BUTTON -->
-
-          <div style="text-align:center; margin:24px 0;">
-
-            <a href="http://localhost:5173/account"
-
-               style="background:#e26d5c; color:#fff; padding:10px 20px;
-
-                      text-decoration:none; border-radius:5px; font-size:15px;">
-
-              My Trips
-
-            </a>
-
-          </div>
-
-        </td>
-
-      </tr>
-
-      <!-- FOOTER -->
-
-      <tr>
-
-        <td style="text-align:center; padding:16px; font-size:12px; color:#777;">
-
-          © ${new Date().getFullYear()} GuestEase. All rights reserved.
-
-        </td>
-
-      </tr>
-
-    </table>
-
-  </div>
-
-  `
+        </table>
+      </div>`
       );
 
       return { success: true };

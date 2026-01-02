@@ -13,6 +13,7 @@ import StickyBox from "../components/stickyComp/stickyComp";
 import HeroImage from "../components/HeroImage/HeroImage";
 import ThreeCardComponent from "../components/homepageThreeCards/homePageThreeCards";
 import ExperienceCarousel from "../components/ExperienceCarousel/ExperienceCarousel";
+import ResponsiveBookingWrapper from "../components/responsiveBookingWrapper/responsiveBookingWrapper";
 
 const experiences = [
   {
@@ -80,7 +81,9 @@ const HomePage: React.FC = () => {
 
       {/* Sticky box below nav */}
       <StickyBox>
-        <BookingForm />
+        <ResponsiveBookingWrapper>
+          <BookingForm />
+        </ResponsiveBookingWrapper>
       </StickyBox>
 
       {/* Main content container */}
