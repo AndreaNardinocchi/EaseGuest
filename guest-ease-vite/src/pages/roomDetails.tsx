@@ -343,7 +343,343 @@
 
 // export default RoomDetails;
 
-import React, { useEffect, useState } from "react";
+// import React, { useEffect, useState } from "react";
+// import { useParams, useNavigate, useLocation } from "react-router-dom";
+// import {
+//   Box,
+//   CircularProgress,
+//   Alert,
+//   Typography,
+//   Button,
+//   Container,
+// } from "@mui/material";
+
+// import RoomDetailsCard from "../components/roomDetailsCard/roomDetailsCard";
+// import BookingReviews from "../components/bookingReviews/bookingReview";
+// import { StripeCheckout } from "../components/stripeCheckOut/stripeCheckOut";
+// import RoomImageCarousel from "../components/roomDetailsGallery/roomDetailsGallery";
+
+// import { useBooking } from "../context/bookingContext";
+// import { useAuth } from "../context/useAuth";
+// import { supabase } from "../supabaseClient";
+// import { calculateNightsPrice } from "../utils/calculateNightsPrice";
+// import { useBookings } from "../hooks/useBookings";
+
+// const RoomDetails: React.FC = () => {
+//   const { roomId } = useParams<{ roomId: string }>();
+//   const { createBooking } = useBookings(user?.id);
+
+//   const {
+//     searchAvailableRooms,
+//     loading: bookingLoading,
+//     // bookRoom,
+//     // storePayment,
+//   } = useBooking();
+//   const { user } = useAuth();
+//   const navigate = useNavigate();
+//   const location = useLocation();
+
+//   // Query params
+//   const params = new URLSearchParams(location.search);
+//   const paramCheckIn = params.get("checkIn") || "";
+//   const paramCheckOut = params.get("checkOut") || "";
+//   const paramGuests = Number(params.get("guests")) || 1;
+
+//   const [room, setRoom] = useState<any | null>(null);
+//   const [reviews, setReviews] = useState<any | null>(null);
+//   const [availability, setAvailability] = useState<any[]>([]);
+//   const [error, setError] = useState<string | null>(null);
+
+//   const [checkIn, setCheckIn] = useState<string>(paramCheckIn);
+//   const [checkOut, setCheckOut] = useState<string>(paramCheckOut);
+//   const [guests, setGuests] = useState<number>(paramGuests);
+
+//   const [showPayment, setShowPayment] = useState(false);
+
+//   const storePayment = async (paymentData: any) => {
+//     try {
+//       const res = await fetch("http://localhost:3000/store-payment", {
+//         method: "POST",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify(paymentData),
+//       });
+//       return await res.json();
+//     } catch (error) {
+//       console.error("Store payment error:", error);
+//       return { success: false, message: "Payment save failed" };
+//     }
+//   };
+
+//   function getPublicUrl(path: string) {
+//     return supabase.storage.from("assets").getPublicUrl(path).data.publicUrl;
+//   }
+
+//   useEffect(() => {
+//     document.title = `${room?.name}'s Details Page | GuestEase`;
+//   });
+
+//   const fetchRoomById = React.useCallback(async () => {
+//     if (!roomId) return;
+
+//     const { data, error } = await supabase
+//       .from("rooms")
+//       .select("*")
+//       .eq("id", roomId)
+//       .single();
+
+//     if (error || !data) {
+//       setError("Room not found.");
+//     } else {
+//       setRoom(data);
+//     }
+//   }, [roomId]);
+
+//   useEffect(() => {
+//     fetchRoomById();
+//   }, [fetchRoomById]);
+
+//   useEffect(() => {
+//     if (!roomId) return;
+
+//     const fetchReviews = async () => {
+//       const { data, error } = await supabase
+//         .from("reviews")
+//         .select("*")
+//         .eq("room_id", roomId);
+
+//       if (!error && data) {
+//         setReviews(data);
+//       }
+//     };
+
+//     fetchReviews();
+//   }, [roomId]);
+
+//   useEffect(() => {
+//     const validDates =
+//       /^\d{4}-\d{2}-\d{2}$/.test(checkIn) &&
+//       /^\d{4}-\d{2}-\d{2}$/.test(checkOut) &&
+//       new Date(checkIn) < new Date(checkOut);
+
+//     if (!validDates) {
+//       setAvailability([]);
+//       return;
+//     }
+
+//     const fetchRooms = async () => {
+//       try {
+//         const result = await searchAvailableRooms(checkIn, checkOut, guests);
+//         if (result.success) {
+//           setAvailability(result.rooms);
+//         } else {
+//           setError(result.message || "Failed availability fetch.");
+//         }
+//       } catch {
+//         setError("Unexpected availability error.");
+//       }
+//     };
+
+//     fetchRooms();
+//   }, [checkIn, checkOut, guests, searchAvailableRooms]);
+
+//   const handleStartPayment = () => {
+//     if (!user) {
+//       navigate("/login", {
+//         state: { from: location.pathname + location.search },
+//       });
+//       return;
+//     }
+
+//     if (
+//       guests <= 0 ||
+//       !checkIn ||
+//       !checkOut ||
+//       new Date(checkIn) >= new Date(checkOut)
+//     ) {
+//       setError("Please enter valid guests and dates before booking.");
+//       return;
+//     }
+
+//     const isAvailable = availability.some((r) => r.id === room.id);
+//     console.log("Room", room.id);
+
+//     if (!isAvailable) {
+//       setError("This room is already booked for the selected dates.");
+//       return;
+//     }
+
+//     setShowPayment(true);
+//   };
+
+//   const handlePaymentSuccess = async (paymentIntent: any) => {
+//     if (!room || !user) return;
+
+//     try {
+//       // Using the util
+//       const { total } = calculateNightsPrice(checkIn, checkOut, room.price);
+
+//       const totalPrice = total * guests;
+
+//       // const result = await bookRoom({
+//       //   room_id: roomId!,
+//       //   check_in: checkIn,
+//       //   check_out: checkOut,
+//       //   guests,
+//       //   total_price: totalPrice,
+//       // });
+
+//       const result = await createBooking.mutateAsync({
+//   room_id,
+//   check_in,
+//   check_out,
+//   guests,
+// });
+
+//       if (!result.success || !result.booking) {
+//         setError(result.message || "Booking failed after payment.");
+//         return;
+//       }
+
+//       const bookingId = result.booking.id;
+
+//       const paymentResult = await storePayment({
+//         payment_intent_id: paymentIntent.id,
+//         amount: totalPrice,
+//         booking_id: bookingId,
+//         user_id: user.id,
+//       });
+
+//       if (!paymentResult.success) {
+//         setError(paymentResult.message || "Payment recording failed.");
+//         return;
+//       }
+
+//       navigate(`/booking-confirmation/${bookingId}`, {
+//         state: {
+//           room,
+//           booking: {
+//             check_in: checkIn,
+//             check_out: checkOut,
+//             guests,
+//             total_price: totalPrice,
+//           },
+//         },
+//       });
+//     } catch (err) {
+//       console.error(err);
+//       setError("Unexpected error after payment.");
+//     }
+//   };
+
+//   useEffect(() => {
+//     if (!room) return;
+
+//     const isAvailable = availability.some((r) => r.id === room.id);
+
+//     if (isAvailable && error) {
+//       setError(null);
+//     }
+//   }, [availability, room, error]);
+
+//   useEffect(() => {
+//     if (showPayment) {
+//       setShowPayment(false);
+//     }
+
+//     if (room) {
+//       const isAvailable = availability.some((r) => r.id === room.id);
+//       if (isAvailable && error) {
+//         setError(null);
+//       }
+//     }
+//     // eslint-disable-next-line react-hooks/exhaustive-deps
+//   }, [checkIn, checkOut]);
+
+//   if (bookingLoading)
+//     return <CircularProgress sx={{ display: "block", mx: "auto", my: 10 }} />;
+
+//   if (!room) return <Alert severity="error">Room not found.</Alert>;
+
+//   const normalizedImages = Array.isArray(room.images)
+//     ? room.images.map((img: string) => getPublicUrl(img))
+//     : typeof room.images === "string"
+//     ? JSON.parse(room.images).map((img: string) => getPublicUrl(img))
+//     : [];
+
+//   return (
+//     <Box>
+//       {normalizedImages.length > 0 && (
+//         <RoomImageCarousel images={normalizedImages} />
+//       )}
+
+//       <Container maxWidth="lg">
+//         {error && (
+//           <Alert severity="error" sx={{ my: 2 }}>
+//             {error}
+//           </Alert>
+//         )}
+
+//         {showPayment && (
+//           <Box sx={{ p: 4, mb: 4, border: "1px solid #ddd", borderRadius: 2 }}>
+//             <Typography variant="h5" sx={{ mb: 2 }}>
+//               Complete Payment
+//             </Typography>
+
+//             {checkIn && checkOut ? (
+//               <>
+//                 <Typography>Check‑in: {checkIn}</Typography>
+//                 <Typography>Check‑out: {checkOut}</Typography>
+//                 <Typography>Guests: {guests}</Typography>
+//               </>
+//             ) : (
+//               <Typography color="text.secondary">
+//                 Please choose check‑in and check‑out dates below.
+//               </Typography>
+//             )}
+
+//             <StripeCheckout
+//               amount={
+//                 (room.price *
+//                   100 *
+//                   (new Date(checkOut).getTime() -
+//                     new Date(checkIn).getTime())) /
+//                 (1000 * 60 * 60 * 24)
+//               }
+//               onSuccess={handlePaymentSuccess}
+//             />
+
+//             <Button
+//               sx={{ mt: 2, color: "#472d30" }}
+//               onClick={() => setShowPayment(false)}
+//             >
+//               Cancel
+//             </Button>
+//           </Box>
+//         )}
+
+//         <RoomDetailsCard
+//           room={room}
+//           guests={guests}
+//           checkIn={checkIn}
+//           checkOut={checkOut}
+//           setGuests={setGuests}
+//           setCheckIn={setCheckIn}
+//           setCheckOut={setCheckOut}
+//           onBook={handleStartPayment}
+//           reviews={reviews}
+//         />
+
+//         <Box sx={{ mt: 6, mb: 12 }}>
+//           <BookingReviews roomId={roomId!} />
+//         </Box>
+//       </Container>
+//     </Box>
+//   );
+// };
+
+// export default RoomDetails;
+
+import React, { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import {
   Box,
@@ -363,16 +699,16 @@ import { useBooking } from "../context/bookingContext";
 import { useAuth } from "../context/useAuth";
 import { supabase } from "../supabaseClient";
 import { calculateNightsPrice } from "../utils/calculateNightsPrice";
+import { useBookings } from "../hooks/useBookings";
+import type { PaymentIntent } from "@stripe/stripe-js";
 
 const RoomDetails: React.FC = () => {
   const { roomId } = useParams<{ roomId: string }>();
-  const {
-    searchAvailableRooms,
-    loading: bookingLoading,
-    bookRoom,
-    // storePayment,
-  } = useBooking();
-  const { user } = useAuth();
+  const { user } = useAuth(); // MUST come before useBookings
+  const { createBooking } = useBookings(user?.id);
+
+  const { searchAvailableRooms, loading: bookingLoading } = useBooking();
+
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -392,6 +728,8 @@ const RoomDetails: React.FC = () => {
   const [guests, setGuests] = useState<number>(paramGuests);
 
   const [showPayment, setShowPayment] = useState(false);
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [currentBookingId, setCurrentBookingId] = useState<string | null>(null);
 
   const storePayment = async (paymentData: any) => {
     try {
@@ -413,9 +751,9 @@ const RoomDetails: React.FC = () => {
 
   useEffect(() => {
     document.title = `${room?.name}'s Details Page | GuestEase`;
-  });
+  }, [room]);
 
-  const fetchRoomById = React.useCallback(async () => {
+  const fetchRoomById = useCallback(async () => {
     if (!roomId) return;
 
     const { data, error } = await supabase
@@ -479,7 +817,7 @@ const RoomDetails: React.FC = () => {
     fetchRooms();
   }, [checkIn, checkOut, guests, searchAvailableRooms]);
 
-  const handleStartPayment = () => {
+  const handleStartPayment = async () => {
     if (!user) {
       navigate("/login", {
         state: { from: location.pathname + location.search },
@@ -497,45 +835,53 @@ const RoomDetails: React.FC = () => {
       return;
     }
 
-    const isAvailable = availability.some((r) => r.id === room.id);
-    console.log("Room", room.id);
+    const isAvailable = availability.some((r) => r.id === room?.id);
 
     if (!isAvailable) {
       setError("This room is already booked for the selected dates.");
       return;
     }
 
-    setShowPayment(true);
-  };
-
-  const handlePaymentSuccess = async (paymentIntent: any) => {
-    if (!room || !user) return;
+    if (!roomId) {
+      setError("Missing room ID.");
+      return;
+    }
 
     try {
-      // Using the util
-      const { total } = calculateNightsPrice(checkIn, checkOut, room.price);
-
-      const totalPrice = total * guests;
-
-      const result = await bookRoom({
-        room_id: roomId!,
+      // 1) Create booking + PaymentIntent on backend
+      const result = await createBooking.mutateAsync({
+        room_id: roomId,
         check_in: checkIn,
         check_out: checkOut,
         guests,
-        total_price: totalPrice,
       });
 
-      if (!result.success || !result.booking) {
-        setError(result.message || "Booking failed after payment.");
+      if (!result.success || !result.booking || !result.clientSecret) {
+        setError(result.message || "Booking creation failed before payment.");
         return;
       }
 
-      const bookingId = result.booking.id;
+      setCurrentBookingId(result.booking.id);
+      setClientSecret(result.clientSecret);
+      setShowPayment(true);
+    } catch (err) {
+      console.error(err);
+      setError("Unexpected error starting payment.");
+    }
+  };
 
+  const handlePaymentSuccess = async (paymentIntent: PaymentIntent) => {
+    if (!room || !user || !currentBookingId) return;
+
+    try {
+      const { total } = calculateNightsPrice(checkIn, checkOut, room.price);
+      const totalPrice = total * guests;
+
+      // 2) Update payment record in backend
       const paymentResult = await storePayment({
         payment_intent_id: paymentIntent.id,
         amount: totalPrice,
-        booking_id: bookingId,
+        booking_id: currentBookingId,
         user_id: user.id,
       });
 
@@ -544,7 +890,7 @@ const RoomDetails: React.FC = () => {
         return;
       }
 
-      navigate(`/booking-confirmation/${bookingId}`, {
+      navigate(`/booking-confirmation/${currentBookingId}`, {
         state: {
           room,
           booking: {
@@ -572,8 +918,11 @@ const RoomDetails: React.FC = () => {
   }, [availability, room, error]);
 
   useEffect(() => {
+    // If dates change, reset payment state
     if (showPayment) {
       setShowPayment(false);
+      setClientSecret(null);
+      setCurrentBookingId(null);
     }
 
     if (room) {
@@ -582,7 +931,6 @@ const RoomDetails: React.FC = () => {
         setError(null);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [checkIn, checkOut]);
 
   if (bookingLoading)
@@ -609,7 +957,7 @@ const RoomDetails: React.FC = () => {
           </Alert>
         )}
 
-        {showPayment && (
+        {showPayment && clientSecret && (
           <Box sx={{ p: 4, mb: 4, border: "1px solid #ddd", borderRadius: 2 }}>
             <Typography variant="h5" sx={{ mb: 2 }}>
               Complete Payment
@@ -628,19 +976,17 @@ const RoomDetails: React.FC = () => {
             )}
 
             <StripeCheckout
-              amount={
-                (room.price *
-                  100 *
-                  (new Date(checkOut).getTime() -
-                    new Date(checkIn).getTime())) /
-                (1000 * 60 * 60 * 24)
-              }
+              clientSecret={clientSecret}
               onSuccess={handlePaymentSuccess}
             />
 
             <Button
               sx={{ mt: 2, color: "#472d30" }}
-              onClick={() => setShowPayment(false)}
+              onClick={() => {
+                setShowPayment(false);
+                setClientSecret(null);
+                setCurrentBookingId(null);
+              }}
             >
               Cancel
             </Button>

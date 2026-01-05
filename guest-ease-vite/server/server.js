@@ -793,6 +793,12 @@ app.use(adminUsers);
 app.use(userBookings);
 app.use(payments);
 
+// app.use("/api", emailRoutes);
+// app.use("/api", adminBookings);
+// app.use("/api", adminUsers);
+// app.use("/api", userBookings);
+// app.use("/api", payments);
+
 /* ---------------------------
    FALLBACK ERROR HANDLER
 ---------------------------- */

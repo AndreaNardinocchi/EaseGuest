@@ -7,17 +7,23 @@ import SiteHeader from "./components/siteHeader/siteHeader";
 import { BookingProvider } from "./context/bookingContext";
 import Footer from "./components/footer/footer";
 
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
+
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
 );
 root.render(
   <React.StrictMode>
-    <BrowserRouter>
-      <BookingProvider>
-        <SiteHeader />
-        <App />
-        <Footer />
-      </BookingProvider>
-    </BrowserRouter>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <BookingProvider>
+          <SiteHeader />
+          <App />
+          <Footer />
+        </BookingProvider>
+      </BrowserRouter>
+    </QueryClientProvider>
   </React.StrictMode>
 );

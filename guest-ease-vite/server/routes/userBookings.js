@@ -1,21 +1,101 @@
-import express from "express";
-import { supabaseAdmin } from "../lib/supabaseAdmin.js";
-import Stripe from "stripe";
+// import express from "express";
+// import { supabaseAdmin } from "../lib/supabaseAdmin.js";
+// import Stripe from "stripe";
 
-const router = express.Router();
+// const router = express.Router();
 
-/* ---------------------------------------
-   USER UPDATE BOOKING (with payment update)
----------------------------------------- */
+// /* ---------------------------------------
+//    USER UPDATE BOOKING (with payment update)
+// ---------------------------------------- */
+// // router.post("/user/update_booking", async (req, res) => {
+// //   const { bookingId, updates, userId } = req.body;
+
+// //   // Basic validation
+// //   if (!bookingId || !updates || !userId) {
+// //     return res.status(400).json({ error: "Missing fields" });
+// //   }
+
+// //   // Validate dates
+// //   const checkIn = new Date(updates.check_in);
+// //   const checkOut = new Date(updates.check_out);
+
+// //   if (checkOut <= checkIn) {
+// //     return res.status(400).json({
+// //       error: "Check-out must be at least 1 day after check-in",
+// //     });
+// //   }
+
+// //   try {
+// //     /* -----------------------------
+// //        1. Get room price
+// //     ----------------------------- */
+// //     const { data: room, error: roomError } = await supabaseAdmin
+// //       .from("rooms")
+// //       .select("price")
+// //       .eq("id", updates.room_id)
+// //       .single();
+
+// //     if (roomError || !room) {
+// //       return res.status(400).json({ error: "Room not found" });
+// //     }
+
+// //     /* -----------------------------
+// //        2. Calculate total price
+// //     ----------------------------- */
+// //     const nights =
+// //       (checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24);
+
+// //     const total_price = nights * room.price;
+
+// //     /* -----------------------------
+// //        3. Update booking
+// //     ----------------------------- */
+// //     const { data: updated, error: updateError } = await supabaseAdmin
+// //       .from("bookings")
+// //       .update({ ...updates, total_price })
+// //       .eq("id", bookingId)
+// //       .eq("user_id", userId)
+// //       .select();
+
+// //     if (updateError) {
+// //       return res.status(500).json({ error: updateError.message });
+// //     }
+
+// //     /* -----------------------------
+// //        4. Update payment
+// //     ----------------------------- */
+// //     const { error: paymentError } = await supabaseAdmin
+// //       .from("payments")
+// //       .update({
+// //         amount: total_price,
+// //         updated_at: new Date().toISOString(),
+// //       })
+// //       .eq("booking_id", bookingId);
+
+// //     if (paymentError) {
+// //       console.error("Payment update failed:", paymentError.message);
+// //     }
+
+// //     /* -----------------------------
+// //        5. Return updated booking
+// //     ----------------------------- */
+// //     return res.json({
+// //       success: true,
+// //       booking: updated[0],
+// //       total_price,
+// //     });
+// //   } catch (err) {
+// //     return res.status(500).json({ error: err.message });
+// //   }
+// // });
+
 // router.post("/user/update_booking", async (req, res) => {
 //   const { bookingId, updates, userId } = req.body;
 
-//   // Basic validation
 //   if (!bookingId || !updates || !userId) {
 //     return res.status(400).json({ error: "Missing fields" });
 //   }
 
-//   // Validate dates
 //   const checkIn = new Date(updates.check_in);
 //   const checkOut = new Date(updates.check_out);
 
@@ -26,69 +106,345 @@ const router = express.Router();
 //   }
 
 //   try {
-//     /* -----------------------------
-//        1. Get room price
-//     ----------------------------- */
-//     const { data: room, error: roomError } = await supabaseAdmin
+//     // 1. Get room price
+//     const { data: room } = await supabaseAdmin
 //       .from("rooms")
 //       .select("price")
 //       .eq("id", updates.room_id)
 //       .single();
 
-//     if (roomError || !room) {
-//       return res.status(400).json({ error: "Room not found" });
-//     }
+//     if (!room) return res.status(400).json({ error: "Room not found" });
 
-//     /* -----------------------------
-//        2. Calculate total price
-//     ----------------------------- */
+//     // 2. Calculate new total price
 //     const nights =
 //       (checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24);
 
-//     const total_price = nights * room.price;
+//     const newTotal = nights * room.price;
 
-//     /* -----------------------------
-//        3. Update booking
-//     ----------------------------- */
-//     const { data: updated, error: updateError } = await supabaseAdmin
+//     // 3. Get original payment
+//     const { data: payment } = await supabaseAdmin
+//       .from("payments")
+//       .select("amount, payment_intent_id")
+//       .eq("booking_id", bookingId)
+//       .single();
+
+//     if (!payment) {
+//       return res.status(400).json({ error: "Payment record not found" });
+//     }
+
+//     const oldTotal = payment.amount;
+//     const difference = newTotal - oldTotal;
+
+//     let clientSecret = null;
+
+//     // 4. If price increased → create new PaymentIntent for the difference
+//     if (difference > 0) {
+//       //   const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+//       const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+//       const intent = await stripe.paymentIntents.create({
+//         amount: Math.round(difference * 100), // cents
+//         currency: "eur",
+//         metadata: {
+//           booking_id: bookingId,
+//           type: "booking_adjustment",
+//         },
+//       });
+
+//       clientSecret = intent.client_secret;
+//     }
+//     if (difference < 0) {
+//       const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+//       await stripe.refunds.create({
+//         payment_intent: payment.payment_intent_id,
+//         amount: Math.abs(difference * 100),
+//       });
+//     }
+
+//     // 5. Update booking
+//     const { data: updated } = await supabaseAdmin
 //       .from("bookings")
-//       .update({ ...updates, total_price })
+//       .update({ ...updates, total_price: newTotal })
 //       .eq("id", bookingId)
 //       .eq("user_id", userId)
 //       .select();
 
-//     if (updateError) {
-//       return res.status(500).json({ error: updateError.message });
-//     }
-
-//     /* -----------------------------
-//        4. Update payment
-//     ----------------------------- */
-//     const { error: paymentError } = await supabaseAdmin
+//     // 6. Update payment record
+//     await supabaseAdmin
 //       .from("payments")
 //       .update({
-//         amount: total_price,
+//         amount: newTotal,
 //         updated_at: new Date().toISOString(),
 //       })
 //       .eq("booking_id", bookingId);
 
-//     if (paymentError) {
-//       console.error("Payment update failed:", paymentError.message);
-//     }
-
-//     /* -----------------------------
-//        5. Return updated booking
-//     ----------------------------- */
 //     return res.json({
 //       success: true,
 //       booking: updated[0],
-//       total_price,
+//       newTotal,
+//       difference,
+//       requiresAdditionalPayment: difference > 0,
+//       clientSecret,
 //     });
 //   } catch (err) {
 //     return res.status(500).json({ error: err.message });
 //   }
 // });
 
+// /**--------------------------------------------
+//  *
+//  *      Cancel Booking
+//  *
+//  * --------------------------------------------------
+//  */
+// router.post("/user/cancel_booking", async (req, res) => {
+//   console.log("SUPABASE URL:", process.env.SUPABASE_URL);
+//   console.log(
+//     "SERVICE KEY START:",
+//     process.env.SUPABASE_SERVICE_ROLE_KEY?.slice(0, 8)
+//   );
+
+//   // Accept camelCase from frontend
+//   const { bookingId, userId } = req.body;
+
+//   console.log("CANCEL BODY RECEIVED:", req.body);
+//   console.log("bookingId:", bookingId);
+//   console.log("userId:", userId);
+
+//   if (!bookingId || !userId) {
+//     return res.status(400).json({ error: "Missing fields" });
+//   }
+
+//   try {
+//     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+//     // 1. Fetch payment info
+//     const { data: payment } = await supabaseAdmin
+//       .from("payments")
+//       .select("amount, payment_intent_id, refunded_amount")
+//       .eq("booking_id", bookingId) // FIXED
+//       .single();
+
+//     if (!payment) {
+//       return res.status(400).json({ error: "Payment record not found" });
+//     }
+
+//     const totalAmount = payment.amount * 100;
+
+//     // 2. Prevent double refunds
+//     if (payment.refunded_amount >= payment.amount) {
+//       return res.status(400).json({ error: "Booking already refunded" });
+//     }
+
+//     // 3. Issue full refund
+//     const refund = await stripe.refunds.create({
+//       payment_intent: payment.payment_intent_id,
+//       amount: totalAmount,
+//     });
+
+//     // 4. Delete booking
+//     await supabaseAdmin
+//       .from("bookings")
+//       .delete()
+//       .eq("id", bookingId) // FIXED
+//       .eq("user_id", userId); // FIXED
+
+//     // 5. Update payment record
+//     await supabaseAdmin
+//       .from("payments")
+//       .update({
+//         refunded_amount: payment.amount,
+//         refund_id: refund.id,
+//         updated_at: new Date().toISOString(),
+//       })
+//       .eq("booking_id", bookingId); // FIXED
+
+//     return res.json({
+//       success: true,
+//       refund,
+//     });
+//   } catch (err) {
+//     console.error("Cancel booking error:", err);
+//     return res.status(500).json({ error: err.message });
+//   }
+// });
+
+// export default router;
+
+import express from "express";
+import { supabaseAdmin } from "../lib/supabaseAdmin.js";
+import Stripe from "stripe";
+import fetch from "node-fetch";
+
+const router = express.Router();
+
+// bookingsRoutes.ts (same file where update_booking and cancel_booking are)
+
+router.post("/user/create_booking", async (req, res) => {
+  const { room_id, check_in, check_out, guests, userId } = req.body;
+
+  if (!room_id || !check_in || !check_out || !guests || !userId) {
+    return res.status(400).json({ error: "Missing fields" });
+  }
+
+  const checkInDate = new Date(check_in);
+  const checkOutDate = new Date(check_out);
+
+  if (checkOutDate <= checkInDate) {
+    return res.status(400).json({
+      error: "Check-out must be at least 1 day after check-in",
+    });
+  }
+
+  try {
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+    // 1. Fetch room
+    const { data: room, error: roomError } = await supabaseAdmin
+      .from("rooms")
+      .select("price, name")
+      .eq("id", room_id)
+      .single();
+
+    if (roomError || !room) {
+      return res.status(400).json({ error: "Room not found" });
+    }
+
+    // 2. Calculate price
+    const nights =
+      (checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24);
+
+    if (nights < 1) {
+      return res.status(400).json({ error: "Stay must be at least 1 night" });
+    }
+
+    const total_price = nights * room.price;
+
+    // 3. Fetch user profile
+    const { data: profile, error: profileError } = await supabaseAdmin
+      .from("profiles")
+      .select("email, first_name")
+      .eq("id", userId)
+      .single();
+
+    if (profileError || !profile) {
+      return res.status(400).json({ error: "User profile not found" });
+    }
+
+    // 4. Create booking
+    const { data: insertedBookings, error: insertError } = await supabaseAdmin
+      .from("bookings")
+      .insert([
+        {
+          room_id,
+          user_id: userId,
+          check_in,
+          check_out,
+          guests,
+          total_price,
+        },
+      ])
+      .select();
+
+    if (insertError || !insertedBookings?.length) {
+      return res.status(500).json({
+        error: insertError?.message || "Booking insertion failed",
+      });
+    }
+
+    const booking = insertedBookings[0];
+
+    // 5. Create PaymentIntent
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: Math.round(total_price * 100),
+      currency: "eur",
+      metadata: {
+        booking_id: booking.id,
+        type: "booking_initial",
+      },
+    });
+
+    // 6. Insert payment record
+    const { error: paymentError } = await supabaseAdmin
+      .from("payments")
+      .insert([
+        {
+          booking_id: booking.id,
+          user_id: userId,
+          amount: total_price,
+          payment_intent_id: paymentIntent.id,
+          refunded_amount: 0,
+          status: "pending", // ⭐ REQUIRED
+        },
+      ]);
+
+    if (paymentError) {
+      return res.status(500).json({
+        error: paymentError.message || "Failed to create payment",
+      });
+    }
+
+    // // 7. Send confirmation email
+    // const html = `
+    //   <div style="background:#fafafa; padding:20px; font-family:Arial, sans-serif;">
+    //     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
+    //            style="max-width:600px; margin:auto; background:#ffffff; border-radius:8px; border:1px solid #e5e7eb;">
+    //       <tr>
+    //         <td style="padding:20px; text-align:center; background:#e26d5c;">
+    //           <h2 style="margin:0; color:#fff;">Your Booking Has Been Confirmed</h2>
+    //         </td>
+    //       </tr>
+    //       <tr>
+    //         <td style="padding:24px; color:#444;">
+    //           <p>Hello <strong>${
+    //             profile.first_name ?? profile.email
+    //           }</strong>,</p>
+    //           <p>Your booking has been created. Here are the details:</p>
+    //           <div style="background:#f9f9f9; border:1px solid #e5e7eb; padding:16px; border-radius:6px;">
+    //             <p><strong>Room:</strong> ${room.name}</p>
+    //             <p><strong>Check-in:</strong> ${check_in}</p>
+    //             <p><strong>Check-out:</strong> ${check_out}</p>
+    //             <p><strong>Guests:</strong> ${guests}</p>
+    //             <p><strong>Total Price:</strong> €${total_price.toFixed(2)}</p>
+    //           </div>
+    //           <div style="text-align:center; margin-top:24px;">
+    //             <a href="http://localhost:5173/account"
+    //                style="background:#e26d5c; color:#fff; padding:10px 20px; border-radius:5px;">
+    //               My Trips
+    //             </a>
+    //           </div>
+    //         </td>
+    //       </tr>
+    //     </table>
+    //   </div>
+    // `;
+
+    // await fetch("http://localhost:3000/send_email", {
+    //   method: "POST",
+    //   headers: { "Content-Type": "application/json" },
+    //   body: JSON.stringify({
+    //     email: profile.email,
+    //     subject: "Your Booking Has Been Confirmed",
+    //     body: html,
+    //   }),
+    // });
+
+    // 8. Respond
+    return res.json({
+      success: true,
+      booking,
+      clientSecret: paymentIntent.client_secret,
+    });
+  } catch (err) {
+    console.error("Create booking error:", err);
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+/* ============================================================
+   UPDATE BOOKING (with payment adjustments + email)
+============================================================ */
 router.post("/user/update_booking", async (req, res) => {
   const { bookingId, updates, userId } = req.body;
 
@@ -106,7 +462,9 @@ router.post("/user/update_booking", async (req, res) => {
   }
 
   try {
-    // 1. Get room price
+    /* ---------------------------------------
+       1. Get room price
+    ---------------------------------------- */
     const { data: room } = await supabaseAdmin
       .from("rooms")
       .select("price")
@@ -115,13 +473,17 @@ router.post("/user/update_booking", async (req, res) => {
 
     if (!room) return res.status(400).json({ error: "Room not found" });
 
-    // 2. Calculate new total price
+    /* ---------------------------------------
+       2. Calculate new total price
+    ---------------------------------------- */
     const nights =
       (checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24);
 
     const newTotal = nights * room.price;
 
-    // 3. Get original payment
+    /* ---------------------------------------
+       3. Get original payment
+    ---------------------------------------- */
     const { data: payment } = await supabaseAdmin
       .from("payments")
       .select("amount, payment_intent_id")
@@ -136,14 +498,14 @@ router.post("/user/update_booking", async (req, res) => {
     const difference = newTotal - oldTotal;
 
     let clientSecret = null;
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-    // 4. If price increased → create new PaymentIntent for the difference
+    /* ---------------------------------------
+       4. Handle payment adjustments
+    ---------------------------------------- */
     if (difference > 0) {
-      //   const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-
       const intent = await stripe.paymentIntents.create({
-        amount: Math.round(difference * 100), // cents
+        amount: Math.round(difference * 100),
         currency: "eur",
         metadata: {
           booking_id: bookingId,
@@ -153,16 +515,17 @@ router.post("/user/update_booking", async (req, res) => {
 
       clientSecret = intent.client_secret;
     }
-    if (difference < 0) {
-      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
+    if (difference < 0) {
       await stripe.refunds.create({
         payment_intent: payment.payment_intent_id,
         amount: Math.abs(difference * 100),
       });
     }
 
-    // 5. Update booking
+    /* ---------------------------------------
+       5. Update booking
+    ---------------------------------------- */
     const { data: updated } = await supabaseAdmin
       .from("bookings")
       .update({ ...updates, total_price: newTotal })
@@ -170,7 +533,9 @@ router.post("/user/update_booking", async (req, res) => {
       .eq("user_id", userId)
       .select();
 
-    // 6. Update payment record
+    /* ---------------------------------------
+       6. Update payment record
+    ---------------------------------------- */
     await supabaseAdmin
       .from("payments")
       .update({
@@ -178,6 +543,71 @@ router.post("/user/update_booking", async (req, res) => {
         updated_at: new Date().toISOString(),
       })
       .eq("booking_id", bookingId);
+
+    /* ---------------------------------------
+       7. Send Update Email
+    ---------------------------------------- */
+    const { data: profile } = await supabaseAdmin
+      .from("profiles")
+      .select("email, first_name")
+      .eq("id", userId)
+      .single();
+
+    const html = `
+  <div style="background:#fafafa; padding:20px; font-family:Arial, sans-serif;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
+           style="max-width:600px; margin:auto; background:#ffffff; border-radius:8px; border:1px solid #e5e7eb;">
+
+      <tr>
+        <td style="padding:20px; text-align:center; background:#e26d5c; border-bottom:1px solid #e5e7eb;">
+          <h2 style="margin:0; font-weight:600; font-size:20px; color:#fff;">
+            Your Booking Has Been Updated
+          </h2>
+        </td>
+      </tr>
+
+      <tr>
+        <td style="padding:24px; color:#444; font-size:15px; line-height:1.6;">
+          <p>Hello <strong>${profile.first_name ?? profile.email}</strong>,</p>
+
+          <p>Your booking has been successfully updated. Here are the latest details:</p>
+
+          <div style="background:#f9f9f9; border:1px solid #e5e7eb; padding:16px; margin:18px 0; border-radius:6px;">
+            <p><strong>Check-in:</strong> ${updates.check_in}</p>
+            <p><strong>Check-out:</strong> ${updates.check_out}</p>
+            <p><strong>Guests:</strong> ${updates.guests}</p>
+            <p><strong>Total Price:</strong> €${newTotal.toFixed(2)}</p>
+          </div>
+
+          <div style="text-align:center; margin:24px 0;">
+            <a href="http://localhost:5173/account"
+              style="background:#e26d5c; color:#fff; padding:10px 20px;
+              text-decoration:none; border-radius:5px; font-size:15px;">
+              View My Trips
+            </a>
+          </div>
+        </td>
+      </tr>
+
+      <tr>
+        <td style="text-align:center; padding:16px; font-size:12px; color:#777;">
+          © ${new Date().getFullYear()} GuestEase. All rights reserved.
+        </td>
+      </tr>
+
+    </table>
+  </div>
+    `;
+
+    await fetch("http://localhost:3000/send_email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: profile.email,
+        subject: "Your Booking Was Updated",
+        body: html,
+      }),
+    });
 
     return res.json({
       success: true,
@@ -192,25 +622,11 @@ router.post("/user/update_booking", async (req, res) => {
   }
 });
 
-/**--------------------------------------------
- *
- *      Cancel Booking
- *
- * --------------------------------------------------
- */
+/* ============================================================
+   CANCEL BOOKING (refund + email)
+============================================================ */
 router.post("/user/cancel_booking", async (req, res) => {
-  console.log("SUPABASE URL:", process.env.SUPABASE_URL);
-  console.log(
-    "SERVICE KEY START:",
-    process.env.SUPABASE_SERVICE_KEY?.slice(0, 8)
-  );
-
-  // Accept camelCase from frontend
   const { bookingId, userId } = req.body;
-
-  console.log("CANCEL BODY RECEIVED:", req.body);
-  console.log("bookingId:", bookingId);
-  console.log("userId:", userId);
 
   if (!bookingId || !userId) {
     return res.status(400).json({ error: "Missing fields" });
@@ -219,11 +635,13 @@ router.post("/user/cancel_booking", async (req, res) => {
   try {
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-    // 1. Fetch payment info
+    /* ---------------------------------------
+       1. Fetch payment info
+    ---------------------------------------- */
     const { data: payment } = await supabaseAdmin
       .from("payments")
       .select("amount, payment_intent_id, refunded_amount")
-      .eq("booking_id", bookingId) // FIXED
+      .eq("booking_id", bookingId)
       .single();
 
     if (!payment) {
@@ -232,25 +650,33 @@ router.post("/user/cancel_booking", async (req, res) => {
 
     const totalAmount = payment.amount * 100;
 
-    // 2. Prevent double refunds
+    /* ---------------------------------------
+       2. Prevent double refunds
+    ---------------------------------------- */
     if (payment.refunded_amount >= payment.amount) {
       return res.status(400).json({ error: "Booking already refunded" });
     }
 
-    // 3. Issue full refund
+    /* ---------------------------------------
+       3. Issue full refund
+    ---------------------------------------- */
     const refund = await stripe.refunds.create({
       payment_intent: payment.payment_intent_id,
       amount: totalAmount,
     });
 
-    // 4. Delete booking
+    /* ---------------------------------------
+       4. Delete booking
+    ---------------------------------------- */
     await supabaseAdmin
       .from("bookings")
       .delete()
-      .eq("id", bookingId) // FIXED
-      .eq("user_id", userId); // FIXED
+      .eq("id", bookingId)
+      .eq("user_id", userId);
 
-    // 5. Update payment record
+    /* ---------------------------------------
+       5. Update payment record
+    ---------------------------------------- */
     await supabaseAdmin
       .from("payments")
       .update({
@@ -258,7 +684,70 @@ router.post("/user/cancel_booking", async (req, res) => {
         refund_id: refund.id,
         updated_at: new Date().toISOString(),
       })
-      .eq("booking_id", bookingId); // FIXED
+      .eq("booking_id", bookingId);
+
+    /* ---------------------------------------
+       6. Send Cancellation Email
+    ---------------------------------------- */
+    const { data: profile } = await supabaseAdmin
+      .from("profiles")
+      .select("email, first_name")
+      .eq("id", userId)
+      .single();
+
+    const html = `
+  <div style="background:#fafafa; padding:20px; font-family:Arial, sans-serif;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
+           style="max-width:600px; margin:auto; background:#ffffff; border-radius:8px; border:1px solid #e5e7eb;">
+      
+      <tr>
+        <td style="padding:20px; text-align:center; background:#e26d5c; border-bottom:1px solid #e5e7eb;">
+          <h2 style="margin:0; font-weight:600; font-size:20px; color:#fff;">
+            Your Booking Has Been Cancelled 😢
+          </h2>
+        </td>
+      </tr>
+
+      <tr>
+        <td style="padding:24px; color:#444; font-size:15px; line-height:1.6;">
+          <p>Hello <strong>${profile.first_name ?? profile.email}</strong>,</p>
+
+          <p>Your booking has been cancelled. A full refund has been issued.</p>
+
+          <div style="background:#f9f9f9; border:1px solid #e5e7eb; padding:16px; margin:18px 0; border-radius:6px;">
+            <p><strong>Booking ID:</strong> ${bookingId}</p>
+            <p><strong>Refund Amount:</strong> €${payment.amount.toFixed(2)}</p>
+          </div>
+
+          <div style="text-align:center; margin:24px 0;">
+            <a href="http://localhost:5173/account"
+               style="background:#e26d5c; color:#fff; padding:10px 20px;
+                      text-decoration:none; border-radius:5px; font-size:15px;">
+              View My Trips
+            </a>
+          </div>
+        </td>
+      </tr>
+
+      <tr>
+        <td style="text-align:center; padding:16px; font-size:12px; color:#777;">
+          © ${new Date().getFullYear()} GuestEase. All rights reserved.
+        </td>
+      </tr>
+
+    </table>
+  </div>
+    `;
+
+    await fetch("http://localhost:3000/send_email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: profile.email,
+        subject: "Your Booking Has Been Cancelled",
+        body: html,
+      }),
+    });
 
     return res.json({
       success: true,
