@@ -125,6 +125,18 @@ const ReviewPage: React.FC = () => {
       });
 
       if (error) throw error;
+      // 🔥 SEND ADMIN EMAIL HERE
+      const adminHtml = ` <h2>New Review Submitted</h2> <p><strong>Room:</strong> ${room.name}</p> <p><strong>Rating:</strong> ${rating}</p> <p><strong>Comment:</strong> ${comment}</p> <p><strong>Guest:</strong> ${guestName}</p> <p><strong>Booking ID:</strong> ${booking.id}</p> `;
+      await fetch("http://localhost:3000/send_email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          // email: "admin@guestease.com",
+          email: "andrea.nardinocchi76@gmail.com",
+          subject: "New Review Submitted",
+          body: adminHtml,
+        }),
+      });
 
       alert("Review submitted!");
       navigate("/account");
